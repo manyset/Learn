@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>17. Grids — MS-Micro</title><link rel="stylesheet" href="../assets/site.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css"></head><body><header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark">MS</span><span>MS-Micro</span><span class="version">v1.0</span></a><nav class="main-nav"><a class="active" href="../learn/index.html">Learn</a><a class="" href="../api-reference/index.html">API Reference</a><a class="" href="../angular-vs-ms/index.html">Angular Difficulties</a><a class="" href="../react-vs-ms/index.html">React Difficulties</a></nav></header><main class="docs-shell"><aside class="docs-sidebar"><div class="category"><a class="menu-link" href="index.html#introduction">Introduction</a></div><div class="category"><a class="menu-link" href="setup.html">01. Setup</a></div><div class="category"><a class="menu-link" href="quick-start-1st-erp.html">02. Quick Start - 1st ERP</a></div><div class="category"><a class="menu-link" href="getting-started.html">03. Getting Started</a></div><div class="category"><a class="menu-link" href="component-basics.html">04. Component Basics</a></div><div class="category"><a class="menu-link" href="global-configuration.html">05. Global Configuration</a></div><div class="category"><a class="menu-link" href="html-ms-elements.html">06. HTML &amp; MS Elements.</a></div><div class="category"><a class="menu-link" href="functions.html">07. Functions</a></div><div class="category"><a class="menu-link" href="classes-methods.html">08. Classes &amp; Methods.</a></div><div class="category"><a class="menu-link" href="inject.html">09. Inject</a></div><div class="category"><a class="menu-link" href="bulk-injection.html">10. Bulk Injection</a></div><div class="category"><a class="menu-link" href="open.html">11. Open</a></div><div class="category"><a class="menu-link" href="layout.html">12. Layout</a></div><div class="category"><a class="menu-link" href="section.html">13. Section</a></div><div class="category"><a class="menu-link" href="dialog.html">14. Dialog</a></div><div class="category"><a class="menu-link" href="popup.html">15. Popup</a></div><div class="category"><a class="menu-link" href="combo.html">16. Combo</a></div><div class="category"><a class="menu-link active" href="grids.html">17. Grids</a></div><div class="category"><a class="menu-link" href="loading-animation.html">18. Loading Animation</a></div><div class="category"><a class="menu-link" href="error-handling.html">19. Error Handling</a></div><div class="category"><a class="menu-link" href="style-injection.html">20. Style Injection</a></div><div class="category"><a class="menu-link" href="deep-injection.html">21. Deep Injection</a></div><div class="category"><a class="menu-link" href="compiler-releases.html">22. Compiler &amp; Releases</a></div><div class="category"><a class="menu-link" href="ms-http-ms-data-in-depth.html">23. ms.http &amp; ms.data in depth</a></div><div class="category"><a class="menu-link" href="global-event-handling.html">24. Global Event Handling</a></div><div class="category"><a class="menu-link" href="ms-store-storage.html">25. ms.store - Storage</a></div><div class="category"><a class="menu-link" href="business-event-bus.html">26. Business Event Bus</a></div><div class="category"><a class="menu-link" href="ms-ui-emit-ms-ui-listen.html">27. ms.ui.emit &amp; ms.ui.listen</a></div><div class="category"><a class="menu-link" href="cleanup.html">28. Cleanup.</a></div><div class="category"><a class="menu-link" href="micro-frontend-governance.html">29. Micro Frontend Governance</a></div><div class="category"><a class="menu-link" href="solutions-architecture.html">30. Solutions Architecture</a></div><div class="category"><a class="menu-link" href="embaded-sql-database.html">31. Embaded SQL Database</a></div><div class="category"><a class="menu-link" href="project-samples.html">32. Project Samples ...</a></div></aside><section class="docs-main"><article class="problem-body"><div class="breadcrumbs">MS-Micro / Learn</div><h1>17. Grids</h1><p class="lead">MS-Micro documentation for 17. Grids.</p><pre class="line-numbers"><code class="language-javascript">// 17. Grids
+const example = true;</code></pre></article></section></main><footer>MS-Micro — frontend runtime and Low-Code API framework</footer><script>
+(function(){
+  const STORAGE_KEY='ms-sidebar-scroll:'+location.pathname.split('/')[1];
+  function sidebar(){return document.querySelector('.docs-sidebar')}
+  function save(){const s=sidebar(); if(s) sessionStorage.setItem(STORAGE_KEY,String(s.scrollTop));}
+  function restore(){const s=sidebar(); if(!s)return; const v=sessionStorage.getItem(STORAGE_KEY); if(v!==null)s.scrollTop=+v;}
+  function active(href){
+    const target=new URL(href,location.href).pathname.replace(/\\/g,'/');
+    document.querySelectorAll('.docs-sidebar .menu-link').forEach(a=>{
+      const p=new URL(a.href,location.href).pathname.replace(/\\/g,'/');
+      a.classList.toggle('active',p===target || (location.hash==='#introduction' && a.classList.contains('intro-link')));
+    });
+  }
+  async function load(link, push){
+    const href=link.href;
+    const url=new URL(href,location.href);
+    if(url.origin!==location.origin)return;
+    const s=sidebar(); if(s) sessionStorage.setItem(STORAGE_KEY,String(s.scrollTop));
+    try{
+      const r=await fetch(url.href,{headers:{'X-MS-Docs-Navigation':'1'}});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const text=await r.text();
+      const doc=new DOMParser().parseFromString(text,'text/html');
+      const next=doc.querySelector('.docs-main');
+      const current=document.querySelector('.docs-main');
+      if(!next||!current) throw new Error('No docs-main');
+      current.innerHTML=next.innerHTML;
+      document.title=doc.title;
+      if(push) history.pushState({},'',url.href);
+      active(url.href);
+      restore();
+      window.scrollTo({top:0,behavior:'instant'});
+      if(window.Prism) Prism.highlightAllUnder(current);
+    }catch(e){
+      location.href=href;
+    }
+  }
+  document.addEventListener('click',function(e){
+    const link=e.target.closest('.docs-sidebar a');
+    if(!link)return;
+    if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;
+    e.preventDefault(); load(link,true);
+  });
+  window.addEventListener('popstate',()=>location.reload());
+  const s=sidebar(); if(s)s.addEventListener('scroll',save,{passive:true});
+  restore();
+})();
+</script><script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script><script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script></body></html>
