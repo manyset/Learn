@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+  <title>
+   MS-Micro — Modern JavaScript Framework
+  </title>
+  <meta content="MS-Micro is a modern, emerging frontend runtime and Low-Code API framework for building ERP and other complex business applications for high performance, security, and sustainability.
+Developers can use MS-Micro coding alongside React or Angular, or, preferably, build the entire application natively with MS-Micro.
+Ready for micro-frontend teams and AI-assisted development.." name="description"/>
+  <style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;1,600&display=swap");
+
+:root {
+    --bg: #07111f;
+    --bg-soft: #0c1828;
+    --card: rgba(255,255,255,0.055);
+    --card-hover: rgba(255,255,255,0.085);
+    --text: #f7f9fc;
+    --muted: #aeb9c8;
+    --primary: #5f8cff;
+    --primary-light: #8aaaff;
+    --accent: #4de2c5;
+    --border: rgba(255,255,255,0.11);
+    --max-width: 1180px;
+    --radius: 20px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Inter,"Segoe UI",Roboto,Arial,sans-serif;
+    color: var(--text);
+    line-height: 1.6;
+    background: radial-gradient(
+circle at 12% 8%,rgba(95,140,255,0.17),transparent 34%
+),radial-gradient(
+circle at 87% 12%,rgba(77,226,197,0.10),transparent 30%
+),var(--bg);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+strong {
+    color: #ffffff;
+}
+
+.container {
+    width: min(
+calc(100% - 40px),var(--max-width)
+);
+    margin: 0 auto;
+}
+
+.price-mini-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    margin-left: 8px;
+    padding: 0 10px;
+    border-radius: 7px;
+    color: #06111c;
+    font-size: 0.74rem;
+    font-weight: 750;
+    line-height: 1;
+    vertical-align: middle;
+    white-space: nowrap;
+    background: linear-gradient(
+        135deg,
+        var(--primary-light),
+        var(--accent)
+    );
+    text-decoration: none;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid
+var(--border);
+    backdrop-filter: blur(18px);
+    background: rgba(7,17,31,0.82);
+}
+
+.nav-inner {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.brand-name {
+    font-family: "Poppins","Segoe UI",Arial,sans-serif;
+    font-style: italic;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    font-size: 1.18rem;
+    line-height: 1;
+    background: linear-gradient(
+135deg,var(--primary-light),var(--accent)
+);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.brand-name .brand-m,.brand-name .brand-s {
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: linear-gradient(
+135deg,var(--primary),var(--accent)
+);
+    color: #07111f;
+    font-size: 0.91rem;
+    font-weight: 600;
+    font-family: "Poppins","Segoe UI",Arial,sans-serif;
+    font-style: italic;
+    letter-spacing: -0.035em;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 21px;
+    color: var(--muted);
+    font-size: 0.87rem;
+}
+
+.nav-links a {
+    transition: color
+0.2s ease;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+}
+
+.nav-docs {
+    padding: 8px 14px;
+    border: 1px solid
+var(--border);
+    border-radius: 9px;
+}
+
+.nav-start {
+    padding: 9px 16px;
+    border-radius: 9px;
+    color: #07111f !important;
+    font-weight: 750;
+    background: linear-gradient(
+135deg,var(--primary-light),var(--accent)
+);
+}
+
+.nav-toggle {
+    display: none;
+    font: inherit;
+}
+
+.nav-login {
+    padding: 8px 13px;
+    border: 1px solid
+var(--border);
+    border-radius: 9px;
+    color: #ffffff !important;
+    font-weight: 700;
+    background: rgba(255,255,255,0.04);
+}
+
+.hero {
+    padding: 35px 0
+66px;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.39fr
+0.61fr;
+    gap: 38px;
+    align-items: center;
+}
+
+.hero-copy {
+    min-width: 0;
+}
+
+.hero-bars {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid
+rgba(77,226,197,0.27);
+    border-radius: 999px;
+    background: rgba(77,226,197,0.07);
+    color: var(--accent);
+    font-size: 0.73rem;
+    font-weight: 750;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.eyebrow::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+/* Keep npm lowercase while BASED stays uppercase. */
+.eyebrow-npm {
+    text-transform: none;
+}
+
+.headline-area {
+    position: relative;
+    margin-top: 16px;
+}
+
+.headline-layout {
+    position: relative;
+}
+
+.hero-title-line {
+    display: block;
+}
+
+.hero-title-primary {
+    white-space: nowrap;
+}
+
+.gradient-text {
+    background: linear-gradient(
+90deg,#ffffff,var(--primary-light),var(--accent)
+);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-description {
+    max-width: 830px;
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(
+1rem,1.7vw,1.13rem
+);
+    line-height: 1.78;
+    text-align: justify;
+    text-justify: inter-word;
+    text-align-last: left;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.price-card {
+    position: relative;
+    width: 100%;
+    max-width: 310px;
+    justify-self: end;
+    padding: 27px;
+    overflow: hidden;
+    border: 1px solid
+rgba(128,165,255,0.38);
+    border-radius: 22px;
+    background: linear-gradient(
+145deg,rgba(95,140,255,0.18),rgba(255,255,255,0.035)
+);
+    box-shadow: 0 28px 80px
+rgba(0,0,0,0.30);
+}
+
+
+.price-label {
+    max-width: 155px;
+}
+
+.price-card::after {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    right: -105px;
+    bottom: -110px;
+    border-radius: 50%;
+    background: rgba(77,226,197,0.12);
+}
+
+.price-content {
+    position: relative;
+    z-index: 2;
+}
+
+.price-label {
+    color: var(--primary-light);
+    font-size: 0.71rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+/* Small product-version line directly above "100% FREE". */
+.price-version {
+    margin-bottom: 7px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: none;
+}
+
+.price {
+    margin: 7px 0 1px;
+    font-size: clamp(1.05rem, 3.0vw, 1.00rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    white-space: nowrap;
+}
+
+
+.price-developer {
+    margin: 8px 0 21px;
+    color: var(--primary-light);
+    font-size: 1.10rem; /* about 30% smaller than 1.80rem */
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+}
+
+.check-list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.check-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 0.86rem;
+}
+
+.check {
+    width: 20px;
+    height: 20px;
+    flex: 0 0
+20px;
+    display: grid;
+    place-items: center;
+    margin-top: 2px;
+    border-radius: 50%;
+    color: var(--accent);
+    background: rgba(77,226,197,0.11);
+    font-size: 0.70rem;
+    font-weight: bold;
+}
+
+.price-button {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 23px;
+    padding: 0 10px;
+    border-radius: 9px;
+    color: #06111c;
+    font-size: 0.84rem;
+    font-weight: 800;
+    text-align: center;
+    background: linear-gradient(
+135deg,var(--primary-light),var(--accent)
+);
+}
+
+/* Wraps the pricing card + video card as one column. On wide screens this
+   column is stretched to match the height of the (taller) hero-copy column,
+   so the video can use the space that's already reserved for the row instead
+   of adding new page height. */
+.price-video-wrap {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 310px;
+    justify-self: end;
+}
+
+/* Video card, separate from the pricing card above it. */
+.video-card {
+    position: relative;
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    overflow: hidden;
+    flex: 1 1 auto;
+    min-height: 90px;
+    display: flex;
+}
+
+.video-thumb {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+    border-radius: calc(var(--radius) - 6px);
+    cursor: pointer;
+}
+
+.video-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.video-thumb svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70px;
+    height: 50px;
+    transform: translate(-50%, -50%);
+}
+
+/* Below 1000px, hero-copy and the price column stack in separate rows, so
+   there's no leftover height to fill — use a fixed shape instead. */
+@media (max-width: 1000px) {
+    .video-card {
+        flex: none;
+        aspect-ratio: 16 / 9;
+    }
+}
+
+.editor-warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 25px;
+    padding: 9px 14px;
+    border: 1px solid
+rgba(95,140,255,0.20);
+    border-radius: 9px;
+    background: rgba(95,140,255,0.045);
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.editor-warning-icon {
+    flex: 0 0
+auto;
+    color: var(--accent);
+    font-family: Consolas,monospace;
+    font-size: 0.92rem;
+    font-weight: 900;
+}
+
+.editor-warning strong {
+    color: #e8eef8;
+}
+
+.button {
+    min-height: 45px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+    border-radius: 9px;
+    font-size: 0.89rem;
+    font-weight: 700;
+    transition: transform
+0.2s ease,background
+0.2s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+}
+
+.button-primary {
+    color: #06111c;
+    background: linear-gradient(
+135deg,var(--primary-light),var(--accent)
+);
+}
+
+.button-secondary {
+    border: 1px solid
+var(--border);
+    background: rgba(255,255,255,0.045);
+}
+
+.product-directions {
+    padding: 25px 0
+66px;
+    scroll-margin-top: 90px;
+}
+
+.direction-heading {
+    margin-bottom: 22px;
+    text-align: center;
+}
+
+.direction-heading h2 {
+    margin: 0 0
+7px;
+    font-size: clamp(
+1.75rem,3vw,2.45rem
+);
+    letter-spacing: -0.04em;
+}
+
+.direction-heading p {
+    max-width: 770px;
+    margin: 0 auto;
+    color: var(--muted);
+    font-size: 0.94rem;
+}
+
+.core-features {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 15px;
+}
+
+.core-feature {
+    position: relative;
+    min-height: 225px;
+    padding: 25px;
+    border: 1px solid
+var(--border);
+    border-radius: 17px;
+    background: var(--card);
+    transition: transform
+0.2s ease,border-color
+0.2s ease,background
+0.2s ease;
+}
+
+.core-feature:hover {
+    transform: translateY(-3px);
+    border-color: rgba(128,165,255,0.30);
+    background: var(--card-hover);
+}
+
+.core-feature-label {
+    margin-bottom: 12px;
+    color: var(--primary-light);
+    font-size: 0.71rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.core-feature h3 {
+    margin: 0 0
+10px;
+    font-size: 1.15rem;
+    line-height: 1.35;
+}
+
+.core-feature p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.90rem;
+    line-height: 1.65;
+}
+
+.core-feature-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.ai-card {
+    border-color: rgba(77,226,197,0.20);
+    background: linear-gradient(
+135deg,rgba(77,226,197,0.07),rgba(95,140,255,0.05)
+);
+}
+
+.ai-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    padding: 4px 8px;
+    border: 1px solid
+rgba(77,226,197,0.25);
+    border-radius: 999px;
+    color: var(--accent);
+    background: rgba(77,226,197,0.07);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.identity-strip {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 9px;
+    margin-bottom: 29px;
+}
+
+.identity-item {
+    padding: 10px 12px;
+    border: 1px solid
+var(--border);
+    border-radius: 9px;
+    background: rgba(255,255,255,0.035);
+    color: var(--muted);
+    font-size: 0.77rem;
+    line-height: 1.45;
+}
+
+.identity-item strong {
+    color: var(--accent);
+}
+
+section.section {
+    padding: 68px 0;
+    scroll-margin-top: 85px;
+}
+
+.section-alt {
+    border-top: 1px solid
+var(--border);
+    border-bottom: 1px solid
+var(--border);
+    background: rgba(255,255,255,0.014);
+}
+
+.section-header {
+    max-width: 770px;
+    margin-bottom: 32px;
+}
+
+.section-label {
+    margin-bottom: 7px;
+    color: var(--primary-light);
+    font-size: 0.71rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.section-header h2 {
+    margin: 0 0
+12px;
+    font-size: clamp(
+1.8rem,3.2vw,2.55rem
+);
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+}
+
+.section-header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.97rem;
+    line-height: 1.72;
+}
+
+.license-grid {
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    gap: 12px;
+}
+
+.license-feature {
+    padding: 19px;
+    border: 1px solid
+var(--border);
+    border-radius: 14px;
+    background: var(--card);
+}
+
+.license-icon {
+    margin-bottom: 13px;
+    color: var(--accent);
+    font-size: 1.12rem;
+    font-weight: 750;
+}
+
+.license-feature strong {
+    display: block;
+    font-size: 0.90rem;
+    line-height: 1.4;
+}
+
+.license-message {
+    margin-top: 26px;
+    padding: 26px;
+    border: 1px solid
+var(--border);
+    border-radius: 16px;
+    background: linear-gradient(
+120deg,rgba(95,140,255,0.08),rgba(77,226,197,0.035)
+);
+}
+
+.license-message p {
+    margin: 0 0
+12px;
+    color: var(--muted);
+    font-size: 0.94rem;
+}
+
+.restriction {
+    margin-top: 19px;
+    padding: 15px 18px;
+    border-left: 3px solid
+var(--primary-light);
+    border-radius: 0 9px 9px 0;
+    background: rgba(95,140,255,0.07);
+    font-size: 0.92rem;
+}
+
+.restriction strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.restriction-simple {
+    margin: 5px 0 0 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.micro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 58px;
+    align-items: center;
+}
+
+.micro-copy h2 {
+    margin: 0 0
+16px;
+    font-size: clamp(
+2rem,3.8vw,3.15rem
+);
+    line-height: 1.04;
+    letter-spacing: -0.05em;
+}
+
+.micro-copy p {
+    color: var(--muted);
+    font-size: 0.97rem;
+    line-height: 1.78;
+}
+
+.micro-visual {
+    position: relative;
+    min-height: 360px;
+    display: grid;
+    place-items: center;
+}
+
+.micro-core {
+    position: relative;
+    z-index: 2;
+    width: 150px;
+    height: 150px;
+    display: grid;
+    place-items: center;
+    border: 1px solid
+rgba(128,165,255,0.43);
+    border-radius: 28px;
+    background: linear-gradient(
+145deg,rgba(95,140,255,0.25),rgba(77,226,197,0.07)
+);
+    font-weight: 850;
+    font-size: 1.1rem;
+}
+
+.module {
+    position: absolute;
+    min-width: 120px;
+    padding: 13px 14px;
+    border: 1px solid
+var(--border);
+    border-radius: 11px;
+    background: #0d1a2a;
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.75rem;
+}
+
+.module strong {
+    display: block;
+    font-size: 0.84rem;
+}
+
+.module-1 {
+    left: 4%;
+    top: 20px;
+}
+
+.module-2 {
+    right: 4%;
+    top: 35px;
+}
+
+.module-3 {
+    left: 1%;
+    bottom: 30px;
+}
+
+.module-4 {
+    right: 1%;
+    bottom: 20px;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.service-card {
+    min-height: 210px;
+    padding: 28px;
+    border: 1px solid
+var(--border);
+    border-radius: 18px;
+    background: var(--card);
+    transition: transform
+0.2s ease,background
+0.2s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    background: var(--card-hover);
+}
+
+.service-number {
+    margin-bottom: 19px;
+    color: var(--primary-light);
+    font-family: Consolas,monospace;
+    font-size: 0.75rem;
+}
+
+.service-card h3 {
+    margin: 0 0
+9px;
+    font-size: 1.08rem;
+}
+
+.service-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.learn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.learn-card {
+    padding: 27px;
+    border: 1px solid
+var(--border);
+    border-radius: 17px;
+    background: var(--card);
+}
+
+.learn-card h3 {
+    margin: 0 0
+8px;
+    font-size: 1.12rem;
+}
+
+.learn-card p {
+    margin: 0 0
+19px;
+    color: var(--muted);
+    font-size: 0.91rem;
+}
+
+.cta {
+    padding: 68px 0
+90px;
+}
+
+.cta-box {
+    padding: 48px 30px;
+    border: 1px solid
+rgba(128,165,255,0.28);
+    border-radius: 24px;
+    text-align: center;
+    background: radial-gradient(
+circle at 50% 120%,rgba(77,226,197,0.15),transparent 45%
+),rgba(95,140,255,0.06);
+}
+
+.cta-box h2 {
+    max-width: 700px;
+    margin: 0 auto
+13px;
+    font-size: clamp(
+1.9rem,3.8vw,2.95rem
+);
+    line-height: 1.06;
+    letter-spacing: -0.045em;
+}
+
+.cta-box p {
+    max-width: 720px;
+    margin: 0 auto
+26px;
+    color: var(--muted);
+    font-size: 0.94rem;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+footer {
+    border-top: 1px solid
+var(--border);
+}
+.footer-contact {
+    color: var(--muted);
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.footer-contact:hover { color: #ffffff; }
+@media (max-width:760px) { .footer-contact { align-self: flex-start; } }
+
+
+.footer-inner {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    color: var(--muted);
+    font-size: 0.84rem;
+}
+
+.footer-brand {
+    color: white;
+    font-weight: 800;
+}
+
+@media (max-width:1000px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .price-video-wrap {
+        justify-self: end;
+        max-width: 290px;
+    }
+
+    .identity-strip {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .license-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .services-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .micro-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width:760px) {
+    .container {
+        width: min(
+calc(100% - 28px),var(--max-width)
+);
+    }
+
+    .navbar {
+        position: relative;
+    }
+
+    .nav-inner {
+        position: relative;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        color: var(--text);
+        background: rgba(255,255,255,0.045);
+        font-size: 1.35rem;
+        cursor: pointer;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: calc(100% + 1px);
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+        padding: 12px 14px 16px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(7,17,31,0.98);
+        box-shadow: 0 18px 38px rgba(0,0,0,0.28);
+    }
+
+    .nav-links.nav-open {
+        display: flex;
+    }
+
+    .nav-links a {
+        display: block !important;
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+    }
+
+    .nav-docs,.nav-login,.nav-start {
+        padding: 10px 12px;
+        font-size: 0.84rem;
+    }
+
+    .hero {
+        padding: 26px 0 52px;
+    }
+
+    .hero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-copy {
+        order: 1;
+    }
+
+    .price-video-wrap {
+        order: 2;
+        justify-self: stretch;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .hero-description {
+        text-align: left;
+    }
+
+    .hero-title-primary {
+        white-space: nowrap;
+    }
+
+    .hero-bars {
+        align-items: flex-start;
+    }
+
+    .eyebrow {
+        white-space: normal;
+    }
+
+    .core-features {
+        grid-template-columns: 1fr;
+    }
+
+    .identity-strip {
+        grid-template-columns: 1fr;
+    }
+
+    section.section {
+        padding: 56px 0;
+    }
+
+    .license-grid,.services-grid,.learn-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .micro-visual {
+        min-height: 480px;
+    }
+
+    .module-1 {
+        left: 0;
+        top: 15px;
+    }
+
+    .module-2 {
+        right: 0;
+        top: 90px;
+    }
+
+    .module-3 {
+        left: 0;
+        bottom: 80px;
+    }
+
+    .module-4 {
+        right: 0;
+        bottom: 5px;
+    }
+
+    .footer-inner {
+        padding: 26px 0;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width:480px) {
+    .hero-actions,.cta-buttons {
+        display: grid;
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .price {
+        font-size: 2.35rem;
+    }
+}
+
+/* Hero heading and choice-card layout */
+.headline-layout {
+    position: relative;
+    width: 100%;
+    min-height: 0;
+}
+
+.hero h1.hero-main-title {
+    width: 100%;
+    max-width: none;
+    margin: 0 0 18px;
+    font-size: clamp(2.48rem, 4.82vw, 3.95rem);
+    line-height: 1;
+    letter-spacing: -0.055em;
+}
+
+.hero-main-title .hero-title-primary {
+    display: block;
+    white-space: nowrap;
+}
+
+.hero-title-lower {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(190px, 16vw, 218px);
+    column-gap: clamp(14px, 1.6vw, 24px);
+    align-items: center;
+    width: 100%;
+}
+
+.hero-title-lower-copy {
+    display: block;
+    min-width: 0;
+}
+
+.hero-title-lower-copy .hero-title-line {
+    display: block;
+    white-space: nowrap;
+}
+
+/* Quick-start command shown beside the hero heading. */
+.hero-command {
+    position: absolute;
+    right: calc(clamp(190px, 16vw, 218px) + clamp(14px, 1.6vw, 24px) + 5ch);
+    bottom: 12px;
+    margin: 0;
+    color: #f7d7e4;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 0.94rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: normal;
+    white-space: nowrap;
+    z-index: 3;
+}
+
+.hero-command code {
+    color: #f7d7e4;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.94em;
+    font-weight: 800;
+}
+
+/* Left card: intentionally uses the same visual language as the price card. */
+.framework-choice {
+    position: relative;
+    width: 100%;
+    max-width: 218px;
+    justify-self: end;
+    align-self: center;
+    margin: 0;
+    padding: 18px 16px;
+    overflow: hidden;
+    border: 1px solid rgba(128, 165, 255, 0.38);
+    border-radius: 22px;
+    background: linear-gradient(
+        145deg,
+        rgba(95, 140, 255, 0.18),
+        rgba(255, 255, 255, 0.035)
+    );
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.30);
+    color: #ffffff;
+    text-align: left;
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    letter-spacing: normal;
+    white-space: normal;
+}
+
+.framework-choice::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    right: -78px;
+    bottom: -85px;
+    border-radius: 50%;
+    background: rgba(77, 226, 197, 0.12);
+    pointer-events: none;
+}
+
+.framework-choice-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.framework-choice-item strong {
+    display: block;
+    margin: 0;
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: normal;
+    white-space: normal;
+}
+
+.framework-choice .check {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    border-radius: 50%;
+    color: var(--accent);
+    background: rgba(77, 226, 197, 0.11);
+    font-size: 0.70rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.framework-choice-or {
+    position: relative;
+    z-index: 2;
+    display: block;
+    margin: 8px 0 8px 29px;
+    color: var(--muted);
+    font-size: 0.64rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.08em;
+}
+
+/* Hero layout refinements */
+@media (min-width: 1001px) {
+    .hero-grid {
+        align-items: start;
+    }
+
+    .hero-bars {
+        width: min(calc(100vw - 40px), var(--max-width));
+        max-width: none;
+        flex-wrap: nowrap;
+        gap: 9px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .hero-bars .eyebrow {
+        flex: 0 0 auto;
+    }
+
+    .price-video-wrap {
+        margin-top: 52px;
+        align-self: stretch;
+    }
+}
+
+@media (max-width: 1000px) {
+    .hero-bars {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .price-video-wrap {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 950px) {
+    .hero h1.hero-main-title {
+        font-size: clamp(2.20rem, 5.5vw, 3.35rem);
+    }
+
+    .hero-title-lower {
+        grid-template-columns: minmax(0, 1fr) clamp(170px, 24vw, 200px);
+        column-gap: 12px;
+    }
+
+    .hero-command {
+        right: calc(clamp(170px, 24vw, 200px) + 12px + 5ch);
+        bottom: 10px;
+        font-size: 0.84rem;
+    }
+
+    .framework-choice {
+        max-width: 200px;
+        padding: 15px 13px;
+    }
+
+    .framework-choice-item,
+    .framework-choice-item strong {
+        font-size: 0.74rem;
+    }
+
+    .price-video-wrap {
+        order: 2;
+        justify-self: stretch;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 650px) {
+    .hero h1.hero-main-title {
+        font-size: clamp(1.78rem, 7.5vw, 2.35rem);
+    }
+
+    .hero-main-title .hero-title-primary,
+    .hero-title-lower-copy .hero-title-line {
+        white-space: normal;
+    }
+
+    .hero-title-lower {
+        grid-template-columns: 1fr;
+        row-gap: 14px;
+        align-items: start;
+    }
+
+    .hero-command {
+        position: static;
+        justify-self: start;
+        margin: 0;
+        font-size: 0.86rem;
+    }
+
+    .framework-choice {
+        width: min(100%, 280px);
+        max-width: 280px;
+        justify-self: start;
+        padding: 15px 14px;
+    }
+}
+  </style>
+ </head>
+ <body>
+  <header class="navbar">
+   <div class="container nav-inner">
+    <a class="brand" href="#">
+     <span class="brand-icon">
+      ms
+     </span>
+     <span class="brand-name"><span class="brand-m">m</span>any<span class="brand-s">s</span>et.com</span>
+    </a>
+    <button aria-expanded="false" aria-label="Open menu" class="nav-toggle" type="button">
+     ☰
+    </button>
+    <nav class="nav-links">
+     <a href="#">
+      About MS
+     </a>     
+<a href="#framework">
+      Framework
+     </a>
+
+     <a href="#licensing">
+      Distribution
+     </a>
+
+     <a href="#services">
+      Services
+     </a>
+     <a class="nav-docs" href="./dev/index.html">
+      Tutorials
+     </a>
+     <a href="#microfrontends">
+      Micro Frontends
+     </a>
+    </nav>
+   </div>
+  </header>
+  <main>
+   <section class="hero">
+    <div class="container">
+     <div class="hero-grid">
+      <div class="hero-copy">
+       <div class="hero-bars">
+        <span class="eyebrow">
+         FRAMEWORK + API &nbsp;FOR MODERN FRONTEND DEVELOPMENT
+        </span>
+        <span class="eyebrow eyebrow-npm">
+         npm BASED
+        </span>
+        <span class="eyebrow">
+        NOT AN APP BUILDER
+        </span>
+        <span class="eyebrow">
+         USE WITH REACT/ ANGULAR, OR WITHOUT ANY
+        </span>
+        <span class="eyebrow">
+         LOW-CODE
+        </span>
+       </div>
+       <div class="headline-area">
+        <div class="headline-layout">
+         <h1 class="hero-main-title">
+          <span class="hero-title-line hero-title-primary">
+           Build Complex Web Frontends
+          </span>
+          <span class="hero-title-lower">
+           <span class="hero-title-lower-copy">
+            <span class="hero-title-line gradient-text">
+             Without the Usual
+            </span>
+            <span class="hero-title-line gradient-text">
+             Complexity.
+            </span>
+           </span>
+           <span class="hero-command">
+             <code></code>
+           </span>
+           <!-- The framework-choice card is pushed down by adding margin-top -->
+           <span class="framework-choice" style="margin-top: 28px;">
+            <span class="framework-choice-item">
+             <span class="check">
+              &checkmark;
+             </span>
+             <strong>
+              Use it inside your
+              <br/>
+              React / Angular code..
+             </strong>
+            </span>
+            <span class="framework-choice-or">
+             OR
+            </span>
+            <span class="framework-choice-item">
+             <span class="check">
+              &checkmark;
+             </span>
+             <strong>
+              Build any web app entirely with MS
+             </strong>
+            </span>
+           </span>
+          </span>
+         </h1>
+        </div>
+       </div>
+       <p class="hero-description">
+        ManySet (MS) is a modern frontend framework and <strong>Low-Code </strong> API for building <strong>ERP</strong> and other complex business applications for high performance, security, and sustainability.
+Developers can use MS API alongside <strong>React / Angular </strong> for simplicity, <strong>or, preferably </strong> build the entire complex application <strong>natively with MS + a small amount of simple JavaScript coding. </strong>
+Built for <strong>micro-frontend</strong> teams and <strong>AI-assisted</strong> development.  &nbsp;  Click on Tutorials to discover more than <strong>40</strong> usual cases that are difficult or does NOT support in React & Angular. MS was originally designed around certain modern browser technologies that were not broadly available when React & Angular were originally developed. Furthermore, MS is built with Rust to enable faster compilation of thousands of components. To start, go to VS Code Terminal --> npm install -g manyset ↵ &nbsp; and &nbsp; manyset ↵  &nbsp; GUI will open. To run MS components, install Microsoft's own "Live Preview" extension for VS Code.
+  </p>
+       <div class="hero-actions">
+        <a class="button button-primary" href="dev/react-vs-ms/index.html">
+         React Difficulties
+        </a>
+        <a class="button button-primary" href="dev/angular-vs-ms/index.html">
+         Angular Difficulties
+        </a>
+
+        <a class="button button-secondary" href="videos.html">
+         Watch Videos
+        </a>
+        <a class="button button-secondary" href="#framework">
+         Discover MS
+        </a>
+       </div>
+      </div>
+      <div class="price-video-wrap">
+      <aside class="price-card">
+       <div class="price-content">
+        <div class="price-label price-version">
+         MS Version 4.1
+        </div>
+        <div class="price">
+         CORE + FEATURES &nbsp; 100% FREE
+        </div>
+        <div class="price-developer">
+         Frontend Framework
+        </div>
+
+        <ul class="check-list">
+         <li>
+          <span class="check">
+           &checkmark;
+          </span>
+          Unlimited commercial distribution
+         </li>
+         <li>
+          <span class="check">
+           &checkmark;
+          </span>
+          Deploy anywhere
+         </li>
+         <li>
+          <span class="check">
+           &checkmark;
+          </span>
+          No runtime fees
+         </li>
+         <li>
+          <span class="check">
+           &checkmark;
+          </span>
+          No royalties
+         </li>
+         <li>
+          <span class="check">
+           &checkmark;
+          </span>
+          Unlimited end users
+         </li>
+
+       </ul>
+
+        <a class="price-button" href="./dev/learn/setup.html">
+         How to Start ⭐
+        </a>
+      </div>
+
+      </aside>
+
+      <!-- Video card: separate box below the pricing card. Shares the wrap's
+           width and fills whatever height is left over, so it never pushes
+           the editor-warning bar further down. -->
+      <div class="video-card">
+       <div class="video-thumb" onclick="openVideo()">
+        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Video thumbnail">
+        <svg viewBox="0 0 68 48">
+         <path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24 S67.94,13.05,66.52,7.74z" fill="#f00"></path>
+         <path d="M 45,24 27,14 27,34" fill="#fff"></path>
+        </svg>
+       </div>
+      </div>
+      </div>
+
+     </div>
+
+     <div class="editor-warning">
+      <div class="editor-warning-icon">
+       
+      </div>
+      <div>
+       MS is used directly inside
+       <strong>
+        VS Code, Visual Studio or your preferred code editor
+       </strong>
+       with an npm-based build/compiler workflow.
+      </div>
+     </div>
+    </div>
+   </section>
+   <section class="product-directions" id="framework">
+    <div class="container">
+     <div class="direction-heading">
+      <h2>
+       One Framework. Built for Modern Frontend Development.
+      </h2>
+      <p>
+       From React and Angular applications to complex
+ERP systems,AI-assisted development and distributed
+Micro Frontend teams.
+      </p>
+     </div>
+     <div class="core-features">
+      <article class="core-feature">
+       <div class="core-feature-label">
+        React + Angular
+       </div>
+       <h3>
+        Complex Development Made Easier
+       </h3>
+       <p>
+        MS is designed to reduce repetitive
+complexity when building sophisticated React
+and Angular applications,helping developers
+create cleaner and easier-to-maintain
+application structures.
+       </p>
+       <a class="core-feature-link" href="./dev/index.html">
+        Explore React &amp;Angular Development &rarr;
+       </a>
+      </article>
+      <article class="core-feature">
+       <div class="core-feature-label">
+        ERP Development
+       </div>
+       <h3>
+        Build Complex ERP Systems Faster
+       </h3>
+       <p>
+        Build large business applications with
+interconnected modules while keeping the
+application architecture lightweight,understandable and sustainable as the ERP
+system grows.
+       </p>
+       <a class="core-feature-link" href="./dev/index.html">
+        Explore ERP Development &rarr;
+       </a>
+      </article>
+      <article class="core-feature ai-card">
+       <span class="ai-badge">
+        AI Ready
+       </span>
+       <div class="core-feature-label">
+        AI Coding Agents
+       </div>
+       <h3>
+        Let AI Generate MS Applications
+       </h3>
+       <p>
+        Modern AI coding agents &mdash; including
+OpenAI-based agents and many others &mdash; can
+generate MS application code directly
+from your requirements.
+       </p>
+       <p style="margin-top:10px;">
+        See the lightweight,easy-to-understand coding
+difference when compared with a typical
+React or Angular application.
+       </p>
+       <a class="core-feature-link" href="./dev/index.html#ai-comparison">
+        See the Coding Difference &rarr;
+       </a>
+      </article>
+      <article class="core-feature">
+       <div class="core-feature-label">
+        Micro Frontends
+       </div>
+       <h3>
+        Built for Independent Development Teams
+       </h3>
+       <p>
+        Give multiple frontend teams the freedom to
+develop independently while MS helps
+integrate their application areas into one
+unified frontend system.
+       </p>
+       <a class="core-feature-link" href="#microfrontends">
+        Explore Micro Frontends &rarr;
+       </a>
+      </article>
+     </div>
+    </div>
+   </section>
+   <section class="section section-alt" id="licensing">
+    <div class="container">
+     <!-- Removed all identity-strip rows here (including the one with "React + Angular 11111") as instructed: keep only the last row at the bottom (CTA section) -->
+     <div class="section-header">
+      <div class="section-label">
+       Development & Distribution
+      </div>
+      <h2>
+       Unlimited Possibilities.
+      </h2>
+      <p>
+         </p>
+     </div>
+     <div class="license-grid">
+      <div class="license-feature">
+       <div class="license-icon">
+        &checkmark;
+       </div>
+       <strong>
+        Unlimited Commercial Distribution
+       </strong>
+      </div>
+      <div class="license-feature">
+       <div class="license-icon">
+        ⌁
+       </div>
+       <strong>
+        Deploy Anywhere
+       </strong>
+      </div>
+      <div class="license-feature">
+       <div class="license-icon">
+        $0
+       </div>
+       <strong>
+        No Runtime Fees
+       </strong>
+      </div>
+      <div class="license-feature">
+       <div class="license-icon">
+        0%
+       </div>
+       <strong>
+        No Royalties
+       </strong>
+      </div>
+      <div class="license-feature">
+       <div class="license-icon">
+        &infin;
+       </div>
+       <strong>
+        Unlimited End Users
+       </strong>
+      </div>
+     </div>
+     <div class="license-message">
+      <p>
+       Applications you create with MS can be distributed to
+unlimited customers and end users &mdash;
+       <strong>
+        without paying per user, per customer, or per deployment.
+       </strong>
+      </p>
+      <div class="restriction">
+       <strong>
+        One Simple Restriction
+       </strong>
+       The framework itself may not be resold, sublicensed, or redistributed as a standalone
+framework or development product.
+       <p class="restriction-simple">
+        (You can sell what you build with the framework.
+You cannot sell the framework itself.)
+       </p>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section class="section" id="microfrontends">
+    <div class="container">
+     <!-- Removed identity-strip row from here as per instruction -->
+     <div class="micro-grid">
+      <div class="micro-copy">
+       <div class="section-label">
+        Modern Team Architecture
+       </div>
+       <h2>
+        Micro Frontends,
+        <span class="gradient-text">
+         Without the Usual Complexity.
+        </span>
+       </h2>
+       <p>
+        Give independent frontend teams the freedom to
+        <strong>
+         develop faster,work independently,and integrate seamlessly
+        </strong>
+        &mdash; while MS handles the complexity of
+bringing application areas together.
+       </p>
+       <p>
+        <strong>
+         Built for modern Micro Frontend development
+teams.
+        </strong>
+       </p>
+      </div>
+      <div class="micro-visual">
+       <div class="module module-1">
+        <strong>
+         Team A
+        </strong>
+        Customers
+       </div>
+       <div class="module module-2">
+        <strong>
+         Team B
+        </strong>
+        Inventory
+       </div>
+       <div class="micro-core">
+        MS
+       </div>
+       <div class="module module-3">
+        <strong>
+         Team C
+        </strong>
+        Orders
+       </div>
+       <div class="module module-4">
+        <strong>
+         Team D
+        </strong>
+        Analytics
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section class="section section-alt" id="services">
+    <div class="container">
+     <!-- Removed identity-strip row from here as well -->
+     <div class="section-header">
+      <div class="section-label">
+       Need More Power?
+      </div>
+      <h2>
+       Go Beyond the Framework
+      </h2>
+      <p>
+       As your project grows, optional professional services, special features and tools are available..
+<br> 
+      </p>
+     </div>
+     <div class="services-grid">
+      <article class="service-card">
+       <div class="service-number">
+        01
+       </div>
+       <h3>
+        Professional Support
+       </h3>
+       <p>
+        Expert technical assistance when you need it.
+       </p>
+      </article>
+      <article class="service-card">
+       <div class="service-number">
+        02
+       </div>
+       <h3>
+        Enterprise Support
+       </h3>
+       <p>
+        Dedicated support for larger teams and
+business-critical applications.
+       </p>
+      </article>
+      <!-- Card "Priority Bug Fixing" REMOVED -->
+      <article class="service-card">
+       <div class="service-number">
+        03
+       </div>
+       <h3>
+        Private Support Channels
+       </h3>
+       <p>
+        Direct communication with our technical team.
+       </p>
+      </article>
+      <article class="service-card">
+       <div class="service-number">
+        04
+       </div>
+       <h3>
+        Long-Term Support
+       </h3>
+       <p>
+        Stable LTS versions for long-running
+applications.
+       </p>
+      </article>
+      <article class="service-card">
+       <div class="service-number">
+        05
+       </div>
+       <h3>
+        Special Features & Tools
+       </h3>
+       <p>
+ <br>    <br>
+<br><br>
+
+ </p>
+      </article>
+      <!-- Card "Build &Obfuscation" REMOVED -->
+      <article class="service-card">
+       <div class="service-number">
+        06
+       </div>
+       <h3>
+        Online Training
+       </h3>
+       <p>
+        Training sessions from our Agents.
+
+       </p>
+      </article>
+
+     </div>
+<br> 
+    </div>
+
+
+   </section>
+   <section class="section">
+    <div class="container">
+     <!-- Removed identity-strip row from Learn section -->
+     <div class="section-header">
+      <div class="section-label">
+       Learn MS
+      </div>
+      <h2>
+       Documentation, Tutorials &amp; Videos
+      </h2>
+      <p>
+       Learn how MS can be used for React,Angular,ERP,AI-assisted development and
+Micro Frontend applications.
+      </p>
+     </div>
+     <div class="learn-grid">
+      <div class="learn-card">
+       <h3>
+        Documentation &amp; Tutorials
+       </h3>
+       <p>
+        Read the framework documentation,follow
+step-by-step tutorials and explore practical
+application examples.
+       </p>
+       <a class="button button-primary" href="./dev/index.html">
+        Open Documentation
+       </a>
+      </div>
+      <div class="learn-card">
+       <h3>
+        Video Tutorials
+       </h3>
+       <p>
+        Watch MS in action through demonstrations,coding comparisons and application development
+walkthroughs.
+       </p>
+       <a class="button button-secondary" href="videos.html">
+        Watch Videos
+       </a>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section class="cta" id="get-started">
+    <div class="container">
+     <!-- This is the LAST row of identity-strip we keep. It contains the 4 sets/bars starting with 'React + Angular' -->
+     <div class="identity-strip">
+      <div class="identity-item">
+
+
+       <strong>
+        React + Angular
+       </strong>
+       made easier
+      </div>
+      <div class="identity-item">
+       <strong>
+        Complex ERP
+       </strong>
+       built faster
+      </div>
+      <div class="identity-item">
+       <strong>
+        AI Agents
+       </strong>
+       generate MS code
+      </div>
+      <div class="identity-item">
+       <strong>
+        Micro Frontends
+       </strong>
+       built for teams
+      </div>
+     </div>
+     <div class="cta-box">
+      <div class="section-label">
+       Start Simple
+      </div>
+      <h2>
+       Start Building with MS.
+      </h2>
+      <p>
+       Build complex React and Angular applications,sustainable ERP systems,AI-assisted applications
+and modern Micro Frontend architectures &mdash; directly
+inside VS Code or your preferred development editor.
+      </p>
+      <div class="cta-buttons">
+       <a class="button button-primary" href="signup.html">
+        Get Started ⭐
+       </a>
+
+      </div>
+     </div>
+    </div>
+   </section>
+  </main>
+  <footer>
+   <div class="container footer-inner">
+    <div>
+     <span class="footer-brand">MS</span>
+     &nbsp;&mdash; Modern Application Development
+    </div>
+    <a class="footer-contact" href="javascript:void(0)" onclick="openContactUs()">Contact Us</a>
+    <div>
+     &copy; <span id="year"></span> ManySet (MS). All rights reserved.
+    </div>
+   </div>
+  </footer>
+  <script>
+   document.getElementById("year").textContent =
+new Date().getFullYear();
+  </script>
+  <script>
+   // MS RESPONSIVE TOP MENU:opens/closes all menu options on narrow screens.
+const navToggle = document.querySelector('.nav-toggle');const navLinks = document.querySelector('.nav-links');if (navToggle && navLinks){navToggle.addEventListener('click',() =>{const isOpen = navLinks.classList.toggle('nav-open');navToggle.setAttribute('aria-expanded',String(isOpen));navToggle.textContent = isOpen ? '✕':'☰';});navLinks.querySelectorAll('a').forEach(link =>{link.addEventListener('click',() =>{navLinks.classList.remove('nav-open');navToggle.setAttribute('aria-expanded','false');navToggle.textContent = '☰';});});}
+  </script>
+  <script>
+   // Opens the video on YouTube in its own small popup window (avoids embed errors)
+   function openVideo() {
+     const videoId = "dQw4w9WgXcQ"; // <-- replace with your own video ID
+     const w = 900, h = 550;
+     const left = (screen.width - w) / 2;
+     const top = (screen.height - h) / 2;
+     window.open(
+       "https://www.youtube.com/watch?v=" + videoId,
+       "videoPopup",
+       `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+     );
+   }
+  </script>
+  <script>
+   function openContactUs() {
+     const w = 620, h = 760;
+     const left = Math.max(0, (screen.width - w) / 2);
+     const top = Math.max(0, (screen.height - h) / 2);
+     window.open("contact-us.html", "contactUsPopup", `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+   }
+  </script>
+
+ </body>
+</html>
