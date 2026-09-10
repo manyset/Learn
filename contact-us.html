@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us — ManySet (MS)</title>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;1,600&display=swap");
+
+:root {
+    --bg: #07111f;
+    --card: rgba(255,255,255,0.055);
+    --text: #f7f9fc;
+    --muted: #aeb9c8;
+    --primary: #5f8cff;
+    --primary-light: #8aaaff;
+    --accent: #4de2c5;
+    --border: rgba(255,255,255,0.11);
+    --danger: #ff7d92;
+    --success: #4de2c5;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: Inter,"Segoe UI",Roboto,Arial,sans-serif;
+    color: var(--text);
+    line-height: 1.6;
+    background:
+        radial-gradient(
+            circle at 12% 8%,
+            rgba(95,140,255,0.17),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 87% 12%,
+            rgba(77,226,197,0.10),
+            transparent 30%
+        ),
+        var(--bg);
+}
+
+/* Main form card */
+
+.contact-card {
+    width: min(100%, 560px);
+    margin: 0 auto;
+    padding: 25px 28px 27px;
+    border: 1px solid rgba(128,165,255,0.38);
+    border-radius: 22px;
+    background: linear-gradient(
+        145deg,
+        rgba(95,140,255,0.18),
+        rgba(255,255,255,0.035)
+    );
+    box-shadow: 0 28px 80px rgba(0,0,0,0.38);
+}
+
+/* Form */
+
+.form-row {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    color: #e8eef8;
+    font-size: 0.84rem;
+    font-weight: 650;
+}
+
+.required {
+    color: var(--accent);
+}
+
+/* Controls */
+
+input,
+select,
+textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+    color: var(--text);
+    background: rgba(255,255,255,0.045);
+    font: inherit;
+    font-size: 0.87rem;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+input,
+select {
+    height: 44px;
+    padding: 0 13px;
+}
+
+textarea {
+    min-height: 135px;
+    padding: 11px 13px;
+    resize: vertical;
+}
+
+select {
+    cursor: pointer;
+}
+
+/*
+   Make the native dropdown readable in dark mode.
+   The exact rendering of native options is browser-dependent,
+   so both color-scheme and explicit option colors are supplied.
+*/
+
+select {
+    color-scheme: dark;
+}
+
+select option {
+    color: #f7f9fc;
+    background: #0d1a2a;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #8290a4;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: rgba(138,170,255,0.75);
+    box-shadow: 0 0 0 3px rgba(95,140,255,0.13);
+}
+
+input.invalid,
+select.invalid,
+textarea.invalid {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(255,125,146,0.10);
+}
+
+/* Validation */
+
+.field-error {
+    display: none;
+    margin-top: 5px;
+    color: var(--danger);
+    font-size: 0.74rem;
+    line-height: 1.4;
+}
+
+.field-error.show {
+    display: block;
+}
+
+/* File input */
+
+.file-box {
+    position: relative;
+}
+
+input[type="file"] {
+    height: auto;
+    padding: 9px 11px;
+    cursor: pointer;
+}
+
+.file-note {
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 0.72rem;
+}
+
+input[type="file"].invalid {
+    border-color: var(--danger);
+}
+
+/* Buttons */
+
+.actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 22px;
+}
+
+button {
+    min-width: 155px;
+    min-height: 44px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 9px;
+    color: #06111c;
+    font: inherit;
+    font-size: 0.87rem;
+    font-weight: 800;
+    cursor: pointer;
+    background: linear-gradient(
+        135deg,
+        var(--primary-light),
+        var(--accent)
+    );
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+}
+
+/* Status */
+
+.status {
+    display: none;
+    margin-top: 17px;
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.80rem;
+    text-align: center;
+}
+
+.status.show {
+    display: block;
+}
+
+.status.success {
+    color: var(--success);
+    border-color: rgba(77,226,197,0.25);
+    background: rgba(77,226,197,0.06);
+}
+
+.status.error {
+    color: var(--danger);
+    border-color: rgba(255,125,146,0.25);
+    background: rgba(255,125,146,0.06);
+}
+
+/* Small screens */
+
+@media (max-width:480px) {
+    body {
+        padding: 10px;
+    }
+
+    .contact-card {
+        padding: 20px 17px 22px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="contact-card">
+
+    <form id="contactForm" novalidate>
+
+        <!-- Contact type -->
+
+        <div class="form-row">
+
+            <label for="contactType">
+                Contact us: <span class="required">*</span>
+            </label>
+
+            <select id="contactType" required>
+                <option value="">Select an option</option>
+                <option>Enterprise Support</option>
+                <option>Long-Term Support</option>
+                <option>Online Training</option>
+                <option>Special Features &amp; Tools</option>
+                <option>Lite Technical Support</option>
+            </select>
+
+            <div
+                class="field-error"
+                id="contactTypeError">
+                Please select an option.
+            </div>
+
+        </div>
+
+        <!-- Name -->
+
+        <div class="form-row">
+
+            <label for="name">
+                Name <span class="required">*</span>
+            </label>
+
+            <input
+                id="name"
+                type="text"
+                maxlength="100"
+                autocomplete="name"
+                placeholder="Your name"
+                required>
+
+            <div
+                class="field-error"
+                id="nameError">
+                Please enter your name.
+            </div>
+
+        </div>
+
+        <!-- Email -->
+
+        <div class="form-row">
+
+            <label for="email">
+                Email <span class="required">*</span>
+            </label>
+
+            <input
+                id="email"
+                type="email"
+                maxlength="254"
+                autocomplete="email"
+                placeholder="you@example.com"
+                required>
+
+            <div
+                class="field-error"
+                id="emailError">
+                Please enter a valid email address.
+            </div>
+
+        </div>
+
+        <!-- Website -->
+
+        <div class="form-row">
+
+            <label for="website">
+                Website <span class="required">*</span>
+            </label>
+
+            <input
+                id="website"
+                type="text"
+                maxlength="500"
+                placeholder="www.example.com"
+                required>
+
+            <div
+                class="field-error"
+                id="websiteError">
+                Please enter a valid website.
+            </div>
+
+        </div>
+
+        <!-- Message -->
+
+        <div class="form-row">
+
+            <label for="message">
+                Message <span class="required">*</span>
+            </label>
+
+            <textarea
+                id="message"
+                maxlength="5000"
+                placeholder="Your message..."
+                required></textarea>
+
+            <div
+                class="field-error"
+                id="messageError">
+                Please enter your message.
+            </div>
+
+        </div>
+
+        <!-- Attachment -->
+
+        <div class="form-row file-box">
+
+            <label for="attachment">
+                Images/ .PDF
+            </label>
+
+            <input
+                id="attachment"
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/svg+xml,application/pdf">
+
+            <div class="file-note">
+                Optional attachment. Maximum size: 5 MB.
+            </div>
+
+            <div
+                class="field-error"
+                id="attachmentError">
+            </div>
+
+        </div>
+
+        <!-- Send -->
+
+        <div class="actions">
+
+            <button
+                id="sendButton"
+                type="submit">
+                Send Message
+            </button>
+
+        </div>
+
+        <div
+            id="status"
+            class="status"
+            role="status"
+            aria-live="polite">
+        </div>
+
+    </form>
+
+</div>
+
+
+<script>
+
+/*
+ * GitHub repository configuration
+ */
+
+const OWNER = "manyset";
+const REPO = "MS-Email";
+const FOLDER = "messages";
+const BRANCH = "main";
+
+/*
+ * Keep your token here as before.
+ *
+ * IMPORTANT:
+ * A GitHub token embedded in a public web page
+ * is visible to anyone who can inspect the page.
+ */
+
+const GITHUB_TOKEN =
+    "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";
+
+
+const form =
+    document.getElementById("contactForm");
+
+const sendButton =
+    document.getElementById("sendButton");
+
+const statusBox =
+    document.getElementById("status");
+
+
+/*
+ * Validation helper
+ */
+
+function setError(id, errorId, message) {
+
+    const field =
+        document.getElementById(id);
+
+    const error =
+        document.getElementById(errorId);
+
+    if (message) {
+
+        field.classList.add("invalid");
+
+        error.textContent = message;
+
+        error.classList.add("show");
+
+        return false;
+    }
+
+    field.classList.remove("invalid");
+
+    error.textContent = "";
+
+    error.classList.remove("show");
+
+    return true;
+}
+
+
+/*
+ * Display status
+ *
+ * Deliberately hides technical/API errors.
+ */
+
+function showStatus(message, type) {
+
+    statusBox.textContent = message;
+
+    statusBox.className =
+        "status show " + type;
+}
+
+
+function clearStatus() {
+
+    statusBox.className = "status";
+
+    statusBox.textContent = "";
+}
+
+
+/*
+ * Email validation
+ */
+
+function isValidEmail(value) {
+
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
+        .test(value);
+}
+
+
+/*
+ * Website validation
+ *
+ * http:// and https:// are NOT required.
+ *
+ * Accepted examples:
+ *
+ * www.example.com
+ * example.com
+ * sub.example.com
+ *
+ * Also accepts an optional protocol if supplied.
+ */
+
+function isValidWebsite(value) {
+
+    let text = value.trim();
+
+    if (!text) {
+        return false;
+    }
+
+    /*
+     * Remove optional protocol only for validation.
+     */
+
+    text = text.replace(
+        /^https?:\/\//i,
+        ""
+    );
+
+    /*
+     * Remove optional trailing slash.
+     */
+
+    text = text.replace(
+        /\/+$/,
+        ""
+    );
+
+    /*
+     * Basic domain validation.
+     *
+     * Requires:
+     * - valid domain labels
+     * - at least one dot
+     * - valid-looking TLD
+     */
+
+    const domainPattern =
+        /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+
+    return domainPattern.test(text);
+}
+
+
+/*
+ * Convert bytes to Base64.
+ */
+
+function bytesToBase64(bytes) {
+
+    let binary = "";
+
+    const chunk = 0x8000;
+
+    for (
+        let i = 0;
+        i < bytes.length;
+        i += chunk
+    ) {
+
+        binary += String.fromCharCode(
+            ...bytes.subarray(
+                i,
+                i + chunk
+            )
+        );
+    }
+
+    return btoa(binary);
+}
+
+
+/*
+ * Convert text to Base64.
+ */
+
+function textToBase64(text) {
+
+    return bytesToBase64(
+        new TextEncoder().encode(text)
+    );
+}
+
+
+/*
+ * GitHub API helper.
+ *
+ * Any technical error is converted to
+ * a generic error for the user.
+ */
+
+async function github(path, options = {}) {
+
+    try {
+
+        const response = await fetch(
+
+            `https://api.github.com/repos/${OWNER}/${REPO}${path}`,
+
+            {
+                ...options,
+
+                headers: {
+
+                    "Accept":
+                        "application/vnd.github+json",
+
+                    "Authorization":
+                        `Bearer ${GITHUB_TOKEN}`,
+
+                    "X-GitHub-Api-Version":
+                        "2022-11-28",
+
+                    ...(options.headers || {})
+                }
+            }
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Connection error"
+            );
+        }
+
+        return await response.json();
+
+    }
+    catch {
+
+        throw new Error(
+            "Connection error"
+        );
+    }
+}
+
+
+/*
+ * Validate attachment.
+ *
+ * The accept attribute restricts the normal
+ * file picker, but this second validation is
+ * important because the browser can still
+ * provide a file with a misleading extension/type.
+ */
+
+function isAllowedAttachment(file) {
+
+    if (!file) {
+        return true;
+    }
+
+    /*
+     * Maximum 5 MB.
+     */
+
+    if (file.size > 5 * 1024 * 1024) {
+        return false;
+    }
+
+    /*
+     * PDF
+     */
+
+    if (
+        file.type === "application/pdf" ||
+        /\.pdf$/i.test(file.name)
+    ) {
+        return true;
+    }
+
+    /*
+     * Images.
+     *
+     * Check both MIME type and known image extensions.
+     */
+
+    const imageExtensions =
+        /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
+
+    if (
+        file.type.startsWith("image/") ||
+        imageExtensions.test(file.name)
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+
+/*
+ * Form submission
+ */
+
+form.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+        clearStatus();
+
+
+        const contactType =
+            document
+                .getElementById("contactType")
+                .value
+                .trim();
+
+
+        const name =
+            document
+                .getElementById("name")
+                .value
+                .trim();
+
+
+        const email =
+            document
+                .getElementById("email")
+                .value
+                .trim();
+
+
+        const website =
+            document
+                .getElementById("website")
+                .value
+                .trim();
+
+
+        const message =
+            document
+                .getElementById("message")
+                .value
+                .trim();
+
+
+        const file =
+            document
+                .getElementById("attachment")
+                .files[0];
+
+
+        let valid = true;
+
+
+        /*
+         * Contact type
+         */
+
+        valid =
+            setError(
+                "contactType",
+                "contactTypeError",
+                contactType
+                    ? ""
+                    : "Please select an option."
+            ) && valid;
+
+
+        /*
+         * Name
+         */
+
+        valid =
+            setError(
+                "name",
+                "nameError",
+                name
+                    ? ""
+                    : "Please enter your name."
+            ) && valid;
+
+
+        /*
+         * Email
+         */
+
+        valid =
+            setError(
+                "email",
+                "emailError",
+                isValidEmail(email)
+                    ? ""
+                    : "Please enter a valid email address."
+            ) && valid;
+
+
+        /*
+         * Website
+         */
+
+        valid =
+            setError(
+                "website",
+                "websiteError",
+                isValidWebsite(website)
+                    ? ""
+                    : "Please enter a valid website."
+            ) && valid;
+
+
+        /*
+         * Message
+         */
+
+        valid =
+            setError(
+                "message",
+                "messageError",
+                message
+                    ? ""
+                    : "Please enter your message."
+            ) && valid;
+
+
+        /*
+         * Attachment
+         */
+
+        if (file) {
+
+            if (!isAllowedAttachment(file)) {
+
+                valid = false;
+
+                setError(
+                    "attachment",
+                    "attachmentError",
+                    "Only image files and PDF files are allowed."
+                );
+
+            }
+            else {
+
+                setError(
+                    "attachment",
+                    "attachmentError",
+                    ""
+                );
+            }
+
+        }
+        else {
+
+            setError(
+                "attachment",
+                "attachmentError",
+                ""
+            );
+        }
+
+
+        if (!valid) {
+            return;
+        }
+
+
+        /*
+         * Token configuration check.
+         *
+         * Do not expose technical details.
+         */
+
+        if (
+            !GITHUB_TOKEN ||
+            GITHUB_TOKEN.includes("PASTE_YOUR")
+        ) {
+
+            showStatus(
+                "Connection error",
+                "error"
+            );
+
+            return;
+        }
+
+
+        sendButton.disabled = true;
+
+        sendButton.textContent =
+            "Sending...";
+
+
+        try {
+
+            const now =
+                new Date();
+
+
+            const pad =
+                n =>
+                    String(n).padStart(2, "0");
+
+
+            /*
+             * Random ID prevents filename collisions.
+             */
+
+            const id =
+                Math.random()
+                    .toString(36)
+                    .slice(2, 8)
+                +
+                Math.random()
+                    .toString(36)
+                    .slice(2, 5);
+
+
+            /*
+             * Use UTC time so visitors from different time zones
+             * do not generate filenames based on their local clocks.
+             *
+             * Format:
+             *
+             * YYYY-MM-DD-HH-MM-SS-existing-code
+             *
+             * Example:
+             *
+             * 2026-09-10-12-07-43-a8f39kd91
+             */
+
+            const date =
+                `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-${pad(now.getUTCDate())}`;
+
+            const time =
+                `${pad(now.getUTCHours())}-${pad(now.getUTCMinutes())}-${pad(now.getUTCSeconds())}`;
+
+            const baseName =
+                `${date}-${time}-${id}`;
+
+
+            const txtPath =
+                `${FOLDER}/${baseName}.txt`;
+
+
+            /*
+             * Message file:
+             *
+             * Line 1 = Reply-To
+             * Line 2 = beginning of email body
+             * Line 3 = Name
+             * Line 4 = Website
+             * Line 5 = Contact type
+             *
+             * GitHub Action uses:
+             *
+             * line 1 -> Reply-To
+             * first 25 chars of line 2 -> Subject
+             * line 2 onward -> Body
+             */
+
+const textContent =
+    "Name: " + name + "\n" +
+    "Website: " + website + "\n" +
+    "Contact: " + contactType + "\n" +
+    "Email: " + email + "\n" +
+    "\n" +
+    message + "\n";
+
+
+            /*
+             * Create the message commit.
+             *
+             * A contact submission can race with another submission
+             * between reading main and updating main. Therefore the
+             * branch update is retried when another submission wins
+             * the race.
+             *
+             * Maximum: 5 attempts.
+             */
+
+            let committed = false;
+
+            for (let attempt = 1; attempt <= 5; attempt++) {
+
+                try {
+
+                    /*
+                     * Get the current main branch.
+                     */
+
+                    const ref =
+                        await github(
+                            `/git/ref/heads/${BRANCH}`
+                        );
+
+
+                    const latestCommitSha =
+                        ref.object.sha;
+
+
+                    const latestCommit =
+                        await github(
+                            `/git/commits/${latestCommitSha}`
+                        );
+
+
+                    const treeSha =
+                        latestCommit.tree.sha;
+
+
+                    /*
+                     * Create text blob.
+                     */
+
+                    const textBlob =
+                        await github(
+                            "/git/blobs",
+                            {
+                                method: "POST",
+
+                                body: JSON.stringify(
+                                    {
+                                        content:
+                                            textToBase64(
+                                                textContent
+                                            ),
+
+                                        encoding:
+                                            "base64"
+                                    }
+                                )
+                            }
+                        );
+
+
+                    const treeItems = [
+
+                        {
+                            path: txtPath,
+                            mode: "100644",
+                            type: "blob",
+                            sha: textBlob.sha
+                        }
+
+                    ];
+
+
+                    /*
+                     * Optional image/PDF attachment.
+                     */
+
+                    if (file) {
+
+                        const bytes =
+                            new Uint8Array(
+                                await file.arrayBuffer()
+                            );
+
+
+                        const attachmentBlob =
+                            await github(
+                                "/git/blobs",
+                                {
+                                    method: "POST",
+
+                                    body: JSON.stringify(
+                                        {
+                                            content:
+                                                bytesToBase64(
+                                                    bytes
+                                                ),
+
+                                            encoding:
+                                                "base64"
+                                        }
+                                    )
+                                }
+                            );
+
+
+                        /*
+                         * Preserve the original extension.
+                         */
+
+                        const dot =
+                            file.name.lastIndexOf(".");
+
+
+                        const ext =
+                            dot >= 0
+                                ? file.name
+                                    .substring(dot)
+                                    .toLowerCase()
+                                : "";
+
+
+                        treeItems.push(
+
+                            {
+                                path:
+                                    `${FOLDER}/${baseName}${ext}`,
+
+                                mode: "100644",
+
+                                type: "blob",
+
+                                sha:
+                                    attachmentBlob.sha
+                            }
+
+                        );
+                    }
+
+
+                    /*
+                     * One tree + one commit.
+                     */
+
+                    const newTree =
+                        await github(
+                            "/git/trees",
+                            {
+                                method: "POST",
+
+                                body: JSON.stringify(
+                                    {
+                                        base_tree:
+                                            treeSha,
+
+                                        tree:
+                                            treeItems
+                                    }
+                                )
+                            }
+                        );
+
+
+                    const newCommit =
+                        await github(
+                            "/git/commits",
+                            {
+                                method: "POST",
+
+                                body: JSON.stringify(
+                                    {
+                                        message:
+                                            `New contact message ${baseName}`,
+
+                                        tree:
+                                            newTree.sha,
+
+                                        parents:
+                                            [latestCommitSha]
+                                    }
+                                )
+                            }
+                        );
+
+
+                    /*
+                     * Update main.
+                     *
+                     * If another visitor changed main after we
+                     * read it, GitHub rejects this update.
+                     */
+
+                    try {
+
+                        await github(
+                            `/git/refs/heads/${BRANCH}`,
+                            {
+                                method: "PATCH",
+
+                                body: JSON.stringify(
+                                    {
+                                        sha:
+                                            newCommit.sha,
+
+                                        force:
+                                            false
+                                    }
+                                )
+                            }
+                        );
+
+                        committed = true;
+                        break;
+
+                    }
+                    catch {
+
+                        /*
+                         * Another submission won the branch race.
+                         * Retry using the new main head.
+                         */
+
+                        if (attempt === 5) {
+                            throw new Error(
+                                "Connection error"
+                            );
+                        }
+
+                        await new Promise(
+                            resolve =>
+                                setTimeout(
+                                    resolve,
+                                    250 * attempt
+                                )
+                        );
+                    }
+
+                }
+                catch (error) {
+
+                    if (attempt === 5) {
+                        throw error;
+                    }
+
+                    await new Promise(
+                        resolve =>
+                            setTimeout(
+                                resolve,
+                                250 * attempt
+                            )
+                    );
+                }
+            }
+
+            if (!committed) {
+                throw new Error("Connection error");
+            }
+
+
+            /*
+             * Success
+             */
+
+            showStatus(
+                "Your message has been sent successfully.",
+                "success"
+            );
+
+
+            form.reset();
+
+        }
+        catch (error) {
+
+            console.error(error);
+
+            /*
+             * Never show GitHub/API details
+             * to the visitor.
+             */
+
+            showStatus(
+                "Connection error",
+                "error"
+            );
+
+        }
+        finally {
+
+            sendButton.disabled =
+                false;
+
+            sendButton.textContent =
+                "Send Message";
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
