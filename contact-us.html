@@ -429,13 +429,13 @@ button:disabled {
                 Send Message
             </button>
 
-        </div>
+            <div
+                id="status"
+                class="status"
+                role="status"
+                aria-live="polite">
+            </div>
 
-        <div
-            id="status"
-            class="status"
-            role="status"
-            aria-live="polite">
         </div>
 
     </form>
@@ -463,6 +463,7 @@ const BRANCH = "main";
  */
 
 
+// MY TOKEN
 let GK1 = "github_pat_11CN3YOQY0PDFFi4qhkylq_r";
 let GK2="FAsQk2MrGlOukHIsJzKLJFMyEiazYIQpT90zblfSFPRIPBTLYXPJAHndaP";
 let GTK = GK1 + GK2;
@@ -950,7 +951,7 @@ form.addEventListener(
         ) {
 
             showStatus(
-                "Connection error",
+                "Please try after 30 seconds..!",
                 "error"
             );
 
@@ -1270,7 +1271,7 @@ const textContent =
 
                         if (attempt === 5) {
                             throw new Error(
-                                "Connection error"
+                                "Please try after 30 seconds..!"
                             );
                         }
 
@@ -1301,7 +1302,7 @@ const textContent =
             }
 
             if (!committed) {
-                throw new Error("Connection error");
+                throw new Error("Please try after 30 seconds..!");
             }
 
 
@@ -1328,7 +1329,7 @@ const textContent =
              */
 
             showStatus(
-                "Connection error",
+                "Please try after 30 seconds..!",
                 "error"
             );
 
