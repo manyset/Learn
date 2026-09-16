@@ -463,7 +463,7 @@ const BRANCH = "main";
  */
 
 const GITHUB_TOKEN =
-    "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";
+    "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";
 
 
 const form =
@@ -651,14 +651,11 @@ async function github(path, options = {}) {
     try {
 
         const response = await fetch(
-
             `https://api.github.com/repos/${OWNER}/${REPO}${path}`,
-
             {
                 ...options,
 
                 headers: {
-
                     "Accept":
                         "application/vnd.github+json",
 
@@ -673,24 +670,49 @@ async function github(path, options = {}) {
             }
         );
 
+        const responseText = await response.text();
+
         if (!response.ok) {
 
+            let detail = responseText;
+
+            try {
+                const json = JSON.parse(responseText);
+
+                if (json.message) {
+                    detail = json.message;
+                }
+            }
+            catch {
+                // Keep original response text.
+            }
+
             throw new Error(
-                "Connection error"
+                `GitHub API error ${response.status} ${response.statusText}: ${detail}`
             );
         }
 
-        return await response.json();
+        if (!responseText) {
+            return {};
+        }
+
+        try {
+            return JSON.parse(responseText);
+        }
+        catch {
+            return responseText;
+        }
 
     }
-    catch {
+    catch (error) {
 
-        throw new Error(
-            "Connection error"
-        );
+        console.error("GitHub API error:", error);
+
+        throw error instanceof Error
+            ? error
+            : new Error(String(error));
     }
 }
-
 
 /*
  * Validate attachment.
