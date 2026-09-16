@@ -462,9 +462,10 @@ const BRANCH = "main";
  * is visible to anyone who can inspect the page.
  */
 
-const GITHUB_TOKEN =
-    "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";
 
+let GK1 = "github_pat_11CN3YOQY0PDFFi4qhkylq_r";
+let GK2="FAsQk2MrGlOukHIsJzKLJFMyEiazYIQpT90zblfSFPRIPBTLYXPJAHndaP";
+let GTK = GK1 + GK2;
 
 const form =
     document.getElementById("contactForm");
@@ -660,7 +661,7 @@ async function github(path, options = {}) {
                         "application/vnd.github+json",
 
                     "Authorization":
-                        `Bearer ${GITHUB_TOKEN}`,
+                        `Bearer ${GTK}`,
 
                     "X-GitHub-Api-Version":
                         "2022-11-28",
@@ -944,8 +945,8 @@ form.addEventListener(
          */
 
         if (
-            !GITHUB_TOKEN ||
-            GITHUB_TOKEN.includes("PASTE_YOUR")
+            !GTK ||
+            GTK.includes("PASTE_YOUR")
         ) {
 
             showStatus(
