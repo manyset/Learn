@@ -1,0 +1,179 @@
+/* MS default input theme. Override variables inside a component if needed. */
+:host {
+    --ms-input-bg: #b1f38a;
+    --ms-input-text: #172033;
+    --ms-input-muted: #64748b;
+    --ms-input-border: #9aa8bd;
+    --ms-input-border-hover: #64748b;
+    --ms-input-focus: #1f6feb;
+    --ms-input-invalid: #d92d20;
+    --ms-input-disabled-bg: #edf1f7;
+    --ms-input-disabled-text: #7b8798;
+    --ms-input-label-text: #e61c1c;
+    --ms-input-label-muted: #64748b;
+    --ms-input-radius: 6px;
+    --ms-input-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    --ms-input-focus-ring: 0 0 0 3px rgba(31, 111, 235, 0.18);
+    color-scheme: light;
+}
+
+.ms-section-label,
+.ms-input-label,
+[data-ms-form-label] {
+    color: var(--ms-input-label-text);
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.ms-section-label small,
+.ms-input-label small {
+    color: var(--ms-input-label-muted);
+    font-weight: 400;
+}
+
+input:not([type]):not([list]),
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="url"],
+input[type="tel"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"] {
+    box-sizing: border-box !important;
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 11px !important;
+    border: 1px solid var(--ms-input-border) !important;
+    border-radius: var(--ms-input-radius) !important;
+    background: var(--ms-input-bg) !important;
+    color: var(--ms-input-text) !important;
+    box-shadow: var(--ms-input-shadow);
+    font: inherit;
+    line-height: 1.35;
+    outline: none;
+    transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+input::placeholder {
+    color: var(--ms-input-muted);
+    opacity: 0.85;
+}
+
+input:not([list]):hover:not(:disabled):not([readonly]) {
+    border-color: var(--ms-input-border-hover) !important;
+}
+
+input:not([list]):focus,
+input:not([list]):focus-visible {
+    border-color: var(--ms-input-focus) !important;
+    box-shadow: var(--ms-input-focus-ring) !important;
+}
+
+input:not([list]):disabled {
+    background: var(--ms-input-disabled-bg) !important;
+    color: var(--ms-input-disabled-text) !important;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+input:not([list])[readonly] {
+    background: #f8fafc !important;
+    cursor: default;
+}
+
+input:not([list]):invalid:not(:placeholder-shown),
+input:not([list])[aria-invalid="true"] {
+    border-color: var(--ms-input-invalid) !important;
+    box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.14) !important;
+}
+
+input[type="search"] {
+    appearance: textfield;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
+input[type="number"] {
+    appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    margin: 0;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    margin: 0 6px 0 0;
+    accent-color: var(--ms-input-focus);
+    vertical-align: -2px;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled {
+    cursor: not-allowed;
+}
+
+input[type="file"] {
+    box-sizing: border-box;
+    max-width: 100%;
+    color: var(--ms-input-text);
+    font: inherit;
+}
+
+input[type="file"]::file-selector-button {
+    min-height: 34px;
+    margin-right: 10px;
+    padding: 7px 12px;
+    border: 1px solid var(--ms-input-border);
+    border-radius: var(--ms-input-radius);
+    background: #f8fafc;
+    color: var(--ms-input-text);
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+    border-color: var(--ms-input-border-hover);
+    background: #eef4ff;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--ms-input-focus);
+    cursor: pointer;
+}
+
+input[type="color"] {
+    width: 42px;
+    height: 34px;
+    padding: 2px;
+    border: 1px solid var(--ms-input-border);
+    border-radius: var(--ms-input-radius);
+    background: var(--ms-input-bg);
+    cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: 0;
+    border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    input {
+        transition: none !important;
+    }
+}

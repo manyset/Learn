@@ -1,0 +1,160 @@
+.table {
+  display: table;
+  border-collapse: collapse;
+  width: 50%;
+  background: #0a0a0a;
+  border: 1px solid #00ffff;
+  box-shadow: 
+    0 0 20px #00ffff,
+    0 0 40px rgba(0, 255, 255, 0.3),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glitch effect on table */
+.table::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+  z-index: -1;
+  animation: glitch 3s linear infinite;
+  opacity: 0.2;
+}
+
+@keyframes glitch {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+.row {
+  display: table-row;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.cell {
+  display: table-cell;
+  padding: 10px 6px;
+  text-align: center;
+  background: rgba(10, 10, 10, 0.9);
+  border-bottom: 1px solid #00ffff;
+  color: #00ffff;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 5px #00ffff;
+  position: relative;
+}
+
+/* Remove column borders */
+.cell:not(:last-child) {
+  border-right: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+/* Header row */
+.row:first-child .cell {
+  background: rgba(0, 255, 255, 0.1);
+  color: #ffffff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #ff00ff;
+  text-shadow: 0 0 10px #ffffff;
+}
+
+/* Neon glow on hover */
+.row:hover .cell {
+  background: rgba(0, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 
+    inset 0 0 15px #00ffff,
+    0 0 10px #00ffff;
+  color: #ffffff;
+  animation: textGlow 1s infinite alternate;
+}
+
+@keyframes textGlow {
+  from { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; }
+  to { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
+}
+
+/* Remove highlight from row below */
+.row:hover + .row .cell {
+  background: rgba(10, 10, 10, 0.9) !important;
+  box-shadow: none !important;
+  color: #00ffff !important;
+  animation: none !important;
+}
+
+/* Scan line effect */
+.row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00ffff, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.row:hover::after {
+  opacity: 1;
+  animation: scan 2s linear;
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+/* Binary rain effect in background */
+.table::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(transparent 95%, rgba(0, 255, 255, 0.05) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0, 255, 255, 0.02) 1px, rgba(0, 255, 255, 0.02) 2px);
+  pointer-events: none;
+  animation: rain 20s linear infinite;
+}
+
+@keyframes rain {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100vh; }
+}
+
+/* Glitch text effect on hover */
+.row:hover .cell::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  top: 0;
+  color: #ff00ff;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: glitch-text 0.3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-text {
+  0% { clip: rect(42px, 9999px, 44px, 0); }
+  5% { clip: rect(12px, 9999px, 59px, 0); }
+  10% { clip: rect(48px, 9999px, 29px, 0); }
+  15% { clip: rect(42px, 9999px, 73px, 0); }
+  20% { clip: rect(63px, 9999px, 27px, 0); }
+  25% { clip: rect(34px, 9999px, 55px, 0); }
+  30% { clip: rect(86px, 9999px, 73px, 0); }
+  35% { clip: rect(20px, 9999px, 20px, 0); }
+  40% { clip: rect(26px, 9999px, 60px, 0); }
+  100% { clip: rect(67px, 9999px, 45px, 0); }
+}

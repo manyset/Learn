@@ -1,0 +1,112 @@
+<ms-public>
+    <functions>closeError</functions>
+</ms-public>
+
+<div id="errRoot" class="ms-custom-error">
+    <div class="ms-custom-error-box">
+        <div id="errTitle" class="ms-custom-error-title">System error occured. Re try.</div>
+        <div id="errDetails" class="ms-custom-error-details"></div>
+        <div class="ms-custom-error-actions">
+            <button id="errClose">OK-------</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .ms-custom-error {
+        width: 100%;
+        font-family: Segoe UI, Arial, sans-serif;
+        color: #111827;
+    }
+
+    .ms-custom-error-box {
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, .28);
+        overflow: hidden;
+    }
+
+    .ms-custom-error-title {
+        background: #0f3550;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 14px 18px;
+    }
+
+    .ms-custom-error-details {
+        display: none;
+        padding: 14px 18px 2px;
+        font-size: 13px;
+        line-height: 1.45;
+        color: #334155;
+    }
+
+    .ms-custom-error-details pre {
+        margin: 12px 0 0;
+        max-height: 220px;
+        overflow: auto;
+        white-space: pre-wrap;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    .ms-custom-error-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 14px 18px 16px;
+    }
+
+    .ms-custom-error button {
+        min-width: 76px;
+        height: 30px;
+        border: 1px solid #0f3550;
+        background: #0f3550;
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    function esc(value) {
+        return String(value ?? '-')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function line(label, value) {
+        return `<div><b>${esc(label)}:</b> ${esc(value)}</div>`;
+    }
+
+    export function onLoad(err = {}) {
+        ms.id('errTitle').textContent = err.warning || 'System error occured. Re try.';
+
+        if (err.detail) {
+            ms.id('errDetails').style.display = 'block';
+            ms.id('errDetails').innerHTML =
+                line('Code', err.code) +
+                line('Message', err.message) +
+                line('Origin', `${err.origin ?? '-'} , ${err.method ?? '-'} , Line ${err.line ?? '-'}`) +
+                (err.triggeredFrom
+                    ? line('Triggered From', `${err.triggeredFrom.file ?? '-'} , ${err.triggeredFrom.fn ?? '-'} , Line ${err.triggeredFrom.line ?? '-'}`)
+                    : '') +
+                (err.stack ? `<pre>${esc(err.stack)}</pre>` : '');
+        }
+    }
+
+    export function closeError() {
+        ms.ErrorClose();
+    }
+
+    ms.id('errClose').onclick = closeError;
+</script>

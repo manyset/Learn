@@ -1,0 +1,14 @@
+ms-com {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+ms-com:empty {
+  min-height: 32px;
+  border: 1px dashed rgba(100, 116, 139, 0.45);
+  border-radius: 4px;
+  background: rgba(241, 245, 249, 0.55);
+}

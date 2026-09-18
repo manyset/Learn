@@ -1,0 +1,122 @@
+
+.table {
+  display: table;
+  border-collapse: collapse;
+  width: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.row {
+  display: table-row;
+  transition: all 0.3s ease;
+}
+
+.cell {
+  display: table-cell;
+  padding: 10px 6px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Remove column borders */
+.cell:not(:last-child) {
+  border-right: none;
+}
+
+/* First row styling (header) - FIXED */
+.row:first-child .cell {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.95em;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+/* LIGHT HIGHLIGHT ON HOVERED ROW - FIXED */
+.row:not(:first-child):hover .cell {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  cursor: pointer;
+  transform: translateX(2px); /* Reduced from 4px */
+}
+
+/* REMOVE ANY HIGHLIGHT ON ROW BELOW - CRITICAL FIX */
+.row:hover + .row .cell {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: inherit !important;
+  font-weight: normal !important;
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Ensure header row doesn't highlight on hover */
+.row:first-child:hover .cell {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  transform: none !important;
+  cursor: default;
+}
+
+/* Fix for cell hover animation */
+.row:not(:first-child):hover .cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shine 1.5s ease;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Fix staggered row animation - exclude header */
+.row:not(:first-child) {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.row:nth-child(2) { animation-delay: 0.1s; }
+.row:nth-child(3) { animation-delay: 0.2s; }
+.row:nth-child(4) { animation-delay: 0.3s; }
+.row:nth-child(5) { animation-delay: 0.4s; }
+
+/* Fix cell hover effect - only on data rows */
+.row:not(:first-child) .cell:hover {
+  background: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Fix bottom border effect */
+.row:not(:first-child):hover .cell::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  z-index: 1;
+}

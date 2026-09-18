@@ -1,0 +1,77 @@
+{
+  "_comment": "Do not change Tags. Change values only. Help: https://www.manySet.com/Docs/GlobalConfig/",
+  "ErrorSettings": {
+    "ErrorPopup": true,
+    "ErrorWarning": "System error occured. Re try.",
+    "ErrorDetail": true,
+    "ErrorConsole": true,
+    "ErrorServerURL": null,
+    "ErrorCustomPopupURL": "./msHTML/CustomErr.html"
+  },
+  "DatabaseAccess": {
+    "DbReadComponents": [
+      "./Sales/InvoComp1",
+      "./Reports/",
+      "XXlogin",
+      "https://abc.com/abc/"
+    ],
+    "DbWriteComponents": [
+      "./Sales/InvoComp1",
+      "./Reports/",
+      "XXlogin",
+      "https://abc.com/abc/"
+    ]
+  },
+  "LoadingAnimation": {
+    "Enabled": true,
+    "FullScreen": false,
+    "CSS": "./msCSS/DefaultLoadingBackground.css",
+    "Type_can_be:": "skeleton, skeleton-spinner, spinner, wave, image",
+    "Type": "image",
+    "AnimatedImage": "./msIMAGES/AnimatedGif.gif",
+    "ImageSize": "80,80",
+    "BackgroundOpacity": 0.25,
+    "ContentOpacity": 0.65,
+    "FadeDuration": 200,
+    "Delay": 60,
+    "LockUI": false,
+    "Blur": false,
+    "SpinnerSize": 40
+  },
+  "CommonJS": [
+    "./Sales/OurSys1.mjs",
+    "./CommonReports.js",
+    "./helper.js",
+    "./IdConflictTest/IdConflictTest.js",
+    "https://www.Hicharts.com/repo/HiCharts.js"
+  ],
+  "CommonCSS": [
+    "./Sales/OurSys1.css",
+    "./CommonReports.css",
+    "https://www.Hicharts.com/repo/HiCharts.css"
+  ],
+  "default-css": {
+    "button": "./msCSS/ButtonDefault.css",
+    "input": "./msCSS/InputDefault.css",
+    "label": "./msCSS/LabelDefault.css",
+    "check": "./msCSS/CheckDefault.css",
+    "radio": "./msCSS/RadioDefault.css",
+    "div": "./msCSS/DIvDefault.css",
+    "img": "./msCSS/ImageDefault.css",
+    "image": "./msCSS/ImageDefault.css",
+    "section": "./msCSS/SectionDefault.css",
+    "dialog": "./msCSS/msdialog.css",
+    "combo": "./msCSS/mscombo.css",
+    "grid": "./msCSS/msgrid.css"
+  },
+  "GlobalDOMEvents": [],
+  "EventBus": {
+    "EventEmitComponents": [
+      "Sales/",
+      "Inventory/"
+    ],
+    "EventListenComponents": [
+      "*"
+    ]
+  }
+}

@@ -1,0 +1,468 @@
+/* =========================================================
+   ROOT GRID CONTAINER
+   Main outer container of the grid
+   ========================================================= */
+
+.ms-grid-root {
+
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+
+  height: 100%;
+
+  overflow: hidden;
+
+  border: 2px solid #9b09f0;
+
+  font-family: Arial, sans-serif;
+
+  background: #fff;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TITLE BAR
+   Top title section
+   ========================================================= */
+
+.ms-grid-root .ms-grid-title {
+
+  background: #2c3e50;
+
+  color: #fff;
+
+  padding: 8px 10px;
+
+  font-weight: bold;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SEARCH BAR
+   Search/filter area below title
+   ========================================================= */
+
+.ms-grid-root .ms-grid-searchbar {
+  padding: 4px 6px;
+  border-bottom: 0px solid #ccc;
+  background: #e6e7ec;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SCROLL AREA
+   Allows horizontal/vertical scrolling
+   ========================================================= */
+
+.ms-grid-root .ms-grid-scroll {
+
+  flex: 1;
+
+  overflow: auto;
+
+  min-height: 0;
+
+  margin-top: -4px;
+}
+
+
+/* =========================================================
+   TABLE
+   Main table layout
+   ========================================================= */
+
+.ms-grid-root table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   Sticky top header
+   ========================================================= */
+
+.ms-grid-root thead th {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 2;
+
+  background: #34495e;
+
+  color: #fff;
+
+  padding: 10px;
+
+  text-align: left;
+
+  border-right: 1px solid #555;
+
+  white-space: nowrap;
+
+  font-weight: bold;
+}
+
+
+/* =========================================================
+   TABLE BODY CELLS
+   ========================================================= */
+
+.ms-grid-root td {
+
+  padding: 10px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  vertical-align: top;
+
+}
+
+
+/* =========================================================
+   HOVER EFFECT
+   ========================================================= */
+
+.ms-grid-root tbody tr:hover {
+
+  background: #f9fafb;
+}
+
+
+/* =========================================================
+   TICKED ROW
+   ========================================================= */
+
+.ms-grid-root tbody tr.selected {
+
+  background: #d0eaff;
+}
+
+/* =========================================================
+   Last Clicked On Row Border
+   ========================================================= */
+
+.ms-grid-root tbody tr.ms-current-row {
+
+  outline: 2px dashed #6505e4;
+
+  outline-offset: -2px;
+
+  box-shadow:
+    inset 0 0 0 1px #ff9800;
+}
+
+.ms-grid-root tbody tr.ms-updated-row {
+
+  background: #fff7cc;
+}
+
+/* =========================================================
+   ACTION BUTTON COLUMN   white-space:nowrap;=> Keep only if needed buttons always single-line
+   ========================================================= */
+
+.ms-grid-root .ms-grid-action-cell {
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.ms-grid-root label,
+.ms-grid-root .ms-grid-label {
+
+  color: #172033;
+
+  font-weight: 500;
+
+  line-height: 1.35;
+}
+
+.ms-grid-root input[type="text"],
+.ms-grid-root input[type="search"],
+.ms-grid-root input[type="number"],
+.ms-grid-root input[type="date"],
+.ms-grid-root select {
+
+  box-sizing: border-box;
+
+  width: auto;
+
+  max-width: 100%;
+
+  min-height: 24px;
+
+  padding: 2px 6px;
+
+  border: 1px solid #9aa8bd;
+
+  border-radius: 3px;
+
+  background: #aceeb5;
+
+  color: #172033;
+
+  font: inherit;
+
+  line-height: 18px;
+
+  outline: none;
+}
+
+.ms-grid-root input[type="text"]:focus,
+.ms-grid-root input[type="search"]:focus,
+.ms-grid-root input[type="number"]:focus,
+.ms-grid-root input[type="date"]:focus,
+.ms-grid-root select:focus {
+
+  border-color: #1f6feb;
+
+  box-shadow: 0 0 0 2px rgba(31, 111, 235, .16);
+}
+
+.ms-grid-root option {
+
+  background: #fff;
+
+  color: #172033;
+
+  font: inherit;
+}
+
+.ms-grid-root input[type="checkbox"],
+.ms-grid-root input[type="radio"] {
+
+  width: 14px;
+
+  height: 14px;
+
+  margin: 0 4px 0 0;
+
+  accent-color: #1f6feb;
+
+  vertical-align: -2px;
+}
+
+.ms-grid-root button {
+
+  min-height: 24px;
+
+  padding: 2px 10px;
+
+  border: 1px solid #9aa8b8;
+
+  border-radius: 3px;
+
+  background: #f8fafc;
+
+  color: #172033;
+
+  font: inherit;
+
+  font-size: 12px;
+
+  line-height: 18px;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.ms-grid-root button:hover:not(:disabled) {
+
+  background: #eaf1fb;
+
+  border-color: #6f8fb5;
+}
+
+.ms-grid-root button:disabled {
+
+  color: #7a8796;
+
+  background: #eef1f5;
+
+  border-color: #c6ced8;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   INVALID INPUTS
+   ========================================================= */
+
+.ms-grid-root input.ms-invalid,
+.ms-grid-root .ms-invalid {
+
+  border: 1px solid red;
+
+  background: #ffe6e6;
+}
+
+
+/* =========================================================
+   SEARCH RANK COLUMN
+   ========================================================= */
+
+.ms-grid-root .ms-grid-rank {
+
+  font-size: 14px;
+
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   FOOTER / PAGING
+   ========================================================= */
+
+.ms-grid-root .ms-grid-footer {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 8px;
+
+  border-top: 1px solid #ccc;
+
+  background: #fafafa;
+
+  flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   PAGE INFO TEXT
+   ========================================================= */
+
+.ms-grid-root .ms-grid-page-info {
+
+  font-weight: bold;
+
+  padding: 0 8px;
+}
+
+
+/* =========================================================
+   MOBILE RESPONSIVE MODE
+   Converts table rows into mobile cards automatically
+   ========================================================= */
+
+@media (max-width:700px) {
+
+  .ms-grid-root table,
+  .ms-grid-root thead,
+  .ms-grid-root tbody,
+  .ms-grid-root th,
+  .ms-grid-root td,
+  .ms-grid-root tr {
+
+    display: block;
+  }
+
+  .ms-grid-root thead {
+
+    display: none;
+  }
+
+  .ms-grid-root table {
+
+    min-width: 100%;
+  }
+
+  .ms-grid-root tbody tr {
+
+    background: #fff;
+
+    margin: 0 0 8px 0;
+
+    border: 1px solid #ddd;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, .08);
+  }
+
+  .ms-grid-root tbody tr.ms-current-row {
+
+    outline: 2px solid #4a90e2;
+  }
+
+  .ms-grid-root td {
+
+    position: relative;
+
+    padding-left: 42%;
+
+    border-bottom: 1px solid #eee;
+
+  }
+
+  .ms-grid-root td:last-child {
+
+    border-bottom: none;
+  }
+
+  .ms-grid-root td::before {
+
+    content: attr(data-label);
+
+    position: absolute;
+
+    left: 10px;
+
+    top: 10px;
+
+    width: 42%;
+
+    font-weight: bold;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+}
+
+/* =========================================================
+   AUTO HEIGHT MODE
+   Grid grows naturally by content
+   ========================================================= */
+
+.ms-grid-root.ms-grid-auto-height {
+
+  height: auto;
+}
+
+.ms-grid-root.ms-grid-auto-height .ms-grid-scroll {
+
+  flex: none;
+
+  overflow: visible;
+}

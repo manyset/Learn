@@ -1,0 +1,104 @@
+
+.table {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 4px 20px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.row {
+  display: table-row;
+  transition: all 0.25s ease;
+}
+
+.cell {
+  display: table-cell;
+  padding: 14px 12px;
+  text-align: left;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+
+.cell:not(:last-child) {
+  border-right: none;
+}
+
+/* Header with subtle gradient */
+.row:first-child .cell {
+  background: linear-gradient(135deg, #f8f9fa, #f1f3f5);
+  color: #495057;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  border-bottom: 2px solid #e9ecef;
+  padding: 16px 12px;
+  position: relative;
+}
+
+.row:first-child .cell::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #adb5bd, transparent);
+}
+
+/* Hover effect with accent */
+.row:not(:first-child):hover .cell {
+  background: #f8f9fa;
+  cursor: pointer;
+  transform: translateX(4px);
+}
+
+/* Remove highlight from row below */
+.row:hover + .row .cell {
+  background: white !important;
+  transform: none !important;
+}
+
+/* Header no hover */
+.row:first-child:hover .cell {
+  background: linear-gradient(135deg, #f8f9fa, #f1f3f5) !important;
+  transform: none !important;
+  cursor: default;
+}
+
+/* Left border accent on hover */
+.row:not(:first-child):hover .cell:first-child {
+  border-left: 4px solid #4dabf7;
+  padding-left: 8px;
+}
+
+/* Staggered animation */
+.row:not(:first-child) {
+  animation: slideIn 0.5s ease forwards;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Even rows subtle background */
+.row:nth-child(even):not(:first-child) .cell {
+  background: #fcfcfc;
+}
+
+.row:nth-child(even):not(:first-child):hover .cell {
+  background: #f0f5ff;
+}

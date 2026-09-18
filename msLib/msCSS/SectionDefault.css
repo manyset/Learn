@@ -1,0 +1,10 @@
+.ms-section {
+  border: 1px solid #b8c2cc !important;
+  border-radius: 6px;
+  background: #f7f9fb !important;
+}
+
+.ms-section-title {
+  color: #172033 !important;
+  font-weight: 600;
+}

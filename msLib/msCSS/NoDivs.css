@@ -1,0 +1,111 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  font-family: system-ui, sans-serif;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #1f2933;
+  color: white;
+}
+
+nav ul {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Main layout - three columns */
+main {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Left sidebar - first aside */
+main > aside:first-of-type {
+  background: #e5e7eb;
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+/* Content section */
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+article {
+  background: #f5f7fa;
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+/* Right sidebar - last aside */
+main > aside:last-of-type {
+  background: #e5e7eb;
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+/* Widget in right sidebar */
+main > aside:last-of-type div {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #9ca3af;
+}
+
+/* Footer */
+footer {
+  padding: 1rem 2rem;
+  text-align: center;
+  background: #111827;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  main {
+    grid-template-columns: 1fr 2fr;
+  }
+  
+  main > aside:last-of-type {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  
+  main > aside:first-of-type,
+  main > aside:last-of-type {
+    grid-column: 1;
+  }
+  
+  main > aside:last-of-type {
+    grid-row: auto;
+  }
+}

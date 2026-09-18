@@ -1,0 +1,81 @@
+/*
+  MS loading theme.
+  Loaded from GlobalConfig.json -> LoadingAnimation.CSS.
+  These rules affect only MS-created loader overlays, not component UI.
+  Background dim strength is controlled by LoadingAnimation.BackgroundOpacity.
+  Existing content fade is controlled by LoadingAnimation.ContentOpacity.
+*/
+
+[data-ms-loader="target"] {
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 1px rgba(14, 165, 233, 0.42),
+    inset 0 0 22px rgba(14, 165, 233, 0.12);
+}
+
+/* skeleton-spinner */
+[data-ms-loader-type="skeleton-spinner"]>div>div:first-child>div {
+  background:
+    linear-gradient(90deg,
+      rgba(219, 234, 254, 0.88) 25%,
+      rgba(56, 189, 248, 0.72) 42%,
+      rgba(219, 234, 254, 0.88) 64%) !important;
+  background-size: 420% 100% !important;
+}
+
+[data-ms-loader-type="skeleton-spinner"]>div>div:last-child {
+  border-color: rgba(14, 165, 233, 0.22) !important;
+  border-top-color: #0284c7 !important;
+  box-shadow:
+    0 0 0 1px rgba(125, 211, 252, 0.26),
+    0 0 16px rgba(14, 165, 233, 0.45);
+}
+
+/* spinner */
+[data-ms-loader-type="spinner"]>div>div {
+  border-color: rgba(14, 165, 233, 0.22) !important;
+  border-top-color: #0369a1 !important;
+  border-right-color: rgba(56, 189, 248, 0.7) !important;
+  box-shadow:
+    0 0 0 1px rgba(125, 211, 252, 0.28),
+    0 0 18px rgba(2, 132, 199, 0.48);
+}
+
+/* skeleton */
+[data-ms-loader-type="skeleton"]>div>div>div {
+  background:
+    linear-gradient(90deg,
+      rgba(224, 242, 254, 0.88) 24%,
+      rgba(14, 165, 233, 0.62) 40%,
+      rgba(224, 242, 254, 0.88) 66%) !important;
+  background-size: 420% 100% !important;
+  box-shadow: 0 1px 4px rgba(14, 165, 233, 0.14);
+}
+
+/* wave */
+[data-ms-loader-type="wave"]>div>div {
+  background:
+    repeating-linear-gradient(115deg,
+      rgba(186, 230, 253, 0.14) 0 16px,
+      rgba(56, 189, 248, 0.28) 16px 32px) !important;
+}
+
+[data-ms-loader-type="wave"]>div>div>div {
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(14, 165, 233, 0.42),
+      rgba(125, 211, 252, 0.9),
+      rgba(14, 165, 233, 0.42),
+      transparent) !important;
+}
+
+/* image */
+[data-ms-loader-type="image"] img {
+  opacity: 1 !important;
+  filter: none !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain;
+  image-rendering: auto;
+}
