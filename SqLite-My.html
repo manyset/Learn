@@ -1,0 +1,278 @@
+<ms-public>
+    <store>auth.*</store>
+</ms-public>
+
+<h1>SqLite Db My Test - Debug to see</h1>
+r><br><br><br><br><br><br>
+
+<button id="btn">Run...</button>
+<script type="module">
+
+    import ms from './msLib/ms.js';
+    // import db from './db.mjs';
+
+
+    ms.id('btn').onclick = CallSq;
+
+
+    async function CallSq() {
+
+        // 1.1 Initialize
+        try {
+            const initResult = await ms.db.init();
+            console.log(`Database ${initResult.status}`);
+        } catch (error) {
+            console.error('Init failed:', error.userMessage);
+        }
+
+        // 1.2 Create Table If Not Exist
+        await ms.db.exec(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                age INTEGER,
+                active BOOLEAN DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        await ms.db.exec(`CREATE TABLE IF NOT EXISTS accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, balance REAL DEFAULT 0.0)`);
+
+
+        // 2. exec - returns object, doesn't throw
+        try {
+            const insertResult = await ms.db.exec(
+                'INSERT INTO users (name, email,age) VALUES(?, ?, ?)',
+                ['Alice', 'A111@example.com', 23]
+            );
+        }
+        catch (e) {
+            console.error('Exec failed:', e.userMessage);
+            console.log('Error code:', e.code);
+        }
+
+        // 3. query - throws on error, returns array of objects
+        try {
+            const users = await ms.db.query('SELECT id, name, email FROM users');
+            users.forEach(user => {
+                console.log(`${user.id}: ${user.name} (${user.email})`);
+            });
+
+
+        } catch (error) {
+            console.error('Query failed:', error.userMessage);
+            console.log('Error code:', error.code);
+        }
+
+        // 4. Transaction with try-catch
+        try {
+            await ms.db.transaction();
+
+            await ms.db.exec(
+                'INSERT INTO users (name, email,age) VALUES(?, ?, ?)',
+                ['Alice', 'ZZZZA22@example.com', 23]
+            );
+            await ms.db.exec('UPDATE accounts SET balance = balance - 100 WHERE id = 1');
+            await ms.db.exec('UPDATE accounts SET balance = balance + 100 WHERE id = 2');
+
+            await ms.db.commit();
+
+        } catch (er) {
+            await ms.db.rollback();
+            console.error('Transaction failed:', er.userMessage);
+        }
+
+    }
+
+    /////////////////
+
+    async function test() {
+        try {
+            console.clear(); // Start fresh
+            console.log('%c🔷 SQLite OPFS Professional Test', 'font-size: 16px; font-weight: bold; color: #2196f3; border-bottom: 2px solid #2196f3; padding-bottom: 5px;');
+            console.log('');
+
+            // Initialize
+            console.log('%c📋 PHASE 1: Initialization', 'font-weight: bold; color: #666;');
+            await db.init();
+            console.log('');
+
+            // Drop existing table (clean start)
+            try {
+                await ms.db.exec("DROP TABLE IF EXISTS users");
+            } catch (e) { }
+
+            // Create table
+            console.log('%c📋 PHASE 2: Schema Creation', 'font-weight: bold; color: #666;');
+            await ms.db.exec(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                age INTEGER,
+                active BOOLEAN DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+            console.log('%c  ✅ Users table created', 'color: #4caf50;');
+            console.log('');
+
+            // Insert sample data
+            console.log('%c📋 PHASE 3: Data Insertion', 'font-weight: bold; color: #666;');
+
+            const sampleUsers = [
+                ['Alice Johnson', 'alice@example.com', 28, 1],
+                ['Bob Smith', 'bob@example.com', 32, 1],
+                ['Carol White', 'carol@example.com', 25, 0],
+                ['David Brown', 'david@example.com', 41, 1],
+                ['Eva Green', 'eva@example.com', 35, 1]
+            ];
+
+            for (const user of sampleUsers) {
+                await ms.db.exec(
+                    "INSERT INTO users (name, email, age, active) VALUES (?, ?, ?, ?)",
+                    user
+                );
+            }
+            console.log(`  ✅ Inserted ${sampleUsers.length} sample users`);
+            console.log('');
+
+            // Query all users
+            console.log('%c📋 PHASE 4: Queries', 'font-weight: bold; color: #666;');
+
+            // Query 1: All users
+            console.log('%c  🔍 Query 1: All users', 'color: #ff9800;');
+            const allUsers = await ms.db.query("SELECT * FROM users ORDER BY id");
+            console.log('  Results:');
+            console.table(allUsers.map((row, i) => ({
+                '#': i + 1,
+                ID: row[0],
+                Name: row[1],
+                Email: row[2],
+                Age: row[3],
+                Active: row[4] ? '✅' : '❌',
+                Created: row[5]
+            })));
+
+            // Query 2: Active users
+            console.log('\n  🔍 Query 2: Active users');
+            const activeUsers = await ms.db.query("SELECT name, age FROM users WHERE active = 1 ORDER BY age");
+            console.log('  Active users (by age):');
+            activeUsers.forEach((row, i) => {
+                console.log(`    ${i + 1}. ${row[0]} (${row[1]} years)`);
+            });
+
+            // Query 3: Statistics
+            console.log('\n  🔍 Query 3: Statistics');
+            const stats = await ms.db.query(`
+            SELECT 
+                COUNT(*) as total,
+                AVG(age) as avg_age,
+                SUM(CASE WHEN active THEN 1 ELSE 0 END) as active_count
+            FROM users
+        `);
+            console.log(`    Total users: ${stats[0][0]}`);
+            console.log(`    Average age: ${Math.round(stats[0][1] * 10) / 10}`);
+            console.log(`    Active users: ${stats[0][2]}`);
+
+            // Query 4: Email domains
+            console.log('\n  🔍 Query 4: Email domains');
+            const domains = await db.query(`
+            SELECT 
+                SUBSTR(email, INSTR(email, '@') + 1) as domain,
+                COUNT(*) as count
+            FROM users 
+            GROUP BY domain
+        `);
+            console.log('  Email domains:');
+            domains.forEach(row => {
+                console.log(`    ${row[0]}: ${row[1]} user(s)`);
+            });
+
+            // Query 5: Age groups
+            console.log('\n  🔍 Query 5: Age groups');
+            const ageGroups = await db.query(`
+            SELECT 
+                CASE 
+                    WHEN age < 30 THEN '20s'
+                    WHEN age < 40 THEN '30s'
+                    ELSE '40+'
+                END as age_group,
+                COUNT(*) as count
+            FROM users 
+            GROUP BY age_group
+            ORDER BY age_group
+        `);
+            console.log('  Age distribution:');
+            ageGroups.forEach(row => {
+                console.log(`    ${row[0]}: ${row[1]} user(s)`);
+            });
+
+            // Summary
+            console.log('');
+            console.log('%c📊 FINAL SUMMARY', 'font-weight: bold; color: #2196f3; border-top: 2px solid #2196f3; padding-top: 5px;');
+            console.log(`  Total operations: 5 queries completed`);
+            console.log(`  Database file: app-${Date.now()}.db`);
+            console.log(`  Status: ✅ All tests passed`);
+
+            // Close database
+            await db.close();
+            console.log('%c  👋 Database closed', 'color: #666;');
+
+        } catch (error) {
+            console.error('%c❌ TEST FAILED', 'color: #f44336; font-size: 14px; font-weight: bold;');
+            console.error('  Error:', error.message);
+            console.error('  Stack:', error.stack);
+        }
+    }
+
+
+</script>
+
+<!--
+<script type="module">
+ // let ss=99;
+  // import ms from './msLib/ms.js';
+  // let xss=999; 
+  // ms.id('login1').on('click',CallBoard);
+   // ms.id('login1').addEventListener('click', CallBoard); // DONT-> document.getElementById('board1');
+ //  document.getElementById('login2').addEventListener('click', CallBoard);
+   async function CallBoard()
+   {
+      alert("CallBoard ");
+   }
+</script>
+-->
+
+<!--CODING ******************************************* -->
+<!--
+ <script type="module">
+ // import ms from './msLib/ms.js';
+
+  // await ms.ready(); 
+  
+ // ms.id('login1').addEventListener('click', CallBoard); // DONT-> document.getElementById('board1');
+ // document.getElementById('login2').addEventListener('click', CallBoard);
+  //   let s1= await ms.inject('dboard','d2');
+  
+  // let s1= await ms.inject('board','d2');
+ // let s2= await ms.inject('TextBox1',"d1");
+
+// NOT WORKING AT LOAD
+
+// await createNewDiv(); // d5 is Dynamically created div with a textbox inside it.    
+
+// let b = await ms.inject('board','d1', {append:true});
+
+    let x=0;
+    let u =0;
+   async function CallBoard()
+   {
+      alert("CallBoard ");
+     createNewDiv(); // d5 is Dynamically created div with a textbox inside it.    
+     let x = await ms.inject('board','d5');
+   } 
+
+  </script>
+-->

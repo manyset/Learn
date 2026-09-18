@@ -1,0 +1,151 @@
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        padding: 20px;
+        background-color: #f5f5f5;
+    }
+
+    .grid-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .grid-item {
+        flex: 1 1 300px;
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+    }
+
+    .grid-item h3 {
+        color: #333;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #4CAF50;
+        padding-bottom: 5px;
+    }
+
+    .grid-item p {
+        margin: 8px 0;
+        color: #555;
+    }
+
+    .grid-item span {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+</style>
+
+<h1>JSON Data Grid Display</h1>
+
+<div class="grid-container" id="jsonGrid">
+    <!-- Grid items will be inserted here by JavaScript -->
+    <div class="loading">Loading data...</div>
+</div>
+
+<script type="module">
+    import ms from './msLib/ms.js';
+
+    // Sample JSON data
+    const sampleData = {
+        "employees": [
+            {
+                "id": 1,
+                "name": "John Doe",
+                "position": "Software Developer",
+                "department": "Engineering",
+                "email": "john@example.com",
+                "salary": 75000
+            },
+            {
+                "id": 2,
+                "name": "Jane Smith",
+                "position": "Product Manager",
+                "department": "Product",
+                "email": "jane@example.com",
+                "salary": 85000
+            },
+            {
+                "id": 3,
+                "name": "Mike Johnson",
+                "position": "UX Designer",
+                "department": "Design",
+                "email": "mike@example.com",
+                "salary": 70000
+            },
+            {
+                "id": 4,
+                "name": "Sarah Williams",
+                "position": "Data Analyst",
+                "department": "Analytics",
+                "email": "sarah@example.com",
+                "salary": 65000
+            },
+            {
+                "id": 5,
+                "name": "Robert Chen",
+                "position": "DevOps Engineer",
+                "department": "Engineering",
+                "email": "robert@example.com",
+                "salary": 80000
+            },
+            {
+                "id": 6,
+                "name": "Emily Davis",
+                "position": "Marketing Specialist",
+                "department": "Marketing",
+                "email": "emily@example.com",
+                "salary": 60000
+            }
+        ]
+    };
+
+    // Function to render the grid
+    async function renderGrid(data) {
+        const container = ms.id('jsonGrid');
+        container.innerHTML = ''; // Clear loading text
+
+        for (const employee of data.employees) {
+            const item = document.createElement('div');
+            item.className = 'grid-item';
+
+            item.innerHTML = `
+            <h3>${employee.name}</h3>
+            <p><span>Position:</span> ${employee.position}</p>
+            <p><span>Department:</span> ${employee.department}</p>
+            <p><span>Email:</span> ${employee.email}</p>
+            <p><span>Salary:</span> $${employee.salary.toLocaleString()}</p>
+        `;
+
+
+            container.appendChild(item);
+            await ms.inject("a", item);   // ✅ guaranteed
+
+        }
+    }
+
+    // Simulate loading data (can be replaced with actual API call)
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            //  renderGrid(sampleData);
+        }, 500); // Simulate network delay
+    });
+
+    renderGrid(sampleData);
+
+</script>

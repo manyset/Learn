@@ -1,0 +1,66 @@
+<div id="grid" class="grid"></div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  let products = ["a", "b", "a", "b"];
+
+  // Number of cards = 3 cols * 4 rows = 12
+  const totalCards = products.length;
+  const grid = ms.id("grid");
+
+  for (let i = 0; i < totalCards; i++) {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    // Component injection..
+    let t = await ms.inject(products[i], card);
+    // await t.SetVal('111');
+    // End of component injection.
+
+    const title = document.createElement("h3");
+    title.textContent = "Product " + (i + 1);
+
+    const content = document.createElement("p");
+    content.textContent = "This is product number " + (i + 1);
+
+    card.appendChild(title);
+    card.appendChild(content);
+    grid.appendChild(card);
+  }
+</script>
+
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* 3 columns */
+    grid-template-rows: repeat(4, auto);
+    /* 4 rows */
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+  }
+
+  .card h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #333;
+  }
+
+  .card p {
+    font-size: 14px;
+    color: #666;
+  }
+</style>

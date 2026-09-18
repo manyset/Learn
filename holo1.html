@@ -1,0 +1,170 @@
+<!--
+  Dual-mode ms component:
+   • Standalone  -> `import ms` triggers bootstrap, which moves <body> content
+                    into a shadow root (so `<style>` must live in <body>, and
+                    :root / html,body selectors won't apply inside the shadow).
+   • Injected    -> the whole fragment (incl. <style>) is placed in the
+                    component's shadow root by the engine.
+  Both modes put content in a shadow root, so we scope everything to `.stage`
+  and query with ms.qa (never document.querySelectorAll).
+-->
+
+<div class="stage">
+  <div class="menu">
+    <div class="title">// system menu</div>
+    <div class="item">Start</div>
+    <div class="item">Inventory</div>
+    <div class="item">Settings</div>
+    <div class="item">Exit</div>
+    <div class="base"></div>
+  </div>
+</div>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  /* `.stage` is the component root in every mode. Variables, sizing and the
+     background live here (NOT on :root / html / body, which don't apply inside
+     a shadow root). The layout mode is chosen at runtime by the script:
+       .standalone -> fills the viewport (fixed)      [opened directly]
+       .injected   -> a contained block in its host   [inside ScreenPark1] */
+  .stage {
+    --cyan: #4df3ff;
+    --magenta: #ff4de0;
+    --bg: #05070a;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1200px;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 20%, #0a1420 0%, var(--bg) 70%);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Standalone: cover the viewport (independent of host/body height). */
+  .stage.standalone {
+    position: fixed;
+    inset: 0;
+  }
+
+  /* Injected: flow inside the container and size to content — like grid3D.
+     Vertical padding leaves room for the .title (top:-60px) and .base
+     (bottom:-30px) which sit outside .menu. */
+  .stage.injected {
+    position: relative;
+    width: 100%;
+    padding: 90px 20px;
+  }
+
+  .menu {
+    position: relative;
+    width: 320px;
+    transform-style: preserve-3d;
+    transform: rotateX(8deg);
+    animation: float 5s ease-in-out infinite;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: rotateX(8deg) translateY(0px);
+    }
+
+    50% {
+      transform: rotateX(8deg) translateY(-10px);
+    }
+  }
+
+  .item {
+    position: relative;
+    margin: 14px 0;
+    padding: 16px 28px;
+    color: var(--cyan);
+    font-size: 20px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(77, 243, 255, 0.08), rgba(77, 243, 255, 0.02));
+    border: 1px solid rgba(77, 243, 255, 0.4);
+    border-radius: 4px;
+    cursor: pointer;
+    text-shadow: 0 0 6px var(--cyan), 0 0 18px var(--cyan);
+    box-shadow:
+      inset 0 0 12px rgba(77, 243, 255, 0.15),
+      0 0 14px rgba(77, 243, 255, 0.15);
+    transform: translateZ(0px);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, color 0.35s ease,
+      border-color 0.35s ease, text-shadow 0.35s ease;
+  }
+
+  /* scanline flicker overlay */
+  .item::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+        rgba(255, 255, 255, 0.05) 0px,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px,
+        transparent 3px);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  .item:hover {
+    color: var(--magenta);
+    border-color: rgba(255, 77, 224, 0.7);
+    text-shadow: 0 0 8px var(--magenta), 0 0 24px var(--magenta);
+    box-shadow:
+      inset 0 0 18px rgba(255, 77, 224, 0.25),
+      0 0 26px rgba(255, 77, 224, 0.4);
+    transform: translateZ(40px) scale(1.05);
+  }
+
+  .item:active {
+    transform: translateZ(20px) scale(0.98);
+  }
+
+  .title {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(20px);
+    color: var(--cyan);
+    letter-spacing: 8px;
+    font-size: 14px;
+    text-shadow: 0 0 10px var(--cyan);
+    opacity: 0.8;
+  }
+
+  .base {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    width: 260px;
+    height: 14px;
+    transform: translateX(-50%) rotateX(80deg);
+    background: radial-gradient(ellipse at center, rgba(77, 243, 255, 0.5), transparent 70%);
+    filter: blur(2px);
+  }
+</style>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  // Content lives in a shadow root in BOTH modes, so query via ms.qa
+  // (document.querySelectorAll cannot see inside the shadow root).
+  ms.qa('.item').forEach(el => {
+    el.addEventListener('click', () => {
+      el.style.transition = 'transform 0.1s ease';
+      el.style.transform = 'translateZ(60px) scale(1.1)';
+      setTimeout(() => { el.style.transform = ''; }, 150);
+      console.log('Selected:', el.textContent);
+    });
+  });
+</script>

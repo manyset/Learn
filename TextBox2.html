@@ -1,0 +1,31 @@
+<ms-public>
+    <classes>Person</classes>
+    <functions>SetVal, sidebar</functions>
+    <divs>content, sidebar</divs>
+    <elements>txt1, ChkBox1 </elements>
+    <allow></allow>
+</ms-public>
+
+
+<input id="txt1" value="??" type="text" style="width:150px; height:65px; background-color: rgb(245, 95, 8);">
+
+<script type="module">
+    import ms from './msLib/ms.js';
+
+
+    function onLoad({ customerId = 0, supplierId = 0 } = {}) {
+        alert('Customer: ' + customerId + ', Supplier: ' + supplierId);
+        SetVal('customerId=' + customerId);
+    }
+
+
+    export function SetVal(x) {
+        // alert("SetVals =" + x);
+        ms.id('txt1').value = x;
+
+    }
+
+
+
+
+</script>

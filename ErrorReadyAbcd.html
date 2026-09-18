@@ -1,0 +1,8 @@
+<h2>MS Ready Error Line Check</h2>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  abcd; // __MS_EXPECTED_READY_ABCD_LINE__
+</script>

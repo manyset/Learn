@@ -1,0 +1,46 @@
+<div> <br><br><br><br><br>
+    NOTE: <br> Function & class calling of Declarative comps :
+    For classes and calling several functions, work with long form (2 lines) ->
+    const com_a = await ms.com('com_a');
+    const obj = new com_a.SomeClass();
+
+    Only for a single Function call, use short form ->
+    await ms.com('com_a').test();
+</div>
+
+<button id="BtN1">Set X Axis from PARENT Comp</button>
+
+<h3 id="h3">Print of TextBox2 comp..</h3>
+
+<ms-com id="chArt1" src="HighChartBasic1.html" params='["From Parent. Grapes","Pineapples","Mangoes"]'></ms-com>
+
+<ms-com id='comA' src="./a.html" params='{"customerId":1, "supplierId":2}'
+    style="display:block; width:100%; min-height:300px; background-color: #65e22b;">
+</ms-com>
+
+<ms-com id='comTextBox1' src="./TextBox1" params='{"customerId":888, "supplierId":99}'
+    style="display:block; width:100%; min-height:50px; background-color: #65e22b;">
+</ms-com>
+
+
+<my-tag></my-tag>
+
+
+<script type="module" src='Declarative_Param.js'></script>
+<script type="module">
+
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    let text;
+    ms.el.button('btN1').onclick = (async () => {
+        ms.com('Chart1').setCategories(['XY--Grapes', 'Pineapples', 'Mangoes']);
+
+        ms.id('H3').innerText = text.TXT1.value;
+        text.SETVAL('ABCDEFG');
+
+    });
+
+    text = await ms.inject('textbox2', 'cHART1', { append: true, top: true });
+
+</script>

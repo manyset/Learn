@@ -1,0 +1,107 @@
+<ms-public>
+  <functions>runSingleInject, runBulkInject, runOpen</functions>
+</ms-public>
+
+<div id="loadDemoRoot">
+  <h2>MS Loading Animation Demo</h2>
+  <p id="configText">Loading config...</p>
+
+  <button id="btnSingle">Single Inject</button>
+  <button id="btnBulk">Bulk Inject</button>
+  <button id="btnBulkLocalFull">Bulk Inject - Local FullScreen</button>
+  <button id="btnOpen">ms.open</button>
+
+  <h3>Single inject target</h3>
+  <div id="singleTarget" class="demo-target">
+    <div class="old-content">Existing single content stays visible until load completes.</div>
+  </div>
+
+  <h3>Bulk inject targets</h3>
+  <div class="target-row">
+    <div id="bulkTarget1" class="demo-target">
+      <div class="old-content">Old bulk target 1</div>
+    </div>
+    <div id="bulkTarget2" class="demo-target">
+      <div class="old-content">Old bulk target 2</div>
+    </div>
+    <div id="bulkTarget3" class="demo-target">
+      <div class="old-content">Old bulk target 3</div>
+    </div>
+  </div>
+</div>
+<input id="t"></input>
+
+<style>
+  #loadDemoRoot {
+    font-family: Segoe UI, Arial, sans-serif;
+    padding: 12px;
+  }
+
+  #loadDemoRoot button {
+    margin-right: 8px;
+    margin-bottom: 12px;
+  }
+
+  #loadDemoRoot .target-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(130px, 1fr));
+    gap: 10px;
+  }
+
+  #loadDemoRoot .demo-target {
+    min-height: 86px;
+    border: 1px solid #94a3b8;
+    padding: 8px;
+    background: #f8fafc;
+  }
+</style>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  let loading = {};
+  try {
+    const cfg = await fetch('./msLib/GlobalConfig.json', { cache: 'no-store' }).then(r => r.json());
+    loading = cfg.LoadingAnimation || {};
+  } catch {
+    loading = {};
+  }
+
+  ms.id('configText').textContent =
+    `Type: ${loading.Type || '-'} | FullScreen: ${loading.FullScreen === true}`;
+
+  export async function runSingleInject() {
+    await ms.inject('LoadingSlowA', 'singleTarget');
+  }
+
+  export async function runBulkInject() {
+    await ms.inject([
+      ['LoadingSlowA', 'bulkTarget1'],
+      ['LoadingSlowB', 'bulkTarget2'],
+      ['LoadingSlowC', 'bulkTarget3']
+    ]);
+  }
+
+  export async function runBulkLocalFullScreen() {
+    ms.loadingAnimation.FullScreen = true;
+    ms.loadingAnimation.Type = "image";
+    ms.loadingAnimation.AnimatedImage = "./msIMAGES/AnimatedGif.gif";
+    ms.loadingAnimation.ImageSize = "80,80";
+
+    try {
+      await runBulkInject();
+    } finally {
+      ms.loadingAnimation.setDefault = true;
+    }
+  }
+
+  export async function runOpen() {
+    await ms.open('LoadingSlowOpen');
+  }
+
+  ms.id('btnSingle').onclick = runSingleInject;
+  ms.id('btnBulk').onclick = runBulkInject;
+  ms.id('btnBulkLocalFull').onclick = runBulkLocalFullScreen;
+  ms.id('btnOpen').onclick = runOpen;
+</script>

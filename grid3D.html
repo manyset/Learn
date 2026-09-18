@@ -1,0 +1,103 @@
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+-->
+<!-- <link rel="stylesheet" href=".CSS\grid3D_Dark.css">
+-->
+
+
+<!--   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+-->
+<link rel="stylesheet" href="./CSS/grid3D_Dark.css">
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-table"></i> 3D Grid Table</h1>
+        <p>Dark Ash + Maroon Theme with realistic shadows and depth effects. Hover over the table to see the 3D
+            transformation.</p>
+    </div>
+
+    <div class="table-container">
+        <!-- Grid Table -->
+        <div class="grid-table">
+            <!-- Table Headers -->
+            <div class="table-header"><i class="fas fa-user"></i> Employee</div>
+            <div class="table-header"><i class="fas fa-briefcase"></i> Department</div>
+            <div class="table-header"><i class="fas fa-calendar-alt"></i> Join Date</div>
+            <div class="table-header"><i class="fas fa-tasks"></i> Status</div>
+
+            <!-- Table Rows -->
+            <div class="table-row">
+                <div class="table-cell">Alex Johnson</div>
+                <div class="table-cell">Engineering</div>
+                <div class="table-cell">2022-03-15</div>
+                <div class="table-cell"><span class="status active">Active</span></div>
+            </div>
+
+            <div class="table-row">
+                <div class="table-cell">Maria Rodriguez</div>
+                <div class="table-cell">Marketing</div>
+                <div class="table-cell">2021-11-08</div>
+                <div class="table-cell"><span class="status completed">Completed</span></div>
+            </div>
+
+            <div class="table-row">
+                <div class="table-cell">James Wilson</div>
+                <div class="table-cell">Finance</div>
+                <div class="table-cell">2023-01-22</div>
+                <div class="table-cell"><span class="table-cell"><span class="status pending">Pending</span></span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="table-cell">Sophie Chen</div>
+                <div class="table-cell">HR</div>
+                <div class="table-cell">2020-09-30</div>
+                <div class="table-cell"><span class="status active">Active</span></div>
+            </div>
+
+            <div class="table-row">
+                <div class="table-cell">David Miller</div>
+                <div class="table-cell">Operations</div>
+                <div class="table-cell">2023-05-10</div>
+                <div class="table-cell"><span class="status pending">Pending</span></div>
+            </div>
+
+            <div class="table-row">
+                <div class="table-cell">Lisa Thompson</div>
+                <div class="table-cell">Engineering</div>
+                <div class="table-cell">2022-08-17</div>
+                <div class="table-cell"><span class="status active">Active</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        <p><i class="fas fa-info-circle"></i> This table uses CSS Grid for layout with a 3D perspective effect. Hover
+            over rows to see elevation effects.</p>
+    </div>
+</div>
+
+<script>
+    // Add interactive effect when hovering over cells
+    document.querySelectorAll('.table-cell').forEach(cell => {
+        cell.addEventListener('mouseenter', function () {
+            this.style.zIndex = '10';
+        });
+
+        cell.addEventListener('mouseleave', function () {
+            this.style.zIndex = '';
+        });
+    });
+
+    // Add click effect to table rows
+    document.querySelectorAll('.table-row').forEach(row => {
+        row.addEventListener('click', function () {
+            const cells = this.querySelectorAll('.table-cell');
+            cells.forEach(cell => {
+                cell.style.backgroundColor = '#4a2a2a';
+                setTimeout(() => {
+                    cell.style.backgroundColor = '';
+                }, 300);
+            });
+        });
+    });
+</script>

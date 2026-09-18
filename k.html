@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>MS Engine Test</title>
+</head>
+
+<body>
+
+  <button id="dboard1">Click Me</button>
+
+  <script type="module">
+
+    // load engine (must set window.ms internally)
+    import ms from './msLib/ms.js';
+
+    // wait for engine ready
+    await ms.ready();
+    // test function
+    function CallBoard() {
+      alert('Working');
+    }
+
+    // 🔥 TEST LINE (runtime + IntelliSense target)
+    ms.id("dboard1").onclick = CallBoard;
+
+    console.log("ms =", ms);
+
+  </script>
+
+</body>
+
+</html>

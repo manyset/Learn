@@ -1,0 +1,117 @@
+men.table {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 50%;
+  background: #f0f0f0;
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 
+    20px 20px 60px #bebebe,
+    -20px -20px 60px #ffffff;
+}
+
+.row {
+  display: table-row;
+  transition: all 0.3s ease;
+}
+
+.cell {
+  display: table-cell;
+  padding: 12px 8px;
+  text-align: center;
+  background: #f0f0f0;
+  border: none;
+  transition: all 0.3s ease;
+  position: relative;
+  font-weight: 500;
+}
+
+/* Neomorphic cell styling */
+.cell {
+  box-shadow: 
+    5px 5px 10px #d9d9d9,
+    -5px -5px 10px #ffffff;
+  border-radius: 12px;
+  margin: 4px;
+}
+
+/* Remove column borders */
+.cell:not(:last-child) {
+  border-right: none;
+}
+
+/* Header row */
+.row:first-child .cell {
+  background: linear-gradient(145deg, #e0e0e0, #f0f0f0);
+  box-shadow: 
+    8px 8px 16px #d1d1d1,
+    -8px -8px 16px #ffffff;
+  color: #333;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+/* 3D Press Effect on Hover */
+.row:hover .cell {
+  background: linear-gradient(145deg, #e0e0e0, #f0f0f0);
+  cursor: pointer;
+  transform: translateY(2px);
+  box-shadow: 
+    inset 5px 5px 10px #d9d9d9,
+    inset -5px -5px 10px #ffffff;
+}
+
+/* Remove highlight from row below */
+.row:hover + .row .cell {
+  background: #f0f0f0 !important;
+  transform: none !important;
+  box-shadow: 
+    5px 5px 10px #d9d9d9,
+    -5px -5px 10px #ffffff !important;
+}
+
+/* Pulsing animation on table */
+.table {
+  animation: pulseShadow 4s infinite alternate;
+}
+
+@keyframes pulseShadow {
+  0% {
+    box-shadow: 
+      20px 20px 60px #bebebe,
+      -20px -20px 60px #ffffff;
+  }
+  100% {
+    box-shadow: 
+      25px 25px 70px #bebebe,
+      -25px -25px 70px #ffffff;
+  }
+}
+
+/* Cell hover micro-interaction */
+.cell:hover {
+  transform: scale(1.05) !important;
+  z-index: 10;
+  background: linear-gradient(145deg, #f0f0f0, #e0e0e0) !important;
+}
+
+/* Gradient border on hover */
+.row:hover .cell {
+  position: relative;
+}
+
+.row:hover .cell::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+  z-index: -1;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}

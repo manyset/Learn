@@ -1,0 +1,69 @@
+<!-- HTML-->
+<h2>Class Call</h2>
+<button id="b1">Fun Call</button>
+<button id="b2">Class call</button>
+
+<input id="Text1" type="text" value="class call..." />
+<div id="demo1">demo1 slot 1</div>
+<div id="demo2">demo1 slot 2</div>
+
+<!--SCRIPT-->
+<script type="module">
+  import ms from './msLib/ms.js';
+  // await ms.ready();
+  // FunCall();
+  ms.id('b1').onclick = FunCall;
+  ms.id('b2').onclick = ClassCall;
+
+  await FunCall();
+  await ClassCall();
+  async function FunCall() {
+    // MANUAL RECOVERY WAY 1 of 2  (other way is by try..)
+    try {
+      let a = await ms.inject('ClassComp', 'demo1');
+      //let b = await ms.inject('b', 'demo2');
+      let aa = await a.f2();
+      console.log(aa);
+    }
+    catch (ex) {
+      console.error('MANUAL RECOVERY. Failed And User Handled..2.');
+      //alert("Error in Child.");
+      ms.ErrorClose();  // If need to get the control from sys, close popup before call custom err page.
+      //await ms.open('Error');
+      throw ex;
+      // ms.stop();
+    }
+
+    // alert("aaaa");
+    /*     if (r1.ok==false) { // POPUP is Open Now.
+          ms.ErrorClose(); // off the system control and POPUP.
+          ms.open('index'); // shift user to suitable any other place.
+          await ms.stop();  // stop continue to next line.
+        }
+        alert("No err"); */
+  }
+
+  async function ClassCall() {
+
+    // b.id('Text1').value='text updated..';
+
+    // alert(" WILL NOT PRINT IF AWAIT MS.STOP() USED ABOVE");
+
+
+    // NOT support Now Ok ==> let ret1 = await ms.call(b,'f2',x);
+    //let ret1 = await b.f2(); //
+    // if (ret1.ok==false) { 
+    //  ms.ErrorClose(); 
+    // ms.open('a'); return;
+    // }
+
+    // let ret2 = await b.f2();
+    let b = await ms.inject('ClassComp', 'demo2');
+    const person1 = await new b.Person("Alice", 25);
+    let ret3 = await person1.greet(); // Output: Hello, my name is Alice and I'm 25 years old.
+    console.log("Returned val = " + ret3);
+    // alert(ret1.value); alert(ret2.value); alert(ret3.value);
+    // await ms.open('board.html'); 
+
+  }
+</script>

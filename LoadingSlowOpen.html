@@ -1,0 +1,14 @@
+<div style="padding:16px;font-family:Segoe UI,Arial,sans-serif;">
+  <h2>Opened With ms.open</h2>
+  <p>This component was opened after the configured loading animation.</p>
+  <button id="btnBack">Back to Loading Demo</button>
+</div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  await new Promise(resolve => setTimeout(resolve, 1100));
+
+  ms.id('btnBack').onclick = () => ms.open('LoadingMsAnim');
+</script>

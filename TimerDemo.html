@@ -1,0 +1,97 @@
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  #log {
+    margin-top: 20px;
+  }
+
+  .event {
+    margin: 5px 0;
+  }
+</style>
+<h2>Advanced Vanilla JS Timer Demo</h2>
+<button id="start">Start Scheduler</button>
+<button id="stop">Stop Scheduler</button>
+<div id="log"></div>
+<br>
+<br>
+<br>
+<br>
+-------------------
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  const log = ms.id("log");
+
+  // Utility to log messages with timestamps
+  function logEvent(msg) {
+    const time = new Date().toLocaleTimeString();
+    const div = document.createElement("div");
+    div.className = "event";
+    div.textContent = `[${time}] ${msg}`;
+    log.appendChild(div);
+  }
+
+  // Example: Countdown timer
+  function startCountdown(seconds) {
+    let remaining = seconds;
+    logEvent(`Countdown started: ${seconds} seconds`);
+    const intervalId = setInterval(() => {
+      logEvent(`Remaining: ${remaining}s`);
+      remaining--;
+      if (remaining < 0) {
+        clearInterval(intervalId);
+        logEvent("Countdown finished!");
+      }
+    }, 1000);
+  }
+
+  // Example: Debounce function using timers
+  function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  // Example: Scheduler that runs tasks at different times
+  let schedulerTimers = [];
+  function startScheduler() {
+    logEvent("Scheduler started");
+
+    // Task 1: Run after 2 seconds
+    schedulerTimers.push(setTimeout(() => {
+      logEvent("Task 1 executed (after 2s)");
+    }, 2000));
+
+    // Task 2: Run every 3 seconds
+    schedulerTimers.push(setInterval(() => {
+      logEvent("Task 2 executed (every 3s)");
+    }, 3000));
+
+    // Task 3: Countdown after 5 seconds
+    schedulerTimers.push(setTimeout(() => {
+      startCountdown(5);
+    }, 5000));
+  }
+
+  function stopScheduler() {
+    schedulerTimers.forEach(timer => clearTimeout(timer));
+    schedulerTimers.forEach(timer => clearInterval(timer));
+    schedulerTimers = [];
+    logEvent("Scheduler stopped");
+  }
+
+  // Attach events
+  ms.id("start").addEventListener("click", startScheduler);
+  ms.id("stop").addEventListener("click", stopScheduler);
+
+  // Example: Debounced resize event
+  window.addEventListener("resize", debounce(() => {
+    logEvent("Window resized (debounced)");
+  }, 500));
+</script>

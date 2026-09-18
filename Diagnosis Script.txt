@@ -1,0 +1,37 @@
+(function () {
+
+  console.clear();
+  console.log("========== LIVE DOM + SHADOW TREE ==========");
+
+  function walk(node, indent = "") {
+
+    if (!node) return;
+
+    const name = node.nodeName.toLowerCase();
+    const id = node.id ? `#${node.id}` : "";
+    const cls = node.className ? `.${node.className}` : "";
+
+    console.log(indent + name + id + cls);
+
+    // If shadow root exists, show it
+    if (node.shadowRoot) {
+      console.log(indent + "  └─ #shadow-root");
+      walk(node.shadowRoot, indent + "     ");
+    }
+
+    // Walk children
+    const children = node.children || node.childNodes;
+    if (!children) return;
+
+    [...children].forEach(child => {
+      if (child.nodeType === 1) { // element only
+        walk(child, indent + "  ");
+      }
+    });
+  }
+
+  walk(document.documentElement);
+
+  console.log("========== END ==========");
+
+})();

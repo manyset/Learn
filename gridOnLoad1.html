@@ -1,0 +1,85 @@
+<style>
+  /* Basic grid container */
+  .grid-container {
+    display: grid;
+    gap: 10px;
+    padding: 20px;
+    background: #f0f0f0;
+    border: 2px solid #333;
+  }
+
+  /* Grid cell style */
+  .grid-cell {
+    background: lightblue;
+    border: 1px solid #333;
+    padding: 20px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+  }
+
+  /* Special cell style */
+  .special-cell {
+    background: lightcoral;
+  }
+</style>
+
+
+<div id="grid-container" class="grid-container">
+  <!-- Grid cells will be created here by JavaScript -->
+</div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready(); secsec
+
+  grid();
+  async function grid() {
+
+    // SAMPLE JSON INPUT
+    const gridData = {
+      columns: 4,          // c = number of columns
+      rows: 3,            // r = number of rows
+      gap: "10px",        // space between cells
+      cells: [
+        { id: 1, content: "Cell 1", color: "lightblue" },
+        { id: 2, content: "Cell 2", color: "lightgreen" },
+        { id: 3, content: "Cell 3", color: "lightyellow", special: true },
+        { id: 4, content: "Cell 4", color: "lightblue" },
+        { id: 5, content: "Cell 5", color: "lightgreen" },
+        { id: 6, content: "Cell 6", color: "lightyellow", special: true },
+        { id: 7, content: "Cell 7", color: "lightblue" },
+        { id: 8, content: "Cell 8", color: "lightgreen" },
+        { id: 9, content: "Cell 9", color: "lightyellow", special: true },
+        { id: 10, content: "Cell 10", color: "lightblue" },
+        { id: 11, content: "Cell 11", color: "lightgreen" },
+        { id: 12, content: "Cell 12", color: "lightyellow", special: true }
+      ]
+    };
+
+    // Get the grid container
+    const gridContainer = ms.id('grid-container');
+
+    // Apply grid styles based on JSON
+    gridContainer.style.gridTemplateColumns = `repeat(${gridData.columns}, 1fr)`;
+    gridContainer.style.gridTemplateRows = `repeat(${gridData.rows}, 100px)`;
+    gridContainer.style.gap = gridData.gap;
+
+    // Create grid cells
+    for (let i = 0; i < gridData.cells.length; i++) {
+      const cell = gridData.cells[i];
+      const cellElement = document.createElement('div');
+      cellElement.className = 'grid-cell';
+      cellElement.textContent = cell.content;
+      cellElement.style.backgroundColor = cell.color;
+
+      if (cell.special) {
+        cellElement.classList.add('special-cell');
+        cellElement.textContent = "⭐ " + cell.content;
+        await ms.inject("TextBox1", cellElement);
+      }
+
+      gridContainer.appendChild(cellElement);
+    }
+  }
+</script>

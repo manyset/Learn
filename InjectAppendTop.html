@@ -1,0 +1,73 @@
+<div>--- Append Top/Bottom Test ---</div>
+
+<div>Local append bottom: expect 0,1,2,3,4</div>
+<div id="LocalBottom"></div>
+<br>
+
+<div>Local append top: expect 4,3,2,1,0</div>
+<div id="LocalTop"></div>
+<br>
+
+<div>Local mixed: expect T1,T0,B0,B1</div>
+<div id="LocalMix"></div>
+<br>
+
+<div>--- Deep Inject Outer Frame ---</div>
+<div id="Outer"></div>
+<div>--- End Test ---</div>
+
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  for (let i = 0; i < 5; i++) {
+    let ref = await ms.inject('TextBox1', 'LocalBottom', { append: true, top: false });
+    ref.SetVal(i);
+  }
+
+  for (let i = 0; i < 5; i++) {
+    let ref = await ms.inject('TextBox1', 'LocalTop', { append: true, top: true });
+    ref.SetVal(i);
+  }
+
+  for (let i = 0; i < 2; i++) {
+    let ref = await ms.inject('TextBox1', 'LocalMix', { append: true, top: false });
+    ref.SetVal('B' + i);
+  }
+
+  for (let i = 0; i < 2; i++) {
+    let ref = await ms.inject('TextBox1', 'LocalMix', { append: true, top: true });
+    ref.SetVal('T' + i);
+  }
+
+  let outer = await ms.inject('InjectAppendTopOuterFrame', 'Outer', {
+    append: true,
+    top: false
+  });
+
+  // Deep inject into child-owned div, bottom mode: expect 0,1,2,3,4
+  for (let i = 0; i < 5; i++) {
+    let ref = await ms.inject('TextBox1', outer.innerSlotTop, { append: true, top: false });
+    ref.SetVal(i);
+  }
+
+  // Deep inject into child-owned div, top mode: expect 4,3,2,1,0
+  for (let i = 0; i < 5; i++) {
+    let ref = await ms.inject('TextBox1', outer.innerSlotBottom, { append: true, top: true });
+    ref.SetVal(i);
+  }
+
+  // Deep inject into one child-owned div with both bottom and top modes:
+  // expect T1,T0,B0,B1
+  for (let i = 0; i < 2; i++) {
+    let ref = await ms.inject('TextBox1', outer.innerSlotMix, { append: true, top: false });
+    ref.SetVal('B' + i);
+  }
+
+  for (let i = 0; i < 2; i++) {
+    let ref = await ms.inject('TextBox1', outer.innerSlotMix, { append: true, top: true });
+    ref.SetVal('T' + i);
+  }
+
+</script>

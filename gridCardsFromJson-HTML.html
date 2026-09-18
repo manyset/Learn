@@ -1,0 +1,126 @@
+se
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 40px;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+
+  .card-content {
+    padding: 16px;
+  }
+
+  .card-content h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    color: #333;
+  }
+
+  .card-content p {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  .card button {
+    background: #0078d7;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.3s ease;
+  }
+
+  .card button:hover {
+    background: #005fa3;
+  }
+</style>
+
+
+<h1>Explore Destinations</h1>
+<div id="grid" class="grid"></div>
+
+<script>
+  // import ms from './msLib/ms.js';
+
+  // Example JSON data
+  const destinations = [
+    {
+      title: "Mountain Escape",
+      description: "Relax in the serene beauty of the mountains.",
+      image: "https://picsum.photos/300/160?random=31",
+      buttonText: "View More"
+    },
+    {
+      title: "Beach Paradise",
+      description: "Enjoy the sun, sand, and waves at this tropical getaway.",
+      image: "https://picsum.photos/300/160?random=32",
+      buttonText: "View More"
+    },
+    {
+      title: "City Lights",
+      description: "Discover vibrant nightlife and cultural experiences.",
+      image: "https://picsum.photos/300/160?random=33",
+      buttonText: "View More"
+    },
+    {
+      title: "Desert Adventure",
+      description: "Explore vast dunes and unique landscapes.",
+      image: "https://picsum.photos/300/160?random=34",
+      buttonText: "View More"
+    }
+  ];
+
+  // Select grid using querySelector
+  const grid = document.querySelector("#grid");
+
+  // Use a classic for loop instead of forEach
+  for (let i = 0; i < destinations.length; i++) {
+    const dest = destinations[i];
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+        <img src="${dest.image}" alt="${dest.title}">
+        <div class="card-content">
+          <h3>${dest.title}</h3>
+          <p>${dest.description}</p>
+          <button>${dest.buttonText}</button>
+        </div>
+      `;
+    grid.appendChild(card); // ERROR HERE
+    // ms.inject("TextBox1", card); // INJECT TEST
+  }
+</script>

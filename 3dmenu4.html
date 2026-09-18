@@ -1,0 +1,452 @@
+<script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+<!-- Self-contained mount point INSIDE this component. Canvas + overlays are
+     appended here (never document.body) so nothing escapes onto the page when
+     injected. Layout mode is chosen at runtime by the script. -->
+<div id="stage"></div>
+
+<style>
+    /* Fill the injected container's width (the host is otherwise a shrink-to-fit
+       flex item). Harmless standalone, where #stage is position:fixed anyway. */
+    :host {
+        display: block;
+        width: 100%;
+    }
+
+    /* `body {}` does not apply inside a shadow-DOM component, so all visuals
+       live on #stage. Placed after the markup so the standalone bootstrap
+       (which moves <body> children into the shadow) carries it in too. */
+    #stage {
+        position: relative;
+        overflow: hidden;
+        background-color: #0a0a1a;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Standalone: fill the viewport. */
+    #stage.standalone {
+        position: fixed;
+        inset: 0;
+    }
+
+    /* Injected: a contained block sized to its target container. */
+    #stage.injected {
+        width: 100%;
+        height: 70vh;
+        border-radius: 8px;
+    }
+
+    #stage canvas {
+        display: block;
+    }
+</style>
+
+<script type="module">
+    import ms from './msLib/ms.js';
+
+    // --- Import Three.js (bare specifiers resolved via this component's
+    //     <script type="importmap"> by the ms engine — works standalone too) ---
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    await ms.ready();
+
+    // Mount target: this component's OWN #stage (shadow-scoped), NOT document.body.
+    const stage = ms.id('stage').el;
+    // const stage = document.getElementById('stage').el;
+
+    // Injected components have a parent instance; the standalone bootstrap
+    // screen does not. Choose full-screen (standalone) vs contained (injected).
+    const host = stage.getRootNode().host;
+    const injected = !!(host && host.__ms_instance && host.__ms_instance.parentRef);
+    stage.classList.add(injected ? 'injected' : 'standalone');
+
+    // Create scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a1a);
+    scene.fog = new THREE.FogExp2(0x0a0a1a, 0.015);
+
+    // Create camera (aspect corrected by the ResizeObserver below)
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(8, 4, 12);
+    camera.lookAt(0, 0, 0);
+
+    // Create renderer — appended into #stage, NOT document.body
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    stage.appendChild(renderer.domElement);
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.0;
+    controls.enableZoom = true;
+    controls.target.set(0, 1, 0);
+
+    // --- Lighting ---
+    // Ambient light
+    const ambientLight = new THREE.AmbientLight(0x404060);
+    scene.add(ambientLight);
+
+    // Main directional light
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(5, 10, 7);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    scene.add(dirLight);
+
+    // Add some colorful point lights
+    const colors = [0xff3333, 0x33ff33, 0x3366ff, 0xaa44ff, 0xffaa44];
+    colors.forEach((color, i) => {
+        const light = new THREE.PointLight(color, 0.8, 20);
+        const angle = (i / colors.length) * Math.PI * 2;
+        light.position.set(Math.cos(angle) * 6, 3, Math.sin(angle) * 6);
+        scene.add(light);
+    });
+
+    // Add a back light
+    const backLight = new THREE.PointLight(0x4466ff, 0.5);
+    backLight.position.set(-3, 2, -5);
+    scene.add(backLight);
+
+    // --- Environment ---
+    // Grid floor
+    const gridHelper = new THREE.GridHelper(20, 20, 0x8866ff, 0x4422aa);
+    gridHelper.position.y = -0.5;
+    scene.add(gridHelper);
+
+    // Floating particles
+    const particleGeo = new THREE.BufferGeometry();
+    const particleCount = 1000;
+    const particlePositions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+        particlePositions[i * 3] = (Math.random() - 0.5) * 30;
+        particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+        particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particleMat = new THREE.PointsMaterial({
+        color: 0xaa88ff,
+        size: 0.05,
+        transparent: true,
+        blending: THREE.AdditiveBlending
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // Central crystal
+    const coreGeo = new THREE.OctahedronGeometry(1.0, 0);
+    const coreMat = new THREE.MeshStandardMaterial({
+        color: 0x88aaff,
+        emissive: 0x224488,
+        roughness: 0.2,
+        metalness: 0.3
+    });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    core.position.set(0, 1, 0);
+    core.castShadow = true;
+    core.receiveShadow = true;
+    scene.add(core);
+
+    // --- Create Crystal Menu Items ---
+    const menuItems = [
+        { label: 'RUBY', color: 0xff3333, desc: 'Data Core', icon: '🔴', pos: [-4, 2.5, -3] },
+        { label: 'EMERALD', color: 0x33ff33, desc: 'Cache Layer', icon: '🟢', pos: [4, 2.5, -3] },
+        { label: 'SAPPHIRE', color: 0x3366ff, desc: 'Network Hub', icon: '🔵', pos: [-5, 1.5, 4] },
+        { label: 'AMETHYST', color: 0xaa44ff, desc: 'Auth Service', icon: '🟣', pos: [5, 1.5, 4] },
+        { label: 'TOPAZ', color: 0xffaa44, desc: 'Transactions', icon: '🟡', pos: [0, 3, -5] }
+    ];
+
+    const menuMeshes = [];
+
+    menuItems.forEach((item) => {
+        // Create a group for each crystal
+        const group = new THREE.Group();
+
+        // Main crystal (octahedron)
+        const crystalGeo = new THREE.OctahedronGeometry(0.8, 0);
+        const crystalMat = new THREE.MeshStandardMaterial({
+            color: item.color,
+            emissive: item.color,
+            emissiveIntensity: 0.3,
+            roughness: 0.1,
+            metalness: 0.2,
+            transparent: true,
+            opacity: 0.9
+        });
+        const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+        crystal.castShadow = true;
+        crystal.receiveShadow = true;
+        group.add(crystal);
+
+        // Inner smaller crystal
+        const innerGeo = new THREE.OctahedronGeometry(0.4, 0);
+        const innerMat = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            emissive: item.color,
+            emissiveIntensity: 0.5
+        });
+        const inner = new THREE.Mesh(innerGeo, innerMat);
+        inner.castShadow = true;
+        inner.receiveShadow = true;
+        inner.position.set(0.2, 0.2, 0.2);
+        group.add(inner);
+
+        // Ring around crystal
+        const ringGeo = new THREE.TorusGeometry(1.0, 0.03, 16, 32);
+        const ringMat = new THREE.MeshStandardMaterial({
+            color: item.color,
+            emissive: item.color,
+            emissiveIntensity: 0.3
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.rotation.z = Math.random() * Math.PI;
+        group.add(ring);
+
+        // Position the group
+        group.position.set(item.pos[0], item.pos[1], item.pos[2]);
+
+        // Store metadata
+        group.userData = {
+            label: item.label,
+            desc: item.desc,
+            color: item.color,
+            icon: item.icon
+        };
+
+        scene.add(group);
+        menuMeshes.push(group);
+
+        // Add a light inside each crystal
+        const light = new THREE.PointLight(item.color, 1, 5);
+        light.position.set(item.pos[0], item.pos[1], item.pos[2]);
+        scene.add(light);
+    });
+
+    // --- UI Elements (created directly in body) ---
+    const titleDiv = document.createElement('div');
+    titleDiv.id = 'title';
+    titleDiv.textContent = 'CRYSTAL MENU';
+    titleDiv.style.cssText = `
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 12px;
+            z-index: 10;
+            text-shadow: 0 0 30px cyan, 0 0 60px blue;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 40px;
+            border-radius: 60px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        `;
+    stage.appendChild(titleDiv);
+
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'status';
+    statusDiv.textContent = '✨ Ready';
+    statusDiv.style.cssText = `
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            background: rgba(20,30,50,0.9);
+            color: #aaffaa;
+            padding: 16px 32px;
+            border-radius: 60px;
+            border: 1px solid #88ff88;
+            font-size: 1.2rem;
+            z-index: 10;
+            box-shadow: 0 10px 30px black;
+            backdrop-filter: blur(10px);
+        `;
+    stage.appendChild(statusDiv);
+
+    const legendDiv = document.createElement('div');
+    legendDiv.id = 'legend';
+    legendDiv.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; gap:15px;"><span style="width:18px;height:18px;border-radius:50%;background:#ff3333;box-shadow:0 0 20px #ff3333;"></span> RUBY • Data Core</div>
+                <div style="display:flex; align-items:center; gap:15px;"><span style="width:18px;height:18px;border-radius:50%;background:#33ff33;box-shadow:0 0 20px #33ff33;"></span> EMERALD • Cache</div>
+                <div style="display:flex; align-items:center; gap:15px;"><span style="width:18px;height:18px;border-radius:50%;background:#3366ff;box-shadow:0 0 20px #3366ff;"></span> SAPPHIRE • Network</div>
+                <div style="display:flex; align-items:center; gap:15px;"><span style="width:18px;height:18px;border-radius:50%;background:#aa44ff;box-shadow:0 0 20px #aa44ff;"></span> AMETHYST • Auth</div>
+                <div style="display:flex; align-items:center; gap:15px;"><span style="width:18px;height:18px;border-radius:50%;background:#ffaa44;box-shadow:0 0 20px #ffaa44;"></span> TOPAZ • Transactions</div>
+            </div>
+        `;
+    legendDiv.style.cssText = `
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            background: rgba(0,0,0,0.8);
+            color: #eee;
+            padding: 20px 30px;
+            border-radius: 30px;
+            border: 1px solid #aa88ff;
+            font-size: 1rem;
+            z-index: 10;
+            line-height: 2;
+            box-shadow: 0 10px 30px black;
+            backdrop-filter: blur(10px);
+        `;
+    stage.appendChild(legendDiv);
+
+    const instrDiv = document.createElement('div');
+    instrDiv.textContent = '🖱️ Drag to rotate • Hover crystals • Click to select';
+    instrDiv.style.cssText = `
+            position: absolute;
+            top: 120px;
+            right: 40px;
+            color: #ffaa88;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid #ffaa88;
+            z-index: 10;
+        `;
+    stage.appendChild(instrDiv);
+
+    // --- Raycaster for Interaction ---
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    renderer.domElement.addEventListener('mousemove', (event) => {
+        // Map pointer to the canvas box (not the window) so hit-testing is
+        // correct wherever the component sits on the page.
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(menuMeshes, true);
+
+        // Reset all emissive
+        menuMeshes.forEach(mesh => {
+            mesh.traverse(child => {
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(m => {
+                            if (m.emissive) m.emissiveIntensity = 0.3;
+                        });
+                    } else {
+                        if (child.material.emissive) child.material.emissiveIntensity = 0.3;
+                    }
+                }
+            });
+        });
+
+        if (intersects.length > 0) {
+            let hit = intersects[0].object;
+            while (hit.parent && !menuMeshes.includes(hit)) {
+                hit = hit.parent;
+            }
+            if (menuMeshes.includes(hit)) {
+                hit.traverse(child => {
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => {
+                                if (m.emissive) m.emissiveIntensity = 1.0;
+                            });
+                        } else {
+                            if (child.material.emissive) child.material.emissiveIntensity = 1.0;
+                        }
+                    }
+                });
+                statusDiv.textContent = `💎 ${hit.userData.label} — ${hit.userData.desc}`;
+            }
+        } else {
+            statusDiv.textContent = '✨ Ready';
+        }
+    });
+
+    renderer.domElement.addEventListener('click', () => {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(menuMeshes, true);
+
+        if (intersects.length > 0) {
+            let hit = intersects[0].object;
+            while (hit.parent && !menuMeshes.includes(hit)) {
+                hit = hit.parent;
+            }
+            if (menuMeshes.includes(hit)) {
+                statusDiv.textContent = `✅ SELECTED: ${hit.userData.label} — ${hit.userData.desc}`;
+
+                // Pulse effect
+                hit.traverse(child => {
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => {
+                                if (m.emissive) m.emissiveIntensity = 2.0;
+                            });
+                        } else {
+                            if (child.material.emissive) child.material.emissiveIntensity = 2.0;
+                        }
+                    }
+                });
+                setTimeout(() => {
+                    hit.traverse(child => {
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(m => {
+                                    if (m.emissive) m.emissiveIntensity = 0.3;
+                                });
+                            } else {
+                                if (child.material.emissive) child.material.emissiveIntensity = 0.3;
+                            }
+                        }
+                    });
+                }, 200);
+            }
+        }
+    });
+
+    // Size to #stage, driven by ResizeObserver (fires once the host is laid out
+    // — the script runs before it is attached, when clientWidth would be 0 — and
+    // on any later resize), so the view never collapses.
+    function resizeToStage() {
+        const w = stage.clientWidth || 1;
+        const h = stage.clientHeight || 1;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+    }
+    new ResizeObserver(resizeToStage).observe(stage);
+    resizeToStage();
+
+    // --- Animation Loop ---
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Rotate crystals
+        menuMeshes.forEach((mesh, i) => {
+            mesh.rotation.y += 0.005;
+            mesh.rotation.x += 0.002;
+        });
+
+        // Rotate core
+        core.rotation.y += 0.003;
+        core.rotation.x += 0.001;
+
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    animate();
+</script>

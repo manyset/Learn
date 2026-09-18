@@ -1,0 +1,231 @@
+<style>
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+
+  .dropdown-btn {
+    background: #4a90e2;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  .dropdown-btn:hover {
+    background: #357ABD;
+    transform: scale(1.05);
+  }
+
+
+  .dropdown-content {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    background: white;
+    min-width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+    pointer-events: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+
+  .dropdown-content.show {
+    opacity: 1;
+    transform: scaleY(1);
+    pointer-events: auto;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .dropdown-item:hover {
+    background: #f0f0f0;
+  }
+
+  .dropdown-item img {
+    width: 24px;
+    height: 16px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+  }
+
+  .dropdown-item label {
+    flex: 1;
+    cursor: pointer;
+  }
+
+  .dropdown-item input {
+    margin-right: 8px;
+  }
+
+  .result-btn {
+    margin-top: 20px;
+    background: #27ae60;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .result-btn:hover {
+    background: #1e8449;
+  }
+
+  .result {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #333;
+  }
+</style>
+
+<div class="dropdown">
+  <button class="dropdown-btn">Select Countries ▼</button>
+  <div class="dropdown-content">
+    <!-- 10 countries with flags -->
+    <div class="dropdown-item">
+      <input type="checkbox" value="United States" id="us">
+      <img src="https://flagcdn.com/us.svg" alt="US Flag">
+      <label for="us">United States</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="United Kingdom" id="uk">
+      <img src="https://flagcdn.com/gb.svg" alt="UK Flag">
+      <label for="uk">United Kingdom</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="Canada" id="ca">
+      <img src="https://flagcdn.com/ca.svg" alt="Canada Flag">
+      <label for="ca">Canada</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="Germany" id="de">
+      <img src="https://flagcdn.com/de.svg" alt="Germany Flag">
+      <label for="de">Germany</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="France" id="fr">
+      <img src="https://flagcdn.com/fr.svg" alt="France Flag">
+      <label for="fr">France</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="Italy" id="it">
+      <img src="https://flagcdn.com/it.svg" alt="Italy Flag">
+      <label for="it">Italy</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="Japan" id="jp">
+      <img src="https://flagcdn.com/jp.svg" alt="Japan Flag">
+      <label for="jp">Japan</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="India" id="in">
+      <img src="https://flagcdn.com/in.svg" alt="India Flag">
+      <label for="in">India</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="Brazil" id="br">
+      <img src="https://flagcdn.com/br.svg" alt="Brazil Flag">
+      <label for="br">Brazil</label>
+    </div>
+    <div class="dropdown-item">
+      <input type="checkbox" value="Australia" id="au">
+      <img src="https://flagcdn.com/au.svg" alt="Australia Flag">
+      <label for="au">Australia</label>
+    </div>
+  </div>
+</div>
+
+<button id="show1" class="result-btn">Get Selected Countries</button>
+<div id="result" class="result"></div>
+<br>
+<br>
+<br>
+<br>
+<br>
+------------------------------------
+<script type="module">
+  import ms from './msLib/ms.js';
+
+  /* =========================
+     Element References (MS)
+  ========================= */
+
+  const showBtn = ms.id('show1');
+  const resultEl = ms.id('result');
+
+  const btn = ms.q('.dropdown-btn');
+  const content = ms.q('.dropdown-content');
+  const dropdown = ms.q('.dropdown');
+
+  /* =========================
+     Events
+  ========================= */
+
+  showBtn.addEventListener('click', showSelected);
+
+  // Open dropdown on mouse over
+  dropdown.addEventListener('mouseover', () => {
+    content.classList.add('show');
+  });
+
+  btn.addEventListener('click', () => {
+    content.classList.toggle('show');
+  });
+
+  // Close dropdown if clicked outside
+  window.addEventListener('click', (e) => {
+    if (!btn.contains(e.target) && !content.contains(e.target)) {
+      content.classList.remove('show');
+    }
+  });
+
+  // Close dropdown when mouse leaves the dropdown area
+  dropdown.addEventListener('mouseleave', () => {
+    content.classList.remove('show');
+  });
+
+  /* =========================
+     Logic
+  ========================= */
+
+  function getSelectedCountries() {
+
+    const inputs = content.querySelectorAll('input[type="checkbox"]');
+
+    const selected = [];
+
+    inputs.forEach(cb => {
+      if (cb.checked) selected.push(cb.value);
+    });
+
+    return selected;
+  }
+
+  function showSelected() {
+    const selected = getSelectedCountries();
+    alert("Selected: " + selected.join(", "));
+    resultEl.innerText = selected.length
+      ? "Selected: " + selected.join(", ")
+      : "No countries selected.";
+  }
+
+</script>

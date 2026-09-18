@@ -1,0 +1,75 @@
+
+<h2>Form Demo: 1st Start web service  https://localhost:44334/formdata
+<br>
+Demo 1: ms.form.autoFill(url) <br>
+Demo 2: ms.form.autoUpdate(url2) <br>
+Demo 3: ms.form.combo  <br>
+</h2>
+
+<input id="textInvoiceDate" type="text" value="..." />
+
+<input id="textCustomer" type="text" value="..." />
+
+<div id="comboID1">comboID1...</div>
+<mscombo id="combo2">combo2..</mscombo>
+
+<div id="gridID1">gridID1...</div>
+<div id="gridID2">gridID2...</div>
+
+<button id="btnUpdate">Test ms.form.autoUpdate()</button>
+
+<script type="module">
+import ms from './msLib/ms.js'
+await ms.ready();
+
+await new Promise(r => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', r);
+  } else {
+    r();
+  }
+});
+
+
+// ms.inject('b', 'combo'); // check--> Theme
+
+await ms.form.autoFill('https://localhost:44334/formdata', {"grid": "./CSS/msgrid-my1.css"}); //  { ,"combo": "./comb.css"} And check--> Theme
+//ms.style.inject('cmbSlot1', './CSS/combo.css');  // check--> Theme
+
+//await ms.form.autoFill(); 
+//console.log(typeof ms.form.createCombo);
+
+ms.id('btnUpdate').on('click', Update);
+
+
+async function Update()
+{
+  // await ms.form.autoFill(); //
+
+  //  ms.id('btnRead').innerText = "Selected Value: " + JSON.stringify(c.value);
+ 
+    ms.style.inject('comboID1',  './CSS/combo2.css');
+
+};
+
+
+  // ms.el.msCombo('cmbSlot1').css = './CSS/mscombo2.css';
+//let c = ms.el.msCombo('cmbSlot1');
+//c.css = './CSS/test-combo.css';
+  //applyTheme();
+    //const el = ms.id('cmbSlot1');
+  
+    //el.style.backgroundColor = "black";
+ // el.style.color = "red";
+
+  //el.setAttribute("theme", "dark");
+
+  //let c = ms.el.msCombo('cmbSlot1');
+//console.log(c);
+ //c.css = './CSS/mscombo2.css';
+
+//    let selected = ms.el.msCombo('cmbDeliveryMethods').getSelectedItems();
+ //   console.log(selected);
+  //  ms.form.autoUpdate('url2');
+
+</script>

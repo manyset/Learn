@@ -1,0 +1,101 @@
+
+
+<link rel="stylesheet" href=".\CSS\Glass_Morphism.css">
+
+<div id="Fixedcontainer1"></div>
+
+  <div>
+    <div>This is GRID Component </div>
+    <input id="Text1" type="text" value="C-default" />
+    <input id="Button1" type="button" value="button from sourceC" onclick="return Button1_onclick()" />
+    <button id="grdcall2">FillGrid by 4</button>
+    <button id="grdClear">Clear Grid</button>
+   
+  </div>
+
+  <script type="module">
+  import ms from './msLib/ms.js';
+
+      ms.id('grdcall2').on('click', () => FillGrid(4));
+        ms.id('grdClear').onclick = ClearGrid;
+     
+    function Button1_onclick() {
+      const v = ms.id('Text1').value;
+      alert('A => Text1 value: ' + v);
+    }
+
+export async function FillGrid(rowcount) {
+   
+ // if (rowcount==null) rowcount=4;
+  alert("FillGrid started with rowcount: " + rowcount);
+
+  const host = ms.id("Fixedcontainer1");
+   // 🔑 attach early. MS Need This way...!!!
+  const table = document.createElement("div");
+  table.className = "table"; // "table";
+
+  try {
+  host.appendChild(table);   // 🔑 attach early. MS Need This way...!!!
+  }
+   catch { alert("er1"); }
+
+  for (let r = 0; r < rowcount; r++) {
+    const row = document.createElement("div");
+    row.className = "row";
+    try {
+    table.appendChild(row);
+     }
+      catch { alert("er2"); }
+
+    // filling 2 fields
+    for (let col = 0; col < 2; col++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      try {
+      row.appendChild(cell);
+      }
+      catch { alert("er"); }
+
+      if (col==0) cell.innerHTML="field 1"; else cell.innerHTML="field 2";
+      const o = await ms.inject("TextBox1", cell);
+      let v1 = o.SetVal('225'); // can use await
+       // let c = await ms.call(o,'SetVal',224); // SHOULD WORK
+      let v2 = o.txt1.value +1;
+      o.SetVal(v2);
+      let x=0;
+    }
+  }
+  
+}
+
+function ClearGrid() {
+  ms.destroyContainer("Fixedcontainer1", false); 
+}
+
+
+//const targetEl = ms.id('Div1AtCompC'); // scoped to this component instance
+
+// let i=1;
+  //for (let i = 0; i < rowcount; i++) {
+
+//   const temp = document.createElement('div'); 
+ //  temp.id='DynamicDiv'; temp.innerHTML="<b>Hello World!</b>";
+ //  document.body.appendChild(temp);
+//   let v =  await putin('sourceA.html', tempDiv);
+
+//const tempDiv = ms.id('DynamicDiv');   
+//  alert(ms.id('DynamicDiv').innerHTML);
+ // let v =  await putin('sourceA.html', tempDiv);
+
+
+ // const tempDiv = ms.id('DynamicDiv'); 
+  // targetEl.append(temp);
+ // const DynamicDiv = ms.id('DynamicDiv');
+
+    
+     //  await CallFunctionInInstance(v,'SetVal', "i");
+  //}
+  
+ // }
+
+  </script>

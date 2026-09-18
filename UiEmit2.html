@@ -1,0 +1,53 @@
+<!-- Cart Demo-->
+<h2> Demo 1: Product List and Cart..</h2>
+<select id="myDropdown">
+  <option value="1">Apple</option>
+  <option value="2">Banana</option>
+  <option value="3">Orange</option>
+  <option value="4">Mango</option>
+  <option value="5">Grapes</option>
+</select>
+<p id="result"></p>
+
+<button id="addToCart2">Add To Cart</button>
+
+
+
+<script type="module">
+  import ms from './msLib/ms.js'; await ms.ready();
+
+  ms.id('addToCart2').onclick = AddtoCart;
+
+  function AddtoCart(e) {
+
+    let product = ms.id("myDropdown").selectedOptions[0].text;
+    ms.ui.emit(e, product);
+
+    // OR say==> let data = {product: ms.id("myDropdown").selectedOptions[0].text};
+  }
+</script>
+
+
+
+
+<!-- Mouse Over Demo.. -->
+<br><br><br><br><br><br>
+<h1 id="h11"> Demo 2: Mouse Move Here..</h1>
+<h2 id="h21"></h2>
+
+<script type="module">
+
+  ms.id('h11').onmousemove = ms.call(ShowXY);
+
+
+  function ShowXY(e) {
+    ms.el.h1('h21').innerText = 'X=' + e.clientX + ' Y=' + e.clientY;
+
+    // EMIT
+    ms.ui.emit(e, {
+      x: e.clientX,
+      y: e.clientY
+    });
+  }
+
+</script>

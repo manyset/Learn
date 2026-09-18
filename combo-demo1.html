@@ -1,0 +1,558 @@
+<!-- =========================================================
+     MINIMAL WORKING VERSION
+     (Fixes: dropdown not opening because ms.q() may return MSDomRef)
+     ========================================================= -->
+
+<div id="myCombo"></div>
+
+<style>
+    .multi-select {
+        position: relative;
+        width: 110px;
+        transition: width 0.2s ease;
+        font-family: Arial, sans-serif;
+        color: #334155;
+        box-sizing: border-box;
+    }
+
+    .multi-select.expanded {
+        width: 280px;
+    }
+
+    .select-box {
+        border: 1px solid #e1d7cb;
+        border-radius: 6px;
+        background: #ffffff;
+        padding: 6px 10px;
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        font-size: 13px;
+        user-select: none;
+        box-sizing: border-box;
+    }
+
+    .selected-text {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .arrow {
+        margin-left: 8px;
+        font-size: 10px;
+        color: #64748b;
+    }
+
+    .dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        display: none;
+        z-index: 1000;
+        box-sizing: border-box;
+    }
+
+    .dropdown.open {
+        display: block;
+    }
+
+    .search {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 8px 10px;
+        outline: none;
+        font-size: 13px;
+        box-sizing: border-box;
+    }
+
+    .options {
+        max-height: 180px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    label.option {
+        display: block;
+        width: 100%;
+        padding: 6px 10px;
+        box-sizing: border-box;
+        cursor: pointer;
+        font-size: 13px;
+        color: #554933;
+        white-space: nowrap;
+    }
+
+    label.option:hover {
+        background: #f8fafc;
+    }
+
+    label.option input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    label.option.dimmed {
+        color: #94a3b8;
+        background: #f8fafc;
+        opacity: 1;
+    }
+
+    /* Highlight the entire option row when mouse is over it */
+    label.option:hover {
+        background: #bfdbfe;
+        /* Light blue */
+        color: #1e3a8a;
+        /* Dark blue text */
+        transition: background 0.15s ease;
+    }
+
+    /* Optional: slightly emphasize checkbox */
+    label.option:hover input[type="checkbox"] {
+        transform: scale(1.05);
+    }
+</style>
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    /* =========================================================
+       BUILD HTML
+       ========================================================= */
+
+    const root = ms.id('myCombo');
+    const host = root.el || root;
+
+    host.innerHTML = `
+<div class="multi-select">
+    <div class="select-box">
+        <span class="selected-text">Select</span>
+        <span class="arrow">&#9660;</span>
+    </div>
+
+    <div class="dropdown">
+        <input type="text"
+               class="search"
+               placeholder="Search..." />
+        <div class="options"></div>
+    </div>
+</div>
+`;
+
+    /* =========================================================
+       DATA
+       ========================================================= */
+
+    const items = [
+        'Apple',
+        'Banana',
+        'Cherry',
+        'Pineapple',
+        'Date',
+        'Grape',
+        'Kiwi',
+        'Mango',
+        'Orange'
+    ];
+
+    /* =========================================================
+       RESOLVE ELEMENTS (always convert to raw DOM)
+       ========================================================= */
+
+    function dom(x) {
+        return x && x.el ? x.el : x;
+    }
+
+    const multiSelect = dom(ms.q('.multi-select', host));
+    const selectBox = dom(ms.q('.select-box', host));
+    const dropdown = dom(ms.q('.dropdown', host));
+    const searchInput = dom(ms.q('.search', host));
+    const selectedText = dom(ms.q('.selected-text', host));
+    const options = dom(ms.q('.options', host));
+
+    /* =========================================================
+       BUILD OPTIONS
+       ========================================================= */
+
+    items.forEach(text => {
+
+        const label = document.createElement('label');
+        label.className = 'option';
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.value = text;
+
+        label.appendChild(chk);
+        label.appendChild(document.createTextNode(text));
+
+        options.appendChild(label);
+    });
+
+    const optionLabels =
+        ms.qa('.option', host).map(x => dom(x));
+
+    const checkboxes =
+        ms.qa('.option input', host).map(x => dom(x));
+
+    /* =========================================================
+       OPEN / CLOSE
+       ========================================================= */
+
+    function openDropdown() {
+
+        // =====================================================
+        // BRING CHECKED ITEMS TO THE TOP
+        // =====================================================
+
+        const checkedLabels = [];
+        const uncheckedLabels = [];
+
+        // Use current visual order so search ordering is respected
+        const currentLabels = Array.from(
+            options.querySelectorAll('label.option')
+        );
+
+        currentLabels.forEach(label => {
+
+            const cb =
+                label.querySelector('input[type="checkbox"]');
+
+            if (cb && cb.checked) {
+                checkedLabels.push(label);
+            } else {
+                uncheckedLabels.push(label);
+            }
+        });
+
+        // Reorder existing DOM nodes (no duplication)
+        checkedLabels
+            .concat(uncheckedLabels)
+            .forEach(label => {
+                options.appendChild(label);
+            });
+
+        // =====================================================
+        // OPEN DROPDOWN
+        // =====================================================
+
+        dropdown.classList.add('open');
+        multiSelect.classList.add('expanded');
+
+        // Lock expanded width
+        multiSelect.style.width = '280px';
+        dropdown.style.width = '280px';
+
+        // Focus search box
+        searchInput.focus();
+
+        // Refresh caption according to new visual order
+        updateSelectedText();
+    }
+
+    function closeDropdown() {
+
+        // Close UI only
+        dropdown.classList.remove('open');
+        multiSelect.classList.remove('expanded');
+
+        // Restore normal width
+        multiSelect.style.width = '';
+        dropdown.style.width = '';
+
+        // IMPORTANT:
+        // DO NOT clear searchInput.value
+        // DO NOT restore original order
+        // DO NOT remove highlighting
+        // DO NOT call updateSelectedText()
+    }
+
+    selectBox.addEventListener('click', function (e) {
+        e.stopPropagation();
+
+        if (dropdown.classList.contains('open')) {
+            closeDropdown();
+        } else {
+            openDropdown();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!host.contains(e.target)) {
+            closeDropdown();
+        }
+    });
+
+    /* =========================================================
+       UPDATE SELECTED TEXT
+       ========================================================= */
+
+    function updateSelectedText() {
+
+        const checked = checkboxes.filter(cb => cb.checked);
+
+        // =====================================================
+        // UPDATE CAPTION
+        // =====================================================
+
+        if (checked.length === 0) {
+
+            selectedText.textContent = 'Select';
+
+        } else {
+
+            // Current visual order
+            const visibleOrder = Array.from(
+                options.querySelectorAll('label.option')
+            );
+
+            // First selected item in current order
+            let topSelectedText = '';
+
+            for (const label of visibleOrder) {
+
+                const cb =
+                    label.querySelector('input[type="checkbox"]');
+
+                if (cb && cb.checked) {
+                    topSelectedText = cb.value;
+                    break;
+                }
+            }
+
+            // Fallback
+            if (!topSelectedText) {
+                topSelectedText = checked[0].value;
+            }
+
+            // Caption text
+            if (checked.length === 1) {
+                selectedText.textContent = topSelectedText;
+            } else {
+                selectedText.textContent =
+                    topSelectedText +
+                    ' (+' + (checked.length - 1) + ' more..)';
+            }
+        }
+
+        // =====================================================
+        // PRESERVE CURRENT SEARCH HIGHLIGHT
+        // =====================================================
+
+        const term = searchInput.value.toLowerCase().trim();
+
+        if (term !== '') {
+
+            optionLabels.forEach(label => {
+
+                const text = label.textContent.toLowerCase();
+
+                // Clear previous styling
+                label.classList.remove('dimmed');
+                label.style.background = '';
+                label.style.color = '';
+
+                if (text.includes(term)) {
+                    // Keep highlighted match color
+                    //label.style.background = '#dbeafe';  // light blue back
+                    label.style.color = '#1e3a8a';
+                    label.style.fontWeight = 'bold';
+                } else {
+                    // Keep non-matches dimmed
+                    label.classList.add('dimmed');
+                }
+            });
+        }
+
+        // =====================================================
+        // KEEP WIDTH LOCKED WHILE OPEN
+        // =====================================================
+
+        if (dropdown.classList.contains('open')) {
+            multiSelect.style.width = '280px';
+            dropdown.style.width = '280px';
+        } else {
+            multiSelect.style.width = '';
+            dropdown.style.width = '';
+        }
+    }
+
+    /* =========================================================
+       CHECKBOX EVENTS
+       ========================================================= */
+
+    checkboxes.forEach(cb => {
+
+        cb.addEventListener('change', function (e) {
+
+            // Prevent bubbling
+            e.stopPropagation();
+
+            // 1. Update caption only
+            updateSelectedText();
+
+            // 2. KEEP CURRENT SEARCH RESULT EXACTLY AS IS
+            // DO NOT call searchInput.dispatchEvent('input')
+            // DO NOT reorder items
+            // DO NOT clear styles
+
+            // 3. Ensure dropdown remains open
+            dropdown.classList.add('open');
+            multiSelect.classList.add('expanded');
+
+            // 4. Hard lock width so it never collapses
+            multiSelect.style.width = '280px';
+            dropdown.style.width = '280px';
+
+            // 5. Restore focus to search box
+            searchInput.focus();
+        });
+
+    });
+
+    let closeTimer = null;
+
+    // Mouse leaves the whole control
+    multiSelect.addEventListener('mouseleave', function () {
+
+        // Delay close slightly to avoid accidental collapse
+        closeTimer = setTimeout(function () {
+            closeDropdown();
+        }, 300);   // 300 ms delay
+    });
+
+    // Mouse re-enters anywhere inside the control
+    multiSelect.addEventListener('mouseenter', function () {
+
+        // Cancel pending close
+        if (closeTimer) {
+            clearTimeout(closeTimer);
+            closeTimer = null;
+        }
+    });
+
+    // Clicking inside the search textbox must NOT close the dropdown
+    searchInput.addEventListener('focus', function () {
+
+        // Cancel pending close
+        if (closeTimer) {
+            clearTimeout(closeTimer);
+            closeTimer = null;
+        }
+
+        // Ensure dropdown stays open
+        dropdown.classList.add('open');
+        multiSelect.classList.add('expanded');
+
+        // Keep width locked
+        multiSelect.style.width = '280px';
+        dropdown.style.width = '280px';
+    });
+
+    searchInput.addEventListener('click', function (e) {
+
+        // Prevent click from bubbling to document
+        e.stopPropagation();
+
+        // Cancel any pending close
+        if (closeTimer) {
+            clearTimeout(closeTimer);
+            closeTimer = null;
+        }
+
+        // Ensure dropdown remains open
+        dropdown.classList.add('open');
+        multiSelect.classList.add('expanded');
+
+        // Keep width locked
+        multiSelect.style.width = '280px';
+        dropdown.style.width = '280px';
+    });
+
+    /* =========================================================
+       SEARCH
+       ========================================================= */
+
+    // =========================================================
+    // REPLACE THE ENTIRE SEARCH BLOCK WITH THIS
+    // =========================================================
+
+    searchInput.addEventListener('input', function (e) {
+
+        // Prevent any bubbling side effects
+        e.stopPropagation();
+
+        const term = searchInput.value.toLowerCase().trim();
+
+        const matches = [];
+        const nonMatches = [];
+
+        optionLabels.forEach(label => {
+
+            // -------------------------------------------------
+            // Build permanent search text once
+            // -------------------------------------------------
+            if (!label._searchText) {
+
+                const cb =
+                    label.querySelector('input[type="checkbox"]');
+
+                label._searchText =
+                    (cb ? cb.value : label.textContent)
+                        .toLowerCase();
+            }
+
+            const text = label._searchText;
+
+            // -------------------------------------------------
+            // Clear previous styles
+            // -------------------------------------------------
+            label.classList.remove('dimmed');
+            label.style.background = '';
+            label.style.color = '';
+
+            // -------------------------------------------------
+            // Match / Non-match
+            // -------------------------------------------------
+            if (term === '' || text.includes(term)) {
+
+                // Matching rows
+                if (term !== '') {
+                    label.style.background = '#dbeafe';
+                    label.style.color = '#1e3a8a';
+                }
+
+                matches.push(label);
+
+            } else {
+
+                // Non-matching rows
+                label.classList.add('dimmed');
+
+                nonMatches.push(label);
+            }
+        });
+
+        // -----------------------------------------------------
+        // Reorder existing nodes only (no duplicates)
+        // -----------------------------------------------------
+        matches.concat(nonMatches).forEach(label => {
+            options.appendChild(label);
+        });
+
+        // -----------------------------------------------------
+        // Refresh caption
+        // -----------------------------------------------------
+        updateSelectedText();
+    });
+
+</script>

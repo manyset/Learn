@@ -1,0 +1,314 @@
+<ms-public>
+  <functions>renderPieChart</functions>
+</ms-public>
+
+<div id="compRoot" class="comp-root">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+
+    .comp-root {
+      --bg: #0B1220;
+      --card: #121B2E;
+      --card-border: #223049;
+      --text: #E7ECF3;
+      --muted: #8B96AB;
+      --gold: #E8B84B;
+      --teal: #2FBF9F;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 28px;
+      border-radius: 14px;
+    }
+
+    .comp-root * {
+      box-sizing: border-box;
+    }
+
+    .comp-root .chart-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px 28px 28px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .comp-root .title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      margin: 0 0 2px;
+      letter-spacing: 0.2px;
+    }
+
+    .comp-root .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    .comp-root .chart-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .comp-root .pie-svg {
+      flex: 1 1 320px;
+      min-width: 260px;
+    }
+
+    .comp-root .legend {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .comp-root .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .comp-root .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex: 0 0 auto;
+    }
+
+    .comp-root .lbl {
+      flex: 1;
+      color: var(--text);
+    }
+
+    .comp-root .val {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .comp-root .controls {
+      max-width: 640px;
+      margin: 14px auto 0;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .comp-root .btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--muted);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .comp-root .btn:hover {
+      color: var(--text);
+      border-color: var(--teal);
+    }
+
+    .comp-root .btn.active {
+      color: var(--bg);
+      background: var(--teal);
+      border-color: var(--teal);
+    }
+  </style>
+
+  <div class="chart-card">
+    <h2 class="title" id="chartTitle">Quarterly Revenue by Region</h2>
+    <p class="subtitle" id="chartSubtitle">Share of total, current quarter</p>
+    <div class="chart-wrap">
+      <svg id="pieSvg" class="pie-svg" viewBox="0 0 440 260"></svg>
+      <div id="legend" class="legend"></div>
+    </div>
+  </div>
+  <div class="controls" id="sampleControls"></div>
+
+  <script type="module">
+    import ms from "./ms.js";
+    await ms.ready();
+
+    const root = ms.id("compRoot");
+    const svgns = "http://www.w3.org/2000/svg";
+    const PALETTE = ['#2FBF9F', '#E8B84B', '#5B8DEF', '#E8654B', '#9B6BD9', '#4BC0E8', '#D94F8C', '#8BC24A'];
+
+    function shade(hex, percent) {
+      hex = hex.replace('#', '');
+      let r = parseInt(hex.substring(0, 2), 16);
+      let g = parseInt(hex.substring(2, 4), 16);
+      let b = parseInt(hex.substring(4, 6), 16);
+      r = Math.max(0, Math.min(255, Math.round(r * (1 + percent))));
+      g = Math.max(0, Math.min(255, Math.round(g * (1 + percent))));
+      b = Math.max(0, Math.min(255, Math.round(b * (1 + percent))));
+      return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+
+    function formatMoney(n) {
+      const abs = Math.abs(n);
+      if (abs >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+      if (abs >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
+      return '$' + Number(n).toLocaleString();
+    }
+
+    export function renderPieChart(data, options) {
+      options = options || {};
+      const cx = options.cx || 200;
+      const cy = options.cy || 130;
+      const rx = options.rx || 155;
+      const ry = options.ry || 75;
+      const depth = options.depth || 30;
+
+      const titleEl = ms.id("chartTitle");
+      const subtitleEl = ms.id("chartSubtitle");
+      if (options.title) titleEl.textContent = options.title;
+      if (options.subtitle) subtitleEl.textContent = options.subtitle;
+
+      const svg = root.querySelector("#pieSvg");
+      const legend = root.querySelector("#legend");
+      svg.innerHTML = "";
+      legend.innerHTML = "";
+
+      const total = data.reduce(function (s, d) { return s + d.value; }, 0);
+
+      let angle = -Math.PI / 2;
+      const slices = data.map(function (d, i) {
+        const frac = total > 0 ? d.value / total : 0;
+        const start = angle;
+        const end = angle + frac * 2 * Math.PI;
+        angle = end;
+        return {
+          label: d.label,
+          value: d.value,
+          start: start,
+          end: end,
+          color: d.color || PALETTE[i % PALETTE.length]
+        };
+      });
+
+      function pt(a, yOff) {
+        return { x: cx + rx * Math.cos(a), y: cy + ry * Math.sin(a) + yOff };
+      }
+      function makePath(d, fill) {
+        const p = document.createElementNS(svgns, "path");
+        p.setAttribute("d", d);
+        p.setAttribute("fill", fill);
+        p.setAttribute("stroke", "rgba(0,0,0,0.25)");
+        p.setAttribute("stroke-width", "0.5");
+        return p;
+      }
+
+      slices.forEach(function (s) {
+        const vs = Math.max(s.start, 0);
+        const ve = Math.min(s.end, Math.PI);
+        if (vs < ve) {
+          const p1t = pt(vs, 0), p2t = pt(ve, 0), p1b = pt(vs, depth), p2b = pt(ve, depth);
+          const largeArc = (ve - vs) > Math.PI ? 1 : 0;
+          const d = "M " + p1t.x + " " + p1t.y +
+            " A " + rx + " " + ry + " 0 " + largeArc + " 1 " + p2t.x + " " + p2t.y +
+            " L " + p2b.x + " " + p2b.y +
+            " A " + rx + " " + ry + " 0 " + largeArc + " 0 " + p1b.x + " " + p1b.y + " Z";
+          svg.appendChild(makePath(d, shade(s.color, -0.4)));
+        }
+      });
+
+      slices.forEach(function (s) {
+        const p1 = pt(s.start, 0), p2 = pt(s.end, 0);
+        const largeArc = (s.end - s.start) > Math.PI ? 1 : 0;
+        const d = "M " + cx + " " + cy +
+          " L " + p1.x + " " + p1.y +
+          " A " + rx + " " + ry + " 0 " + largeArc + " 1 " + p2.x + " " + p2.y + " Z";
+        svg.appendChild(makePath(d, s.color));
+      });
+
+      slices.forEach(function (s) {
+        const pct = total > 0 ? ((s.value / total) * 100).toFixed(1) : "0.0";
+        const row = document.createElement("div");
+        row.className = "legend-row";
+        const swatch = document.createElement("span");
+        swatch.className = "swatch";
+        swatch.style.background = s.color;
+        const lbl = document.createElement("span");
+        lbl.className = "lbl";
+        lbl.textContent = s.label;
+        const val = document.createElement("span");
+        val.className = "val";
+        val.textContent = formatMoney(s.value) + " (" + pct + "%)";
+        row.appendChild(swatch);
+        row.appendChild(lbl);
+        row.appendChild(val);
+        legend.appendChild(row);
+      });
+    }
+
+    // ─── Sample data ───
+    const SAMPLES = {
+      revenue: {
+        title: "Quarterly Revenue by Region",
+        subtitle: "Share of total, Q2 2026",
+        data: [
+          { label: "North America", value: 482000 },
+          { label: "Europe", value: 316000 },
+          { label: "Asia Pacific", value: 268500 },
+          { label: "Latin America", value: 97000 },
+          { label: "Middle East & Africa", value: 54200 }
+        ]
+      },
+      budget: {
+        title: "Annual Budget Allocation",
+        subtitle: "Company-wide spend by category",
+        data: [
+          { label: "Engineering", value: 1250000 },
+          { label: "Sales & Marketing", value: 890000 },
+          { label: "Operations", value: 430000 },
+          { label: "G&A", value: 275000 },
+          { label: "R&D", value: 610000 }
+        ]
+      },
+      portfolio: {
+        title: "Investment Portfolio Breakdown",
+        subtitle: "Asset allocation by class",
+        data: [
+          { label: "Equities", value: 58 },
+          { label: "Bonds", value: 22 },
+          { label: "Real Estate", value: 10 },
+          { label: "Commodities", value: 6 },
+          { label: "Cash", value: 4 }
+        ]
+      }
+    };
+
+    const controls = root.querySelector("#sampleControls");
+    Object.keys(SAMPLES).forEach(function (key, i) {
+      const btn = document.createElement("button");
+      btn.className = "btn" + (i === 0 ? " active" : "");
+      btn.textContent = SAMPLES[key].title;
+      btn.addEventListener("click", function () {
+        const allBtns = root.querySelectorAll(".btn");
+        allBtns.forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        renderPieChart(SAMPLES[key].data, { title: SAMPLES[key].title, subtitle: SAMPLES[key].subtitle });
+      });
+      controls.appendChild(btn);
+    });
+
+    renderPieChart(SAMPLES.revenue.data, { title: SAMPLES.revenue.title, subtitle: SAMPLES.revenue.subtitle });
+
+    function onClose() {
+      // No timers, observers, or external resources to clean up.
+    }
+
+    console.log('🥧 3D Pie Chart ready (MS-compatible). Call renderPieChart(data, options) from external code.');
+  </script>
+</div>

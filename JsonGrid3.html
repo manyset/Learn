@@ -1,0 +1,112 @@
+<style>
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 40px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .card h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #0078d7;
+  }
+
+  .card p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .status {
+    margin-top: 8px;
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    font-size: 13px;
+  }
+
+  .status.Pending {
+    background: #fff4cc;
+    color: #a67c00;
+  }
+
+  .status.Completed {
+    background: #d4f8d4;
+    color: #2d7a2d;
+  }
+
+  .status.Overdue {
+    background: #ffd6d6;
+    color: #a60000;
+  }
+</style>
+
+<h1>Sales Orders</h1>
+<div class="grid" id="grid"></div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  grid3();
+
+  async function grid3() {
+    const salesData = [
+      { id: "SO-1001", customer: "Alice Corp", amount: 1250.50, status: "Pending" },
+      { id: "SO-1002", customer: "Beta Ltd", amount: 980.00, status: "Completed" },
+      { id: "SO-1003", customer: "Gamma Inc", amount: 2150.75, status: "Overdue" }
+    ];
+
+    const grid = ms.id('grid'); // document.getElementById("grid");
+
+    for (const record of salesData) {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h3");
+      title.textContent = record.id;
+
+      const customer = document.createElement("p");
+      customer.textContent = "Customer: " + record.customer;
+
+      const amount = document.createElement("p");
+      amount.textContent = "Amount: $" + record.amount.toFixed(2);
+
+      const status = document.createElement("span");
+      status.className = "status " + record.status;
+      status.textContent = record.status;
+
+      card.appendChild(title);
+      card.appendChild(customer);
+      card.appendChild(amount);
+      card.appendChild(status);
+      grid.appendChild(card);
+      await ms.inject("a", card); // Example of injecting a component into each card
+
+    }
+
+  }
+</script>

@@ -1,0 +1,90 @@
+<ms-public>
+    <functions>getStyles</functions>
+    <default-css>button, input, label</default-css>
+</ms-public>
+
+<div style="font-size: medium;">
+    <p>
+
+        Practical micro frontend development team sitiations to consider :
+        1. Some global styles not yet ready.
+        2. Some local styles not yet ready.
+        3. developer needs to have a specific local style temporarily.
+        4. developer needs to keep a specifc local style permanently (because of interlectual reasons).
+        5. Needs to have local styles for certain elements And global styels for certain elements.
+        6. Integrator needs to make the GUIs as much as consistent via global styles.
+        Then,
+        Rules :
+        To NOT to override the local style of any element or a control by GlobalConfig :
+        IF local style has applied to the element/ control
+        And ( ms-public does not exist OR default-css does not exist OR data inside default-css is empty OR the
+        word
+        none exist inside default-css OR the element type is NOT stated inside default-css> ), then DO
+        NOT
+        override the local style of that element/ control by Global style.
+        To override the local style of any element or a control by GlobalConfig :
+        The elemen/ control type must be stated. Eg- default-css>button, grid [default-css] of
+        ms-public.
+        Or when there is NOT local style applied.
+        Attn : However, when Global style is not exist, then DO NOT overide the local style.
+        Note: Normally inline styles are not override by Global. If really need to override,
+        then
+        specifically set it from Global style using !important word.
+        Eg - At end of style value like -> background: #1f6feb !important;
+
+        3 ways of applying a local style :
+        fname.style = { backgroundColor: "lightyellow" }; // object inline style
+        fname.style = "background-color: lightyellow;"; // CSS text
+        fname.style = "./MyInput.css";
+
+    </p>
+</div>
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+    button {
+        background-color: rgb(200, 0, 0);
+        color: rgb(20, 20, 20);
+    }
+
+    input {
+        background-color: rgb(201, 0, 0);
+    }
+
+    label {
+        color: rgb(202, 0, 0);
+    }
+</style>
+
+<button id="btn" style=" background-color: rgb(38, 211, 67)">Button</button>
+
+<input id="txt" value="Input">
+<label id="lbl">Label</label>
+
+<input id="email" type="email" placeholder="name@example.com" autocomplete="email" required>
+
+<input id="amount1" type="text" inputmode="numeric" maxlength="5" size="5">
+
+<input id="amount2" type="number" maxlength="10" size="10" step="0.01" min="9" placeholder="0.00">
+
+<input type="text" id="amount" name="amount" inputmode="decimal" maxlength="10" size="10" step="0.01" min="9"
+    placeholder="0.00" autocomplete="off">
+
+<input type="date" id="appointment" name="appointment-date" value="2026-08-15" min="2026-08-01" max="2026-08-31">
+
+<label> LABEL TEST 1 : </label>
+<label for="username">Username:</label>
+<input type="text" id="username" name="username">
+
+
+<ms-com id='comTextBox1' src="./TextBox1" params='{"customerId":888, "supplierId":99}'
+    style="display:block; width:100%; min-height:50px; background-color: #65e22b;">
+</ms-com>
+
+<div id='iddd' DDD></div>
+
+<script type="module">
+    import ms from "./ms.js";
+    await ms.ready();
+</script>

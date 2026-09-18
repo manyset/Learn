@@ -1,0 +1,11 @@
+global<div>
+  <b>LoadingSlowC</b>
+  <p>Loaded in the third bulk target.</p>
+</div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  await new Promise(resolve => setTimeout(resolve, 1500));
+</script>

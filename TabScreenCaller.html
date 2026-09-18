@@ -1,0 +1,37 @@
+<button id="btn1">Inject TabScreen2</button>
+<div id="TabSCreen1">TabScreen2 here..</div>
+
+<button id="btn2">Print</button>
+<label id="lbl1">Print here..</label>
+
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    let tabInfo;
+    ms.id("btn1").addEventListener("click", async function () {
+        try {
+            tabInfo = await ms.inject('TabScreen1', 'TabSCreen1');
+        } catch (e) {
+            console.error('Error opening TabScreen2:', e);
+        }
+    });
+
+    ms.el.button("btn2").addEventListener("click", async function () {
+        try {
+            const selected = await tabInfo.getSelected("serviceType"); // OR packageType  OR connectionType
+            const text = selected.map(o => o.label).join(", ");
+            ms.id("lbl1").textContent = "Selected in tab1: " + text;
+        } catch (e) {
+            console.error('Error calling getSelected:', e);
+        }
+    });
+    /* getSelected("serviceType");
+    getSelected("packageType");    
+    getSelected("connectionType");   
+    getSelected("dataBundle");      
+    */
+
+
+</script>

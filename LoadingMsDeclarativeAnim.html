@@ -1,0 +1,48 @@
+global<div id="declarativeLoadRoot">
+  <h2>MS Declarative Loading Demo</h2>
+
+  <ms-com id="declLoadA" src="./LoadingSlowA.html">
+    Existing declarative A stays visible while loading.
+  </ms-com>
+
+  <ms-com id="declLoadB" src="./LoadingSlowB.html">
+    Existing declarative B stays visible while loading.
+  </ms-com>
+
+  <ms-com id="declLoadC" src="./LoadingSlowC.html">
+    Existing declarative C stays visible while loading.
+  </ms-com>
+</div>
+
+<style>
+  #declarativeLoadRoot {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(130px, 1fr));
+    gap: 10px;
+    padding: 12px;
+    font-family: Segoe UI, Arial, sans-serif;
+  }
+
+  #declarativeLoadRoot h2 {
+    grid-column: 1 / -1;
+  }
+
+  #declarativeLoadRoot ms-com {
+    display: block;
+    min-height: 86px;
+    border: 1px solid #94a3b8;
+    padding: 8px;
+    background: #f8fafc;
+  }
+</style>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  /*   ms.loadingAnimation.FullScreen = true;
+    ms.loadingAnimation.Type = "image";
+    ms.loadingAnimation.AnimatedImage = "./msIMAGES/AnimatedGif.gif";
+    ms.loadingAnimation.ImageSize = "80,80"; */
+
+</script>

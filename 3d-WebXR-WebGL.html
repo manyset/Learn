@@ -1,0 +1,437 @@
+<div id="compRoot" class="comp-root">
+
+    <div id="canvasContainer" class="canvas-container"></div>
+
+    <div class="bracket bracket-tl" aria-hidden="true"></div>
+    <div class="bracket bracket-tr" aria-hidden="true"></div>
+    <div class="bracket bracket-bl" aria-hidden="true"></div>
+    <div class="bracket bracket-br" aria-hidden="true"></div>
+
+    <div class="hud hud-top">
+        <div class="eyebrow">LIVE WEBGL / WEBXR RENDER</div>
+        <div class="title">AURORA&nbsp;KNOT</div>
+        <div class="subtitle">Drag to orbit &middot; scroll to zoom &middot; enter VR if a headset is connected</div>
+    </div>
+
+    <div id="xrStatus" class="xr-status" hidden></div>
+
+    <div id="telemetry" class="telemetry" aria-hidden="true">ORBIT.R -- &middot; POV --&deg;</div>
+
+    <div id="vrButtonHost" class="vr-button-host"></div>
+
+</div>
+
+<ms-public>
+    <functions>onClose</functions>
+</ms-public>
+
+<style>
+    .comp-root {
+        --bg-void: #060512;
+        --bg-void-2: #0b0a1c;
+        --panel: rgba(10, 12, 26, 0.55);
+        --line: rgba(120, 150, 220, 0.35);
+        --accent-cyan: #35e0ff;
+        --accent-magenta: #ff4fd8;
+        --text-primary: #eef2ff;
+        --text-dim: #8790b8;
+
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 480px;
+        overflow: hidden;
+        background: radial-gradient(120% 140% at 50% 20%, var(--bg-void-2) 0%, var(--bg-void) 65%);
+        color: var(--text-primary);
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        border-radius: 14px;
+        isolation: isolate;
+    }
+
+    .comp-root * {
+        box-sizing: border-box;
+    }
+
+    .comp-root .canvas-container {
+        position: absolute;
+        inset: 0;
+    }
+
+    .comp-root .canvas-container canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* signature viewfinder frame */
+    .comp-root .bracket {
+        position: absolute;
+        width: clamp(28px, 5vw, 46px);
+        height: clamp(28px, 5vw, 46px);
+        border: 2px solid var(--accent-cyan);
+        opacity: 0.55;
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    .comp-root .bracket-tl {
+        top: 14px;
+        left: 14px;
+        border-right: none;
+        border-bottom: none;
+    }
+
+    .comp-root .bracket-tr {
+        top: 14px;
+        right: 14px;
+        border-left: none;
+        border-bottom: none;
+    }
+
+    .comp-root .bracket-bl {
+        bottom: 14px;
+        left: 14px;
+        border-right: none;
+        border-top: none;
+    }
+
+    .comp-root .bracket-br {
+        bottom: 14px;
+        right: 14px;
+        border-left: none;
+        border-top: none;
+    }
+
+    .comp-root .hud {
+        position: absolute;
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    .comp-root .hud-top {
+        top: clamp(20px, 4vw, 34px);
+        left: clamp(30px, 6vw, 54px);
+        max-width: min(70%, 460px);
+    }
+
+    .comp-root .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        color: var(--accent-cyan);
+        margin-bottom: 8px;
+    }
+
+    .comp-root .title {
+        font-family: "Space Grotesk", "Inter", sans-serif;
+        font-weight: 700;
+        font-size: clamp(22px, 4.2vw, 40px);
+        letter-spacing: 0.01em;
+        line-height: 1.05;
+        background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .comp-root .subtitle {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--text-dim);
+        line-height: 1.5;
+    }
+
+    .comp-root .xr-status {
+        position: absolute;
+        z-index: 3;
+        top: clamp(20px, 4vw, 34px);
+        right: clamp(20px, 4vw, 34px);
+        max-width: 220px;
+        text-align: right;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11px;
+        letter-spacing: 0.03em;
+        color: var(--text-dim);
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        backdrop-filter: blur(6px);
+    }
+
+    .comp-root .telemetry {
+        position: absolute;
+        z-index: 3;
+        left: clamp(30px, 6vw, 54px);
+        bottom: clamp(20px, 4vw, 30px);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        color: var(--text-dim);
+        pointer-events: none;
+    }
+
+    .comp-root .vr-button-host {
+        position: absolute;
+        z-index: 4;
+        left: 0;
+        right: 0;
+        bottom: clamp(16px, 3vw, 26px);
+        display: flex;
+        justify-content: center;
+    }
+
+    /* three.js VRButton ships inline styles; override the look to match the panel */
+    .comp-root .vr-button-host button {
+        background: var(--panel) !important;
+        border: 1px solid var(--accent-cyan) !important;
+        color: var(--accent-cyan) !important;
+        font-family: "JetBrains Mono", ui-monospace, monospace !important;
+        font-size: 11px !important;
+        letter-spacing: 0.08em !important;
+        border-radius: 8px !important;
+        backdrop-filter: blur(6px);
+    }
+
+    .comp-root .vr-button-host button:focus-visible {
+        outline: 2px solid var(--accent-magenta);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 520px) {
+        .comp-root .hud-top {
+            max-width: 78%;
+        }
+
+        .comp-root .subtitle {
+            display: none;
+        }
+
+        .comp-root .xr-status {
+            max-width: 150px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .comp-root .bracket {
+            opacity: 0.35;
+        }
+    }
+</style>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+    import ms from "./ms.js";
+    await ms.ready();
+
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { VRButton } from "three/addons/webxr/VRButton.js";
+
+    const root = ms.id("compRoot");
+    const container = ms.id("canvasContainer");
+    const vrHost = ms.id("vrButtonHost");
+    const xrStatus = ms.id("xrStatus");
+    const telemetry = ms.id("telemetry");
+
+    const reduceMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionScale = reduceMotion ? 0.2 : 1;
+
+    // ---- scene ----
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x05010f);
+    scene.fog = new THREE.FogExp2(0x05010f, 0.018);
+
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+    camera.position.set(0, 1.6, 14);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.xr.enabled = true;
+    container.el.appendChild(renderer.domElement);
+
+    // ---- WebXR entry point ----
+    if (navigator.xr && navigator.xr.isSessionSupported) {
+        navigator.xr
+            .isSessionSupported("immersive-vr")
+            .then((supported) => {
+                xrStatus.el.hidden = false;
+                xrStatus.el.textContent = supported
+                    ? "VR HEADSET DETECTED"
+                    : "NO HEADSET DETECTED — ORBIT MODE";
+            })
+            .catch(() => {
+                xrStatus.el.hidden = false;
+                xrStatus.el.textContent = "WEBXR UNAVAILABLE HERE";
+            });
+    } else {
+        xrStatus.el.hidden = false;
+        xrStatus.el.textContent = "WEBXR NOT SUPPORTED";
+    }
+
+    const vrButton = VRButton.createButton(renderer);
+    vrHost.el.appendChild(vrButton);
+
+    // ---- lights ----
+    scene.add(new THREE.HemisphereLight(0x6688ff, 0x110022, 0.6));
+    const lightA = new THREE.PointLight(0x35e0ff, 6, 40);
+    const lightB = new THREE.PointLight(0xff4fd8, 6, 40);
+    scene.add(lightA, lightB);
+
+    // ---- central knot ----
+    const knotGeo = new THREE.TorusKnotGeometry(3, 0.9, 200, 32);
+    const knotMat = new THREE.MeshPhysicalMaterial({
+        color: 0x8855ff,
+        metalness: 0.85,
+        roughness: 0.18,
+        clearcoat: 1,
+        clearcoatRoughness: 0.1,
+        emissive: 0x220044,
+        emissiveIntensity: 0.6
+    });
+    const knot = new THREE.Mesh(knotGeo, knotMat);
+    scene.add(knot);
+
+    const wireGeo = new THREE.IcosahedronGeometry(5.2, 1);
+    const wireMat = new THREE.MeshBasicMaterial({
+        color: 0x66ffff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.15
+    });
+    const wireShell = new THREE.Mesh(wireGeo, wireMat);
+    scene.add(wireShell);
+
+    // ---- particle field ----
+    const PARTICLE_COUNT = 2500;
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    const colors = new Float32Array(PARTICLE_COUNT * 3);
+    const colorA = new THREE.Color(0x35e0ff);
+    const colorB = new THREE.Color(0xff4fd8);
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const radius = 8 + Math.random() * 22;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(Math.random() * 2 - 1);
+        positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = radius * Math.cos(phi);
+        const mixed = colorA.clone().lerp(colorB, Math.random());
+        colors[i * 3] = mixed.r;
+        colors[i * 3 + 1] = mixed.g;
+        colors[i * 3 + 2] = mixed.b;
+    }
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const particleMat = new THREE.PointsMaterial({
+        size: 0.18,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        sizeAttenuation: true
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // ---- floor grid, useful depth cue once inside a headset ----
+    const grid = new THREE.GridHelper(60, 60, 0x33aadd, 0x113344);
+    grid.position.y = -6;
+    grid.material.transparent = true;
+    grid.material.opacity = 0.25;
+    scene.add(grid);
+
+    // ---- desktop / mobile controls (handed off while in XR) ----
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.minDistance = 6;
+    controls.maxDistance = 30;
+    controls.target.set(0, 0.5, 0);
+
+    const handleSessionStart = () => { controls.enabled = false; };
+    const handleSessionEnd = () => { controls.enabled = true; };
+    renderer.xr.addEventListener("sessionstart", handleSessionStart);
+    renderer.xr.addEventListener("sessionend", handleSessionEnd);
+
+    // ---- resize ----
+    function resize() {
+        const w = container.el.clientWidth || 1;
+        const h = container.el.clientHeight || 1;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        if (!renderer.xr.isPresenting) {
+            renderer.setSize(w, h);
+        }
+    }
+    const ro = new ResizeObserver(resize);
+    ro.observe(container.el);
+    resize();
+
+    // ---- animate ----
+    const clock = new THREE.Clock();
+    function animate() {
+        const t = clock.getElapsedTime() * motionScale;
+
+        knot.rotation.x = t * 0.25;
+        knot.rotation.y = t * 0.35;
+        wireShell.rotation.y = -t * 0.12;
+        wireShell.rotation.x = -t * 0.08;
+        particles.rotation.y = t * 0.02;
+
+        lightA.position.set(Math.sin(t * 0.7) * 9, Math.cos(t * 0.5) * 6, Math.cos(t * 0.7) * 9);
+        lightB.position.set(Math.cos(t * 0.6) * 9, Math.sin(t * 0.4) * 6, Math.sin(t * 0.6) * 9);
+
+        const hue = (t * 0.03) % 1;
+        knotMat.color.setHSL(hue, 0.7, 0.55);
+        knotMat.emissive.setHSL((hue + 0.5) % 1, 0.8, 0.18);
+
+        controls.update();
+
+        if (!renderer.xr.isPresenting) {
+            const dist = camera.position.distanceTo(controls.target).toFixed(1);
+            const angle = ((THREE.MathUtils.radToDeg(controls.getAzimuthalAngle()) + 360) % 360).toFixed(0);
+            telemetry.el.textContent = `ORBIT.R ${dist} \u00B7 POV ${angle}\u00B0`;
+        } else {
+            telemetry.el.textContent = "ORBIT.R -- \u00B7 POV IN-HEADSET";
+        }
+
+        renderer.render(scene, camera);
+    }
+    renderer.setAnimationLoop(animate);
+
+    export function onClose() {
+        renderer.setAnimationLoop(null);
+        ro.disconnect();
+        controls.dispose();
+        renderer.xr.removeEventListener("sessionstart", handleSessionStart);
+        renderer.xr.removeEventListener("sessionend", handleSessionEnd);
+        knotGeo.dispose();
+        knotMat.dispose();
+        wireGeo.dispose();
+        wireMat.dispose();
+        particleGeo.dispose();
+        particleMat.dispose();
+        grid.geometry.dispose();
+        grid.material.dispose();
+        renderer.dispose();
+        if (renderer.domElement && renderer.domElement.parentNode) {
+            renderer.domElement.parentNode.removeChild(renderer.domElement);
+        }
+    }
+</script>

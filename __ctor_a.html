@@ -1,0 +1,15 @@
+<div id="out">A</div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  function __ctor_a(args) {
+    window.__ctor.push(['A:ctor', args.x, args.y]);
+    ms.id('out').textContent = `${args.x}:${args.y}`;
+  }
+
+  function onLoad() {
+    window.__ctor.push(['A:onLoad', ms.id('out').textContent]);
+  }
+</script>

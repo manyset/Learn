@@ -1,0 +1,393 @@
+<div id="compRoot" class="comp-root">
+    <style>
+        .comp-root {
+            --bg: #191c26;
+            --panel: #21252f;
+            --line: #2f3444;
+            --ink: #e9ebf2;
+            --ink-dim: #9aa0b4;
+            --accent: #e8a33d;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+
+            display: block;
+            width: 100%;
+            max-width: 920px;
+            background: radial-gradient(ellipse at 50% -10%, #262b3a 0%, var(--bg) 60%);
+            color: var(--ink);
+            font-family: var(--sans);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .comp-root,
+        .comp-root * {
+            box-sizing: border-box;
+        }
+
+        .comp-root .header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .comp-root .title {
+            font-size: 19px;
+            font-weight: 600;
+            letter-spacing: .2px;
+            margin: 0;
+        }
+
+        .comp-root .subtitle {
+            color: var(--ink-dim);
+            font-size: 13px;
+            font-family: var(--mono);
+        }
+
+        .comp-root .stage-shell {
+            position: relative;
+            background: linear-gradient(180deg, var(--panel), #1c202a);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            height: 380px;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .comp-root .viewport {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+
+        .comp-root .stage {
+            position: relative;
+            width: 1px;
+            height: 1px;
+            transform-style: preserve-3d;
+            transition: transform .35s ease;
+        }
+
+        .comp-root .floor {
+            position: absolute;
+            left: 50%;
+            top: 270px;
+            width: 640px;
+            height: 280px;
+            transform: translate(-50%, -50%) rotateX(90deg);
+            background-image:
+                linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-color: rgba(255, 255, 255, .015);
+            border-radius: 8px;
+        }
+
+        .comp-root .bars {
+            position: absolute;
+            left: 0;
+            top: 0;
+            transform-style: preserve-3d;
+        }
+
+        .comp-root .bar3d {
+            transform-style: preserve-3d;
+            cursor: default;
+        }
+
+        .comp-root .face {
+            position: absolute;
+            left: 0;
+            top: 0;
+            backface-visibility: hidden;
+        }
+
+        .comp-root .controls {
+            display: flex;
+            gap: 22px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--ink-dim);
+        }
+
+        .comp-root .controls label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comp-root .range {
+            width: 130px;
+            accent-color: var(--accent);
+        }
+
+        .comp-root .btn {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--ink);
+            padding: 6px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: var(--sans);
+        }
+
+        .comp-root .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .comp-root .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 18px;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+
+        .comp-root .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ink-dim);
+        }
+
+        .comp-root .legend-item strong {
+            color: var(--ink);
+            font-family: var(--mono);
+            font-weight: 600;
+        }
+
+        .comp-root .swatch {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .comp-root .tester {
+            margin-top: 26px;
+        }
+
+        .comp-root .tester h2 {
+            font-size: 13px;
+            color: var(--ink-dim);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin: 0 0 8px;
+        }
+
+        .comp-root .textarea {
+            width: 100%;
+            min-height: 110px;
+            resize: vertical;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            color: var(--ink);
+            font-family: var(--mono);
+            font-size: 12.5px;
+            padding: 12px;
+        }
+
+        .comp-root .row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .comp-root .btn-primary {
+            background: var(--accent);
+            border: none;
+            color: #20140a;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: var(--sans);
+        }
+
+        .comp-root .btn-primary:hover {
+            filter: brightness(1.08);
+        }
+
+        .comp-root .status {
+            font-size: 12px;
+            font-family: var(--mono);
+            color: var(--ink-dim);
+        }
+
+        .comp-root .status.ok {
+            color: #7fd19a;
+        }
+
+        .comp-root .status.err {
+            color: #e07070;
+        }
+    </style>
+
+    <div class="header">
+        <h1 class="title">3D Bar Chart</h1>
+        <span class="subtitle" id="chartTitle">—</span>
+    </div>
+
+    <div class="stage-shell">
+        <div class="viewport">
+            <div class="stage" id="stage">
+                <div class="floor"></div>
+                <div class="bars" id="bars"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <label>Tilt <input id="tiltRange" class="range" type="range" min="5" max="70" value="26"></label>
+        <label>Spin <input id="spinRange" class="range" type="range" min="-180" max="180" value="-22"></label>
+        <button id="resetBtn" class="btn">Reset view</button>
+    </div>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="tester">
+        <h2>Send it new data</h2>
+        <textarea id="jsonInput"
+            class="textarea">{"title":"Monthly Signups","labels":["Jan","Feb","Mar","Apr","May"],"values":[42,68,55,90,73]}</textarea>
+        <div class="row">
+            <button id="applyBtn" class="btn-primary">Redraw chart</button>
+            <span id="statusMsg" class="status"></span>
+        </div>
+    </div>
+
+    <ms-public>
+        updateBarChart
+    </ms-public>
+
+    <script type="module">
+        import ms from "./ms.js";
+        await ms.ready();
+
+        const root = ms.id("compRoot");
+
+        const barsEl = ms.id("bars");
+        const legendEl = ms.id("legend");
+        const titleEl = ms.id("chartTitle");
+        const stageEl = ms.id("stage");
+        const tiltEl = ms.id("tiltRange");
+        const spinEl = ms.id("spinRange");
+        const statusEl = ms.id("statusMsg");
+        const inputEl = ms.id("jsonInput");
+        const applyBtn = ms.id("applyBtn");
+        const resetBtn = ms.id("resetBtn");
+
+        const DEFAULT_COLORS = ['#e8a33d', '#3d9a8b', '#6c7bd6', '#d16b8f', '#8fae6e', '#4fb6c9'];
+        const W = 52, D = 40, GAP = 26, MAXH = 230, FLOORY = 270;
+
+        function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+
+        function shade(hex, percent) {
+            hex = hex.replace('#', '');
+            if (hex.length === 3) { hex = hex.split('').map(c => c + c).join(''); }
+            const num = parseInt(hex, 16);
+            let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
+            r = clamp(Math.round(r + (percent / 100) * 255), 0, 255);
+            g = clamp(Math.round(g + (percent / 100) * 255), 0, 255);
+            b = clamp(Math.round(b + (percent / 100) * 255), 0, 255);
+            return `rgb(${r},${g},${b})`;
+        }
+
+        function render(data) {
+            if (!data || !Array.isArray(data.labels) || !Array.isArray(data.values)) {
+                throw new Error('data needs "labels" (array) and "values" (array) of the same length');
+            }
+            if (data.labels.length !== data.values.length) {
+                throw new Error('"labels" and "values" must be the same length');
+            }
+
+            const labels = data.labels;
+            const values = data.values.map(Number);
+            const colors = Array.isArray(data.colors) && data.colors.length ? data.colors : DEFAULT_COLORS;
+            const maxVal = data.max ? Number(data.max) : Math.max(...values, 1);
+
+            titleEl.textContent = data.title || ('updated ' + new Date().toLocaleTimeString());
+
+            barsEl.innerHTML = '';
+            legendEl.innerHTML = '';
+
+            const n = values.length;
+            const totalWidth = n * W + (n - 1) * GAP;
+            const startX = -totalWidth / 2;
+
+            values.forEach((v, i) => {
+                const h = Math.max(4, (v / maxVal) * MAXH);
+                const x = startX + i * (W + GAP);
+                const color = colors[i % colors.length];
+
+                const bar = document.createElement('div');
+                bar.className = 'bar3d';
+                bar.style.cssText = `position:absolute; left:${x}px; top:${FLOORY - h}px; width:${W}px; height:${h}px;`;
+                bar.title = `${labels[i] != null ? labels[i] : 'Item ' + (i + 1)}: ${v}`;
+
+                bar.innerHTML =
+                    `<div class="face" style="width:${W}px;height:${h}px;background:${color};transform:translateZ(${D / 2}px);"></div>` +
+                    `<div class="face" style="width:${W}px;height:${h}px;background:${shade(color, -22)};transform:rotateY(180deg) translateZ(${D / 2}px);"></div>` +
+                    `<div class="face" style="width:${D}px;height:${h}px;background:${shade(color, -38)};transform:rotateY(90deg) translateZ(${W / 2}px);"></div>` +
+                    `<div class="face" style="width:${D}px;height:${h}px;background:${shade(color, -38)};transform:rotateY(-90deg) translateZ(${W / 2}px);"></div>` +
+                    `<div class="face" style="width:${W}px;height:${D}px;background:${shade(color, 25)};transform:rotateX(90deg) translateZ(${h / 2}px);"></div>`;
+
+                barsEl.appendChild(bar);
+
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `<span class="swatch" style="background:${color}"></span>${labels[i] != null ? labels[i] : 'Item ' + (i + 1)}: <strong>${v}</strong>`;
+                legendEl.appendChild(legendItem);
+            });
+        }
+
+        // Public function — listed in <ms-public> above so the host page can call it.
+        function updateBarChart(input) {
+            const data = (typeof input === 'string') ? JSON.parse(input) : input;
+            render(data);
+            return true;
+        }
+
+        function applyRotation() {
+            stageEl.style.transform = `rotateX(${tiltEl.value}deg) rotateY(${spinEl.value}deg)`;
+        }
+        tiltEl.addEventListener('input', applyRotation);
+        spinEl.addEventListener('input', applyRotation);
+        resetBtn.addEventListener('click', () => {
+            tiltEl.value = 26;
+            spinEl.value = -22;
+            applyRotation();
+        });
+
+        applyBtn.addEventListener('click', () => {
+            try {
+                updateBarChart(inputEl.value);
+                statusEl.textContent = 'Chart updated ✓';
+                statusEl.className = 'status ok';
+            } catch (e) {
+                statusEl.textContent = 'Error: ' + e.message;
+                statusEl.className = 'status err';
+            }
+        });
+
+        applyRotation();
+        render(JSON.parse(inputEl.value));
+    </script>
+</div>

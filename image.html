@@ -1,0 +1,83 @@
+<ms-public>
+  <functions>AddImageToDivByMS, AddImageToSectionByMS, getImageState</functions>
+  <default-css>image</default-css>
+</ms-public>
+
+<button id="btn1">Add Image to any Div by ms.insert</button>
+<button id="btn2">Add Image to ms.form.section</button>
+
+<div id="div1">click btn1 to put image here</div>
+<div id="div2">click btn2 to put section here with image</div>
+
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  ms.id('btn1').onclick = AddImageToDivByMS;
+  ms.el.button('btn2').onclick = AddImageToSectionByMS;
+
+
+  export function AddImageToDivByMS() {
+
+    let img1 = ms.form.image();
+    img1.id = "img1";
+    // img2.path = 'https://cdn.pixabay.com/animation/2024/09/23/09/24/09-24-37-449_512.gif'; // sampleImage;
+    img1.path = 'image1.jpg';
+    img1.style = 'imageMyStyle.css'; // Style may have extra things..
+    img1.height = 110;
+    img1.width = 110;
+    //img1.rightWidth = 165;
+    //img1.rightHeight = 285;
+    img1.autoSize = "contain"; // "contain" OR "cover"  OR "fill"
+    img1.Center = true;
+    img1.round = 8;
+    img1.showMode = "right"; // * This is NOT required here but it tells image about the location in FORM.SECTION - "in" OR "top" OR "right"
+    img1.shadow = true;
+    img1.shadow = "0 4px 12px rgba(0,0,0,.25)"; // OR shadow = true;
+    img1.round = 8;
+    ms.insert(img1, 'div1')
+
+  }
+
+  export function AddImageToSectionByMS() {
+
+    // ADDING IMAGE TO A FORM.SECTION PANNEL
+
+    let img1 = ms.form.image();
+    img1.id = "img1";
+    // img2.path = 'https://cdn.pixabay.com/animation/2024/09/23/09/24/09-24-37-449_512.gif'; // sampleImage;
+    img1.path = 'image1.jpg';
+    img1.height = 210;
+    img1.width = 210;
+    //img1.rightWidth = 165;
+    //img1.rightHeight = 285;
+    img1.autoSize = "contain"; // "contain" OR "cover"  OR "fill"
+    img1.Center = true;
+    img1.round = 8;
+    img1.showMode = "right"; // This tells image about the location in FORM.SECTION -("in" OR "top" OR "right")
+    img1.shadow = true;
+    img1.shadow = "0 4px 12px rgba(0,0,0,.25)"; // OR shadow = true;
+    img1.round = 8;
+
+    // ADDING ABOVE IMAGE TO A NEW FORM.SECTION
+    let s1 = ms.form.section();
+    s1.title = "Employee Details";
+    s1.maxLabelWidth = 360; // max width for left side label set. if any label exceeded this limit, then those are auto shrinked.
+    s1.rowGap = 8;
+    s1.buttonGap = 2;
+    s1.marginLeft = 14;
+    s1.marginTop = 12;
+    s1.marginRight = 14;
+    s1.marginBottom = 12;
+    s1.messageMode = "field";       // "field" or "panel"
+    s1.messagePosition = "top-right"; // for panel mode: "top-right" or "bottom-right"
+    /* s1.style = {
+        background: "#f2f2f2",
+        border: "1px solid #bbb"
+    }; */
+
+    s1.add(img1);
+    ms.insert(s1, 'div2')
+  }
+</script>

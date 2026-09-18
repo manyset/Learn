@@ -1,0 +1,25 @@
+<div id="root1"></div>
+<div id="root2"></div>
+<div id="root3"></div>
+<pre id="out"></pre>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  window.__ctor = [];
+
+  const single = await ms.inject('__ctor_a', { x: 10, y: 20 }, 'root1');
+  const minimal = await ms.inject('__ctor_b', 'root2');
+  const batch = await ms.inject(
+    ['__ctor_a', { x: 1, y: 2 }, 'root3', { append: true }],
+    ['__ctor_b', { name: 'stock' }, 'root3', { append: true }]
+  );
+
+  ms.id('out').textContent = JSON.stringify({
+    single: !!single,
+    minimal: !!minimal,
+    batch: Array.isArray(batch) && batch.length === 2,
+    events: window.__ctor
+  });
+</script>

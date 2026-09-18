@@ -1,0 +1,81 @@
+<ms-public style="display:none">
+    <functions>setCategories</functions>
+    <default-css>none</default-css>
+</ms-public>
+<h2>MS recommends to use Only Module Type versions of 3rd party JS. (Difficult to link between Classic & Module;
+    constructor and Standalone issues).
+    <br> However, If need to use Classic, see this Example of HighChart (need little changes to their base format)
+</h2>
+
+<style>
+    #container {
+        height: 400px;
+        min-width: 300px;
+        max-width: 800px;
+    }
+</style>
+
+<button id="btn1">Set X Axis..</button>
+<div id="container"></div>
+
+
+<!-- <script src="https://unpkg.com/highcharts/highcharts.js" crossorigin="anonymous"></script>
+ -->
+<!-- <script src="https://code.highcharts.com/highcharts.js"></script> -->
+<script src="highcharts.js"></script>
+
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    function onLoad(params = []) {
+        setCategories(params); // ['Grapes', 'Pineapples', 'Mangoes']
+        /*         const categories = Array.isArray(params) ? params : params.categories;
+                if (categories?.length) {
+                    setCategories(categories);
+                } */
+    }
+
+    const Highcharts = window.Highcharts; // *** <<= used window.
+    if (!Highcharts) {
+        throw new Error('Highcharts library is not loaded.');
+    }
+    // *** used ms.id('container').el
+    const chart = Highcharts.chart(ms.id('container').el, {
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: 'Fruit Consumption'
+        },
+        xAxis: {
+            categories: ['Apples', 'Bananas', 'Oranges']
+        },
+        yAxis: {
+            title: {
+                text: 'Fruit eaten'
+            }
+        },
+        series: [{
+            name: 'Jane',
+            data: [1, 0, 4]
+        }, {
+            name: 'John',
+            data: [5, 7, 3]
+        }]
+    });
+
+
+    export function setCategories(categories) {
+        console.log(categories);
+        chart.xAxis[0].setCategories(categories, true);
+    }
+
+    ms.el.button('btn1').on('click', () => {
+        setCategories(['AAA---Grapes', 'Pineapples', 'Mangoes']);
+    });
+
+
+
+</script>

@@ -1,0 +1,36 @@
+<ms-public>
+  <functions>throwUnhandled, throwHandled</functions>
+</ms-public>
+
+<h2>MS Error System Check</h2>
+<p id="errStatus">Ready</p>
+
+<button id="btnHandled">Handled Error</button>
+<button id="btnUnhandled">Unhandled Error</button>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  // ms.inject('wxxxxxxxxxxx', 'dxxxxxx');
+
+  abcd;
+
+
+  export function throwHandled() {
+    try {
+      throw new Error('Handled demo error');
+    }
+    catch (e) {
+      ms.id('errStatus').textContent = 'Handled by component: no MS popup expected';
+    }
+  }
+
+  export function throwUnhandled() {
+    ms.id('errStatus').textContent = 'Throwing unhandled error';
+    throw new Error('Unhandled demo error from ErrorCaller');
+  }
+
+  ms.id('btnHandled').onclick = throwHandled;
+  ms.id('btnUnhandled').onclick = throwUnhandled;
+</script>

@@ -1,0 +1,97 @@
+<style>
+  .box {
+    border: 2px solid #4a90e2;
+    padding: 16px;
+    margin: 10px;
+  }
+
+  button {
+    margin: 6px;
+    padding: 6px 12px;
+  }
+</style>
+
+<div class="box" id="box">
+  <h3>Event Stress Test</h3>
+
+  <button id="btn1">Button Click</button>
+  <button id="btn2">Stop Timer</button>
+
+  <input id="txt" placeholder="Type here" />
+  <div id="log"></div>
+</div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  const log = msg => {
+    const d = document.createElement("div");
+    d.textContent = msg;
+    ms.id("log").appendChild(d);
+    console.log(msg);
+  };
+
+  log("SCRIPT START");
+
+  /* -----------------------------
+     1. Direct element listener
+  ----------------------------- */
+  ms.id("btn1")
+    .addEventListener("click", () => {
+      log("BTN1 click");
+    });
+
+  /* -----------------------------
+     2. Document-level listener
+  ----------------------------- */
+  document.addEventListener("click", e => {
+    if (e.target.id === "box") {
+      log("DOCUMENT click on box");
+    }
+  });
+
+  /* -----------------------------
+     3. Window-level listener
+  ----------------------------- */
+  window.addEventListener("keydown", e => {
+    log("WINDOW keydown: " + e.key);
+  });
+
+  /* -----------------------------
+     4. Input event
+  ----------------------------- */
+  ms.id("txt")
+    .addEventListener("input", e => {
+      log("INPUT: " + e.target.value);
+    });
+
+  ms.id("txt")
+    .addEventListener("click", function () { alert("Textbox was clicked!"); });
+
+  /* -----------------------------
+     5. Bubbling test
+  ----------------------------- */
+  ms.id("box")
+    .addEventListener("click", () => {
+      log("BOX bubbled click");
+    });
+
+  /* -----------------------------
+     6. Timer + event coexistence
+  ----------------------------- */
+  let t = setInterval(() => {
+    log("TIMER tick");
+  }, 2000);
+
+  ms.id("btn2")
+    .addEventListener("click", () => {
+      clearInterval(t);
+      log("TIMER stopped");
+    });
+
+  /* -----------------------------
+     7. Restore safety marker
+  ----------------------------- */
+  log("READY");
+</script>

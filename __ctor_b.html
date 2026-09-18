@@ -1,0 +1,11 @@
+<div id="out">B</div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  function __ctor_b(args) {
+    window.__ctor.push(['B:ctor', args?.name || 'none']);
+    ms.id('out').textContent = args?.name || 'minimal';
+  }
+</script>

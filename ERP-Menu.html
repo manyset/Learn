@@ -1,0 +1,704 @@
+<manufacturing-menu></manufacturing-menu>
+<screen-Park></screen-Park>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+
+  class ManufacturingMenu extends HTMLElement {
+    constructor() {
+      super();
+      this.root = this.attachShadow({ mode: 'open' });
+
+      this.menuData = [
+        {
+          id: 'production',
+          label: 'Production',
+          submenu: [
+            { id: 'prod-workorders', label: 'Work Orders' },
+            { id: 'prod-scheduling', label: 'Scheduling' },
+            {
+              id: 'prod-floor', label: 'Shop Floor Control',
+              submenu: [
+                { id: 'prod-floor-dispatch', label: 'Dispatch List' },
+                { id: 'prod-floor-status', label: 'Machine Status' },
+                { id: 'prod-floor-operator', label: 'Operator Assignment' },
+                { id: 'prod-floor-time', label: 'Time Tracking' }
+              ]
+            },
+            {
+              id: 'prod-quality', label: 'Quality Control',
+              submenu: [
+                { id: 'prod-quality-inspect', label: 'Inspections' },
+                { id: 'prod-quality-ncr', label: 'Non-Conformance' },
+                { id: 'prod-quality-cap', label: 'CAPA' },
+                { id: 'prod-quality-test', label: 'Test Results' }
+              ]
+            },
+            { id: 'prod-oee', label: 'OEE Monitoring' },
+            { id: 'prod-downtime', label: 'Downtime Tracking' },
+            { id: 'prod-trace', label: 'Traceability' }
+          ]
+        },
+        {
+          id: 'inventory',
+          label: 'Inventory',
+          submenu: [
+            {
+              id: 'inv-materials', label: 'Materials Management',
+              submenu: [
+                { id: 'inv-raw', label: 'Raw Materials' },
+                { id: 'inv-wip', label: 'Work in Progress' },
+                { id: 'inv-finished', label: 'Finished Goods' },
+                { id: 'inv-consumables', label: 'Consumables' }
+              ]
+            },
+            {
+              id: 'inv-warehouse', label: 'Warehouse',
+              submenu: [
+                { id: 'inv-locations', label: 'Locations/Bins' },
+                { id: 'inv-transfer', label: 'Transfers' },
+                { id: 'inv-receiving', label: 'Receiving' },
+                { id: 'inv-shipping', label: 'Shipping' }
+              ]
+            },
+            { id: 'inv-cycle', label: 'Cycle Counting' },
+            { id: 'inv-reorder', label: 'Reorder Points' },
+            { id: 'inv-valuation', label: 'Valuation' },
+            { id: 'inv-scrap', label: 'Scrap Management' }
+          ]
+        },
+        {
+          id: 'procurement',
+          label: 'Procurement',
+          submenu: [
+            { id: 'pur-rfq', label: 'RFQs' },
+            {
+              id: 'pur-po', label: 'Purchase Orders',
+              submenu: [
+                { id: 'pur-po-create', label: 'Create PO' },
+                { id: 'pur-po-approve', label: 'Approve PO' },
+                { id: 'pur-po-track', label: 'Track PO' },
+                { id: 'pur-po-history', label: 'PO History' }
+              ]
+            },
+            { id: 'pur-grn', label: 'Goods Receipt' },
+            {
+              id: 'pur-supplier', label: 'Supplier Management',
+              submenu: [
+                { id: 'pur-supplier-list', label: 'Supplier List' },
+                { id: 'pur-supplier-eval', label: 'Evaluation' },
+                { id: 'pur-supplier-contracts', label: 'Contracts' }
+              ]
+            },
+            { id: 'pur-returns', label: 'Returns' },
+            { id: 'pur-invoice', label: 'Invoice Matching' }
+          ]
+        },
+        {
+          id: 'sales',
+          label: 'Sales',
+          submenu: [
+            { id: 'sales-quote', label: 'Quotations' },
+            {
+              id: 'sales-order', label: 'Sales Orders',
+              submenu: [
+                { id: 'sales-order-entry', label: 'Order Entry' },
+                { id: 'sales-order-confirm', label: 'Confirmation' },
+                { id: 'sales-order-status', label: 'Order Status' },
+                { id: 'sales-order-history', label: 'History' }
+              ]
+            },
+            {
+              id: 'sales-dispatch', label: 'Dispatch',
+              submenu: [
+                { id: 'sales-dispatch-plan', label: 'Dispatch Plan' },
+                { id: 'sales-dispatch-note', label: 'Dispatch Notes' },
+                { id: 'sales-dispatch-track', label: 'Tracking' }
+              ]
+            },
+            { id: 'sales-invoice', label: 'Invoicing' },
+            { id: 'sales-customer', label: 'Customer Management' },
+            { id: 'sales-return', label: 'Returns' }
+          ]
+        },
+        {
+          id: 'quality',
+          label: 'Quality',
+          submenu: [
+            { id: 'qa-plan', label: 'Quality Planning' },
+            {
+              id: 'qa-control', label: 'Quality Control',
+              submenu: [
+                { id: 'qa-inspect-inbound', label: 'Inbound Inspection' },
+                { id: 'qa-inspect-inline', label: 'In-line Inspection' },
+                { id: 'qa-inspect-final', label: 'Final Inspection' }
+              ]
+            },
+            {
+              id: 'qa-ncr', label: 'Non-Conformance',
+              submenu: [
+                { id: 'qa-ncr-report', label: 'Report NCR' },
+                { id: 'qa-ncr-review', label: 'Review' },
+                { id: 'qa-ncr-disposition', label: 'Disposition' }
+              ]
+            },
+            { id: 'qa-cap', label: 'CAPA' },
+            { id: 'qa-audit', label: 'Audits' },
+            { id: 'qa-calibration', label: 'Calibration' }
+          ]
+        },
+        {
+          id: 'maintenance',
+          label: 'Maintenance',
+          submenu: [
+            {
+              id: 'maint-preventive', label: 'Preventive Maintenance',
+              submenu: [
+                { id: 'maint-pm-schedule', label: 'PM Schedule' },
+                { id: 'maint-pm-checklist', label: 'Checklists' },
+                { id: 'maint-pm-history', label: 'PM History' }
+              ]
+            },
+            { id: 'maint-corrective', label: 'Corrective Maintenance' },
+            {
+              id: 'maint-asset', label: 'Asset Management',
+              submenu: [
+                { id: 'maint-asset-list', label: 'Asset List' },
+                { id: 'maint-asset-history', label: 'Maintenance History' },
+                { id: 'maint-asset-documents', label: 'Documents' }
+              ]
+            },
+            { id: 'maint-spare', label: 'Spare Parts' },
+            { id: 'maint-downtime', label: 'Downtime Recording' }
+          ]
+        },
+        {
+          id: 'planning',
+          label: 'Planning',
+          submenu: [
+            { id: 'plan-demand', label: 'Demand Forecasting' },
+            { id: 'plan-mps', label: 'Master Production Schedule' },
+            {
+              id: 'plan-mrp', label: 'MRP',
+              submenu: [
+                { id: 'plan-mrp-run', label: 'Run MRP' },
+                { id: 'plan-mrp-results', label: 'MRP Results' },
+                { id: 'plan-mrp-action', label: 'Action Messages' }
+              ]
+            },
+            {
+              id: 'plan-capacity', label: 'Capacity Planning',
+              submenu: [
+                { id: 'plan-cap-load', label: 'Load Reports' },
+                { id: 'plan-cap-rough', label: 'Rough Cut' },
+                { id: 'plan-cap-fine', label: 'Fine Planning' }
+              ]
+            },
+            { id: 'plan-sop', label: 'Sales & Operations' }
+          ]
+        },
+        {
+          id: 'engineering',
+          label: 'Engineering',
+          submenu: [
+            {
+              id: 'eng-bom', label: 'Bill of Materials',
+              submenu: [
+                { id: 'eng-bom-view', label: 'View BOM' },
+                { id: 'eng-bom-create', label: 'Create BOM' },
+                { id: 'eng-bom-revise', label: 'Revise BOM' },
+                { id: 'eng-bom-compare', label: 'Compare BOMs' }
+              ]
+            },
+            {
+              id: 'eng-routing', label: 'Routings',
+              submenu: [
+                { id: 'eng-routing-define', label: 'Define Routing' },
+                { id: 'eng-routing-work', label: 'Work Centers' },
+                { id: 'eng-routing-times', label: 'Setup/Run Times' }
+              ]
+            },
+            {
+              id: 'eng-ecn', label: 'ECN',
+              submenu: [
+                { id: 'eng-ecn-create', label: 'Create ECN' },
+                { id: 'eng-ecn-approve', label: 'Approve' },
+                { id: 'eng-ecn-implement', label: 'Implementation' }
+              ]
+            },
+            { id: 'eng-tool', label: 'Tooling Management' },
+            { id: 'eng-product', label: 'Product Design' }
+          ]
+        }
+      ];
+    }
+
+    connectedCallback() {
+      this.render();
+      this.cacheElements();
+      this.bindEvents();
+    }
+
+    render() {
+      this.root.innerHTML = `
+          <style>
+            :host {
+              display: block;
+              font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+              --menu-bg: #1e1e1e;
+              --menu-text: #ffffff;
+              --menu-hover-bg: #3a3a3a;
+              --menu-hover-text: #ffffff;
+              --menu-active-bg: #404040;
+              --dropdown-bg: #252525;
+              --dropdown-text: #f0f0f0;
+              --dropdown-hover-bg: #3a3a3a;
+              --dropdown-hover-text: #ffffff;
+              --border-color: #444444;
+              --accent: #569cd6;
+              --accent-light: #2a3f4f;
+              --shadow: 0 8px 20px rgba(0,0,0,0.3);
+            }
+
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+
+            .menu-system {
+              background: var(--menu-bg);
+              color: var(--menu-text);
+              width: 100%;
+              user-select: none;
+              border-bottom: 1px solid var(--border-color);
+            }
+
+            .menu-bar {
+              display: flex;
+              height: 42px;
+              align-items: center;
+              padding: 0 16px;
+              background: var(--menu-bg);
+              gap: 4px;
+            }
+
+            .menu-item {
+              position: relative;
+              height: 100%;
+            }
+
+            .menu-label {
+              display: flex;
+              align-items: center;
+              height: 100%;
+              padding: 0 16px;
+              font-size: 14px;
+              font-weight: 500;
+              color: var(--menu-text);
+              cursor: pointer;
+              transition: all 0.15s ease;
+              white-space: nowrap;
+              border-radius: 4px;
+              letter-spacing: 0.3px;
+            }
+
+            .menu-label:hover {
+              background: var(--menu-hover-bg);
+              color: var(--menu-hover-text);
+            }
+
+            .menu-item.active .menu-label {
+              background: var(--menu-active-bg);
+              color: var(--accent);
+            }
+
+            .dropdown {
+              position: absolute;
+              top: calc(100% + 6px);
+              left: 0;
+              min-width: 260px;
+              background: var(--dropdown-bg);
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+              box-shadow: var(--shadow);
+              padding: 6px 0;
+              z-index: 1000;
+              display: none;
+            }
+
+            .dropdown.open {
+              display: block;
+            }
+
+            .dropdown-item {
+              position: relative;
+              padding: 8px 20px 8px 24px;
+              font-size: 13px;
+              color: var(--dropdown-text);
+              cursor: pointer;
+              white-space: nowrap;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              transition: all 0.1s ease;
+            }
+
+            .dropdown-item:hover {
+              background: var(--dropdown-hover-bg);
+              color: var(--dropdown-hover-text);
+            }
+
+            .dropdown-item.has-submenu::after {
+              content: '›';
+              font-size: 16px;
+              color: #999;
+            }
+
+            .dropdown-item:hover.has-submenu::after {
+              color: white;
+            }
+
+            .submenu {
+              position: absolute;
+              top: -6px;
+              left: calc(100% - 4px);
+              min-width: 240px;
+              background: var(--dropdown-bg);
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+              box-shadow: var(--shadow);
+              padding: 6px 0;
+              display: none;
+            }
+
+            .dropdown-item:hover > .submenu {
+              display: block;
+            }
+
+            .status-container {
+              background: #252525;
+              color: #cccccc;
+              padding: 12px 24px;
+              font-size: 13px;
+              border-top: 1px solid var(--border-color);
+              display: flex;
+              align-items: center;
+              flex-wrap: wrap;
+              gap: 12px;
+            }
+
+            .status-label {
+              color: #999;
+              font-weight: 500;
+              text-transform: uppercase;
+              font-size: 11px;
+              letter-spacing: 0.5px;
+            }
+
+            .status-value {
+              color: var(--accent);
+              margin-left: 4px;
+              font-weight: 600;
+              background: var(--accent-light);
+              padding: 4px 14px;
+              border-radius: 20px;
+              font-size: 12px;
+              word-break: break-word;
+            }
+
+            /* Mobile Styles */
+            @media (max-width: 768px) {
+              .menu-bar {
+                flex-direction: column;
+                height: auto;
+                padding: 8px;
+                gap: 2px;
+              }
+
+              .menu-item {
+                width: 100%;
+                height: auto;
+              }
+
+              .menu-label {
+                width: 100%;
+                padding: 12px 16px;
+                background: #2a2a2a;
+                border-radius: 6px;
+                justify-content: space-between;
+              }
+
+              .menu-label::after {
+                content: '▼';
+                font-size: 12px;
+                color: #999;
+              }
+
+              .menu-item.active .menu-label::after {
+                transform: rotate(180deg);
+              }
+
+              .dropdown {
+                position: static;
+                width: 100%;
+                margin-top: 4px;
+                margin-left: 16px;
+                box-shadow: none;
+                border: none;
+                border-left: 3px solid var(--accent);
+                border-radius: 0;
+                background: #2a2a2a;
+              }
+
+              .dropdown-item {
+                white-space: normal;
+                word-break: break-word;
+                padding: 12px 20px;
+              }
+
+              .submenu {
+                position: static;
+                width: 100%;
+                margin-left: 20px;
+                box-shadow: none;
+                border: none;
+                border-left: 2px solid #666;
+                border-radius: 0;
+                background: #333;
+              }
+
+              .dropdown-item.has-submenu::after {
+                content: '▼';
+                font-size: 12px;
+              }
+
+              .status-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+              }
+
+              .status-value {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+              }
+            }
+
+            @media (max-width: 480px) {
+              .menu-label {
+                font-size: 15px;
+                padding: 14px 16px;
+              }
+
+              .dropdown-item {
+                font-size: 14px;
+                padding: 14px 20px;
+              }
+
+              .status-container {
+                padding: 16px;
+              }
+            }
+
+            /* Touch friendly */
+            @media (hover: none) and (pointer: coarse) {
+              .menu-label {
+                padding: 14px 16px;
+              }
+
+              .dropdown-item {
+                padding: 14px 24px;
+              }
+            }
+          </style>
+
+          <div class="menu-system">
+            <div class="menu-bar" id="menuBar"></div>
+            <div class="status-container">
+              <span class="status-label">ACTIVE SCREEN</span>
+              <span class="status-value" id="statusValue">None</span>
+            </div>
+          </div>
+        `;
+    }
+
+    cacheElements() {
+      this.els = {
+        menuBar: this.root.querySelector('#menuBar'),
+        statusValue: this.root.querySelector('#statusValue')
+      };
+    }
+
+    bindEvents() {
+      this.renderMenu();
+
+      // Desktop: mouseover for dropdowns
+      if (window.matchMedia('(min-width: 769px)').matches) {
+        this.root.addEventListener('mouseover', (e) => {
+          const menuLabel = e.target.closest('.menu-label');
+          if (menuLabel) {
+            const menuItem = menuLabel.closest('.menu-item');
+            this.openDropdown(menuItem);
+          }
+        });
+
+        this.root.addEventListener('mouseleave', (e) => {
+          if (!e.target.closest('.dropdown')) {
+            setTimeout(() => {
+              if (!this.root.querySelector('.menu-item:hover')) {
+                this.closeAllDropdowns();
+              }
+            }, 100);
+          }
+        });
+      }
+
+      // Mobile: click to toggle
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        this.root.addEventListener('click', (e) => {
+          const menuLabel = e.target.closest('.menu-label');
+          if (menuLabel) {
+            e.preventDefault();
+            e.stopPropagation();
+            const menuItem = menuLabel.closest('.menu-item');
+            const dropdown = menuItem.querySelector('.dropdown');
+
+            if (dropdown) {
+              dropdown.classList.toggle('open');
+              menuItem.classList.toggle('active');
+
+              // Close other dropdowns
+              this.root.querySelectorAll('.menu-item').forEach(item => {
+                if (item !== menuItem) {
+                  item.classList.remove('active');
+                  const d = item.querySelector('.dropdown');
+                  if (d) d.classList.remove('open');
+                }
+              });
+            }
+          }
+        });
+      }
+
+      // Click on dropdown items (both desktop & mobile)
+      this.root.addEventListener('click', (e) => {
+        const dropdownItem = e.target.closest('.dropdown-item');
+        if (dropdownItem && !dropdownItem.classList.contains('has-submenu')) {
+          const optId = dropdownItem.dataset.id;
+          this.ShowScreen(optId);
+          this.closeAllDropdowns();
+        }
+      });
+
+      // Outside click handler
+      const rootNode = this.getRootNode();
+      const clickOutsideHandler = (e) => {
+        if (!this.root.contains(e.target)) {
+          this.closeAllDropdowns();
+        }
+      };
+      rootNode.addEventListener('click', clickOutsideHandler);
+
+      // Resize handler
+      const resizeHandler = () => {
+        this.closeAllDropdowns();
+      };
+      rootNode.addEventListener('resize', resizeHandler);
+
+      this._cleanup = () => {
+        rootNode.removeEventListener('click', clickOutsideHandler);
+        rootNode.removeEventListener('resize', resizeHandler);
+      };
+    }
+
+    renderMenu() {
+      this.els.menuBar.innerHTML = this.menuData.map(menu => `
+          <div class="menu-item" data-id="${menu.id}">
+            <span class="menu-label">${menu.label}</span>
+            <div class="dropdown">
+              ${this.renderSubmenu(menu.submenu)}
+            </div>
+          </div>
+        `).join('');
+    }
+
+    renderSubmenu(items) {
+      return items.map(item => {
+        if (item.submenu) {
+          return `
+              <div class="dropdown-item has-submenu" data-id="${item.id}">
+                <span>${item.label}</span>
+                <div class="submenu">
+                  ${this.renderSubmenu(item.submenu)}
+                </div>
+              </div>
+            `;
+        } else {
+          return `<div class="dropdown-item" data-id="${item.id}">${item.label}</div>`;
+        }
+      }).join('');
+    }
+
+    openDropdown(menuItem) {
+      if (!menuItem) return;
+
+      this.closeAllDropdowns();
+
+      const dropdown = menuItem.querySelector('.dropdown');
+      if (dropdown) {
+        dropdown.classList.add('open');
+        menuItem.classList.add('active');
+      }
+    }
+
+    closeAllDropdowns() {
+      this.root.querySelectorAll('.dropdown').forEach(d => {
+        d.classList.remove('open');
+      });
+      this.root.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+    }
+
+    ShowScreen(optId) {
+      let fullPath = optId;
+
+      const findPath = (items, parentLabel = '') => {
+        for (const item of items) {
+          if (item.id === optId) {
+            fullPath = parentLabel ? `${parentLabel} → ${item.label}` : item.label;
+            return true;
+          }
+          if (item.submenu) {
+            if (findPath(item.submenu, item.label)) return true;
+          }
+        }
+        return false;
+      };
+
+      for (const menu of this.menuData) {
+        if (findPath(menu.submenu, menu.label)) break;
+      }
+
+      this.els.statusValue.textContent = fullPath;
+
+      this.dispatchEvent(new CustomEvent('show-screen', {
+        detail: { optId, path: fullPath },
+        bubbles: true,
+        composed: true
+      }));
+
+      // INJECT.
+      ms.inject('gridCardsFromJson', 'screen-Park');
+      // END INJECT
+    }
+
+    disconnectedCallback() {
+      if (this._cleanup) this._cleanup();
+    }
+  }
+
+  customElements.define('manufacturing-menu', ManufacturingMenu);
+</script>

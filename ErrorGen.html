@@ -1,0 +1,93 @@
+<ms-public>
+  <functions>f2, f3</functions>
+  <classes>Person</classes>
+  <elements>Text1</elements>
+  <holders></holders>
+  <store></store>
+</ms-public>
+
+<h3> THIS IS FOR ERROR HANDLING SYSTEM CHECKUP</h3>
+
+<h2>Class Demo 1</h2>
+<input id="Text1" type="text" value="default..." />
+
+<button id="btnHandled">Handled Error</button>
+<button id="btnUnhandled">Unhandled Error</button>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+
+  AAAAA;
+  await Err();
+
+  async function Err() {
+    try {
+      BBBBBB; // <<--MS Err NOT Activated here when user handles.
+    }
+    catch (e) {
+      console.error('.MANUAL RECOVERY. Failed And User Handled...');
+      await ms.open('index'); // Works; Definitely use await.
+      return false; // stops this async wrapper; next lines in Err() do not run.
+    }
+
+    console.error('Error Moved down ...');
+  }
+
+
+  export class Person {
+
+    constructor(name, age) {
+      this.name = name;
+      this.age = age;
+    }
+    greet() {
+      console.log(`Hello, my name is ${this.name} and I'm ${this.age} years old.`);
+      // alert(ms.id('Text1').value);
+      // alert("GREET");
+      return ms.id('Text1').value;
+    }
+  }
+  async function f2() {
+    try {
+
+      return "F2 called";
+
+    }
+    catch (e) {
+      console.error('MANUAL RECOVERY TRIED BUT NOT COMPLETD AND JUST THROWN ERROR');
+      ms.open('ErrorMsg');
+      throw e;
+      // alert("STOP FAIL");
+
+    }
+    // return ms.id('Text1').value; 
+  }
+
+  async function f3() {
+
+    //  AAAAA; // <<--MS Err (POPUP) Activated..!, when user not handle with try..
+
+    try {
+      //   BBBBB; // <<--MS Err NOT Activated..!, because user has handled.
+      // * Danger here is, triggering comp doesnt know how this comp will handle errors.
+      // this comp may or may not have used ms commnds properly like ms.stop etc..
+      // Therefore, for any failure, Triggering side should always get .ok=false
+    }
+    catch (e) {
+      console.error('MANUAL RECOVERY. F3 Failed And User Handled...');
+
+      // Must be used only when no try block.==> ms.ErrorClose(); // seems No effect here
+      ms.open('index'); // <== This is NOT open unless ms.stop() used. Shifting user to suitable any other place.
+      throw e;
+      // await ms.stop(); // wrong here--> opens popup 
+      alert("ms.stop FAIL");
+      // return false;
+    }
+
+    alert("End of F3");
+
+  }
+
+</script>

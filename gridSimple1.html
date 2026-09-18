@@ -1,0 +1,65 @@
+<ms-public>
+  <classes>ssssPerson</classes>
+  <functions>FillGrid</functions>
+  <divs>content, sidebar</divs>
+  <elements>Text1, ChkBox1 </elements>
+  <allow>A, .\Folder1\SubFolder\, http:\\www.dom1\fold1\ </allow>
+</ms-public>
+
+
+<!-- STYLE =======================================================-->
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 200px);
+    /* 4 columns */
+    gap: 0;
+    /* remove gap so borders align cleanly */
+  }
+
+  .grid>div {
+    border: 1px solid #333;
+    /* line around each cell */
+    padding: 16px;
+    /* optional spacing inside */
+  }
+</style>
+
+
+<!-- HTML =======================================================-->
+<div class="grid" id="grid"></div>
+
+<!-- CODE =======================================================-->
+<script type="module">
+  import ms from './msLib/ms.js';
+
+  await CreateSimpleGrid1(4);
+
+  async function CreateSimpleGrid1(numRows) {
+    let Cols = 4;
+    const grid = ms.id("grid");
+    grid.innerHTML = ""; // clear previous
+
+    const numCells = numRows * Cols; // 4 columns per row
+    for (let i = 1; i <= numCells; i++) {
+
+      const cell = document.createElement("div");
+
+      // Col Num:  1-indexed: 1, 2, 3, 4
+      const colNum = (i % Cols);  // row number (0-indexed)===>  const rowNumber = Math.floor(i / 4);
+      if (colNum == 2) {
+        const comp = await ms.inject("a", cell);
+        await comp.test();
+      }
+      /*       else if (colNum == 3) {
+              cell.innerHTML = "***";
+              const b = await ms.inject("b", cell);
+            }
+       */
+      grid.appendChild(cell);
+    }
+
+    //  let c=0;
+    // await CreateSimpleGrid1(3);
+  }
+</script>

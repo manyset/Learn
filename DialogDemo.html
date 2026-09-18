@@ -1,0 +1,15 @@
+<h1>You are in dialog test page.</h1>
+
+<script type="module">
+  import ms from './msLib/ms.js'
+  await ms.ready();
+
+  const result = await ms.dialog({
+    message: "Delete this file?",
+    buttons: ["Yes", "No", "Ignore"],
+    title: "Confirm",
+    icon: "cool"
+  });
+
+  alert("const result = " + result);
+</script>
