@@ -1,0 +1,318 @@
+/* =========================================================
+   MS77 ENGINE — STABLE + WRAPPER COMPILATION (FIXED & WORKING)
+   ========================================================= */
+
+   /* =========================
+   GLOBAL CONFIG
+   ========================= */
+
+let MS_DEBUG = false;
+
+(async function loadMSConfig() {
+  try {
+    const res = await fetch('GlobalConfig.json', { cache: 'no-cache' });
+    if (res.ok) {
+      const cfg = await res.json();
+      MS_DEBUG = cfg.debug === true;
+    }
+  } catch {
+    // fail silently — default is production-safe
+    MS_DEBUG = false;
+  }
+})();
+///////////
+
+const COMPONENT_CACHE = new Map();
+const INSTANCES = new Map();
+let REF_SEQ = 1;
+
+let SYSTEM_ROOT = null;
+let CURRENT_INSTANCE = null;
+
+
+function getInstanceFromRef(refObj) {
+  if (!refObj || typeof refObj !== 'object') {
+    throw new Error('ms.call: invalid ref object');
+  }
+  if (!('ref' in refObj)) {
+    throw new Error('ms.call: missing ref.ref');
+  }
+  const inst = INSTANCES.get(refObj.ref);
+  if (!inst) {
+    throw new Error(`ms.call: instance not found (ref=${refObj.ref})`);
+  }
+  return inst;
+}
+
+/* =========================
+   UTIL
+   ========================= */
+
+function msLog(...args) {
+  if (!MS_DEBUG) return;
+  msLog('[MS77]', ...args);
+}
+
+function resolveFile(name) {
+  if (name.includes('/') || name.includes('.')) return name;
+  return `${name}.html`;
+}
+
+function ensureSystemRoot() {
+  if (!SYSTEM_ROOT) {
+    SYSTEM_ROOT = document.createElement('div');
+    SYSTEM_ROOT.id = '__ms_screen_root';
+    document.body.appendChild(SYSTEM_ROOT);
+  }
+  return SYSTEM_ROOT;
+}
+
+function parseCsv(text) {
+  return text ? text.split(',').map(x => x.trim()).filter(Boolean) : [];
+}
+
+function rewriteImports(code, baseUrl) {
+  return code.replace(
+    /from\s+['"](\.{1,2}\/[^'"]+)['"]/g,
+    (_, rel) => `from '${new URL(rel, baseUrl).href}'`
+  );
+}
+
+/* =========================
+   LOAD COMPONENT
+   ========================= */
+
+async function loadComponent(name) {
+  const file = resolveFile(name);
+  if (COMPONENT_CACHE.has(file)) return COMPONENT_CACHE.get(file);
+
+  const res = await fetch(file, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`Failed to load ${file}`);
+
+  const html = await res.text();
+  COMPONENT_CACHE.set(file, html);
+  return html;
+}
+
+/* =========================
+   INSTANCE CREATION
+   ========================= */
+
+async function createInstance(name, container, mode) {
+  const html = await loadComponent(name);
+  const baseUrl = new URL(resolveFile(name), location.href).href;
+
+  const host = document.createElement('div');
+  const root = host.attachShadow({ mode: 'open' });
+
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html;
+
+  /* parse <ms-public> */
+  const pub = tpl.content.querySelector('ms-public');
+const publicContract = {
+  functions: [],
+  classes: [],
+  elements: [],
+  divs: [],
+  allow: []
+};
+
+if (pub) {
+  publicContract.functions = parseCsv(pub.querySelector('functions')?.textContent);
+  publicContract.classes   = parseCsv(pub.querySelector('classes')?.textContent);
+  publicContract.elements  = parseCsv(pub.querySelector('elements')?.textContent);
+  publicContract.divs      = parseCsv(pub.querySelector('divs')?.textContent);
+  publicContract.allow     = parseCsv(pub.querySelector('allow')?.textContent);
+  pub.remove();
+}
+
+  const instance = {
+    refId: REF_SEQ++,
+    name,
+    host,
+    root,
+    container,
+    mode,
+    publicContract,
+    symbols: {}
+  };
+
+  INSTANCES.set(instance.refId, instance);
+
+  /* DOM first */
+  [...tpl.content.childNodes].forEach(n => {
+    if (n.nodeName !== 'SCRIPT') root.appendChild(n.cloneNode(true));
+  });
+
+  /* scripts — SEQUENTIAL & SAFE */
+  for (const old of tpl.content.querySelectorAll('script')) {
+
+    if ((old.type || 'module') !== 'module') {
+      const s = document.createElement('script');
+      CURRENT_INSTANCE = instance;
+      s.textContent = old.textContent;
+      root.appendChild(s);
+      continue;
+    }
+
+    let srcCode = old.src
+      ? await (await fetch(old.src)).text()
+      : old.textContent;
+
+    srcCode = rewriteImports(srcCode, baseUrl);
+
+let wrapper = `
+/* MS77 WRAPPER START */
+
+const __ms_exports__ = {};
+
+${srcCode}
+
+${publicContract.functions.map(fn => `
+  if (typeof ${fn} === 'function') {
+    __ms_exports__.${fn} = ${fn};
+  }
+`).join('\n')}
+
+${publicContract.classes.map(cls => `
+  if (typeof ${cls} === 'function') {
+    __ms_exports__.${cls} = ${cls};
+  }
+`).join('\n')}
+
+export default __ms_exports__;
+
+/* MS77 WRAPPER END */
+`;
+
+if (MS_DEBUG) {
+  wrapper += `\n//# sourceURL=${baseUrl}`;
+}
+
+
+
+    const blob = new Blob([wrapper], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+
+    CURRENT_INSTANCE = instance;
+    const mod = await import(url);
+    URL.revokeObjectURL(url);
+
+    Object.assign(instance.symbols, mod.default);
+  }
+
+  container.appendChild(host);
+  return instance;
+}
+
+/* =========================
+   DOM WRAPPER
+   ========================= */
+
+class MSDomRef {
+  constructor(el) { this.el = el; }
+  addEventListener(t, f) { this.el.addEventListener(t, f); return this; }
+  on(t, f) { return this.addEventListener(t, f); }
+  get value() { return 'value' in this.el ? this.el.value : this.el.textContent; }
+  set value(v) { 'value' in this.el ? this.el.value = v : this.el.textContent = v; }
+}
+
+/* =========================
+   REF OBJECT
+   ========================= */
+
+function createRef(instance) {
+  const pub = instance.publicContract;
+
+  const ref = {
+    ok: true,
+    ref: instance.refId,
+    component: instance.name,
+
+    id(id) {
+      if (!pub.elements.includes(id) && !pub.elements.includes('*'))
+        throw new Error(`Element access denied: ${id}`);
+      const el = instance.root.querySelector('#' + id);
+      if (!el) throw new Error(`Element not found: ${id}`);
+      return new MSDomRef(el);
+    }
+  };
+
+for (const key of Object.keys(instance.symbols)) {
+  if (
+    pub.functions.includes(key) ||
+    pub.classes.includes(key) ||
+    pub.functions.includes('*') ||
+    pub.classes.includes('*')
+  ) {
+    ref[key] = instance.symbols[key];
+  }
+}
+
+  return ref;
+}
+
+/* =========================
+   PUBLIC API
+   ========================= */
+
+export const ms = {
+
+  id(id) {
+    if (!CURRENT_INSTANCE)
+      throw new Error(`ms.id('${id}') called outside component execution`);
+    const el = CURRENT_INSTANCE.root.querySelector('#' + id);
+    if (!el) throw new Error(`Element not found: ${id}`);
+    return new MSDomRef(el);
+  },
+
+  async open(name) {
+    const sys = ensureSystemRoot();
+    for (const inst of INSTANCES.values()) {
+      if (inst.name === name && inst.container === sys)
+        return createRef(inst);
+    }
+    return createRef(await createInstance(name, sys, 'open'));
+  },
+
+  // for ms.call
+  async call(refObj, fnName, ...args) {
+
+  const inst = getInstanceFromRef(refObj);
+
+  if (typeof fnName !== 'string' || !fnName) {
+    throw new Error('ms.call: function name must be a non-empty string');
+  }
+
+  const pubFns = inst.publicContract.functions || [];
+  const allowed =
+    pubFns.includes('*') || pubFns.includes(fnName);
+
+  if (!allowed) {
+    throw new Error(
+      `ms.call: function '${fnName}' is not exposed by component '${inst.name}'`
+    );
+  }
+
+  const fn = refObj[fnName];
+  if (typeof fn !== 'function') {
+    throw new Error(
+      `ms.call: '${fnName}' is not a callable function on ref`
+    );
+  }
+
+  try {
+    return await fn(...args);
+  } catch (e) {
+    throw new Error(
+      `ms.call: error calling '${fnName}' on '${inst.name}': ${e.message}`
+    );
+  }
+  },
+  // end for ms.call
+
+  ready() { /* no-op */ }
+};
+
+export default ms;

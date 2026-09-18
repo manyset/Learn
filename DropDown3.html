@@ -1,0 +1,491 @@
+
+  <country-selector></country-selector>
+
+  <script type="module">
+    class CountrySelector extends HTMLElement {
+      constructor() {
+        super();
+        this.root = this.attachShadow({ mode: 'open' });
+        this.selectedCountries = new Set();
+        this.allSelected = false;
+        
+        this.countries = [
+          { id: 'us', name: 'United States', flag: 'https://flagcdn.com/us.svg' },
+          { id: 'gb', name: 'United Kingdom', flag: 'https://flagcdn.com/gb.svg' },
+          { id: 'ca', name: 'Canada', flag: 'https://flagcdn.com/ca.svg' },
+          { id: 'de', name: 'Germany', flag: 'https://flagcdn.com/de.svg' },
+          { id: 'fr', name: 'France', flag: 'https://flagcdn.com/fr.svg' },
+          { id: 'it', name: 'Italy', flag: 'https://flagcdn.com/it.svg' },
+          { id: 'jp', name: 'Japan', flag: 'https://flagcdn.com/jp.svg' },
+          { id: 'in', name: 'India', flag: 'https://flagcdn.com/in.svg' },
+          { id: 'br', name: 'Brazil', flag: 'https://flagcdn.com/br.svg' },
+          { id: 'au', name: 'Australia', flag: 'https://flagcdn.com/au.svg' }
+        ];
+      }
+
+      connectedCallback() {
+        this.render();
+        this.cacheElements();
+        this.bindEvents();
+      }
+
+      render() {
+        this.root.innerHTML = `
+          <style>
+            :host {
+              display: block;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+
+            .container {
+              max-width: 800px;
+              margin: 2rem auto;
+              padding: 2rem;
+              background: white;
+              border-radius: 12px;
+              box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            }
+
+            h1 {
+              color: #2c3e50;
+              margin-bottom: 0.5rem;
+              font-size: 1.8rem;
+            }
+
+            .subtitle {
+              color: #7f8c8d;
+              margin-bottom: 2rem;
+              font-size: 1rem;
+            }
+
+            .dropdown {
+              position: relative;
+              display: inline-block;
+              width: 100%;
+              margin: 1rem 0;
+            }
+
+            .dropdown-btn {
+              background: #4a90e2;
+              color: white;
+              padding: 0.75rem 1.5rem;
+              font-size: 0.95rem;
+              font-weight: 500;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              width: 100%;
+              max-width: 280px;
+              transition: all 0.2s ease;
+            }
+
+            .dropdown-btn:hover {
+              background: #357abd;
+              transform: translateY(-1px);
+              box-shadow: 0 4px 12px rgba(74,144,226,0.2);
+            }
+
+            .dropdown-content {
+              position: absolute;
+              top: calc(100% + 0.5rem);
+              left: 0;
+              background: white;
+              min-width: 320px;
+              border-radius: 8px;
+              box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+              opacity: 0;
+              visibility: hidden;
+              transform: translateY(-5px);
+              transition: all 0.2s ease;
+              z-index: 1000;
+              border: 1px solid #eef2f6;
+            }
+
+            .dropdown-content.show {
+              opacity: 1;
+              visibility: visible;
+              transform: translateY(0);
+            }
+
+            .dropdown-header {
+              padding: 0.75rem 1rem;
+              background: #f8fafc;
+              border-bottom: 1px solid #e9ecef;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 1rem;
+            }
+
+            .search-input {
+              padding: 0.5rem;
+              border: 1px solid #e2e8f0;
+              border-radius: 6px;
+              width: 100%;
+              font-size: 0.85rem;
+              outline: none;
+            }
+
+            .search-input:focus {
+              border-color: #4a90e2;
+              box-shadow: 0 0 0 2px rgba(74,144,226,0.1);
+            }
+
+            .selected-count {
+              font-size: 0.8rem;
+              color: #64748b;
+              white-space: nowrap;
+            }
+
+            .countries-list {
+              max-height: 280px;
+              overflow-y: auto;
+            }
+
+            .dropdown-item {
+              display: flex;
+              align-items: center;
+              padding: 0.6rem 1rem;
+              cursor: pointer;
+              border-bottom: 1px solid #f1f5f9;
+            }
+
+            .dropdown-item:last-child {
+              border-bottom: none;
+            }
+
+            .dropdown-item:hover {
+              background: #f8fafc;
+            }
+
+            .dropdown-item.selected {
+              background: #eff6ff;
+            }
+
+            .checkbox {
+              width: 16px;
+              height: 16px;
+              margin-right: 12px;
+              cursor: pointer;
+              accent-color: #4a90e2;
+            }
+
+            .country-flag {
+              width: 20px;
+              height: 15px;
+              margin-right: 12px;
+              object-fit: cover;
+              border: 1px solid #e2e8f0;
+              border-radius: 2px;
+            }
+
+            .country-name {
+              flex: 1;
+              font-size: 0.9rem;
+              color: #1e293b;
+            }
+
+            .selection-summary {
+              margin: 1.5rem 0;
+              padding: 0.75rem 1rem;
+              background: #f8fafc;
+              border-radius: 6px;
+              font-size: 0.9rem;
+              color: #475569;
+            }
+
+            .actions {
+              display: flex;
+              gap: 1rem;
+              margin-top: 1.5rem;
+            }
+
+            .btn {
+              padding: 0.6rem 1.2rem;
+              border: none;
+              border-radius: 6px;
+              font-size: 0.9rem;
+              font-weight: 500;
+              cursor: pointer;
+              transition: all 0.2s ease;
+            }
+
+            .btn-primary {
+              background: #4a90e2;
+              color: white;
+            }
+
+            .btn-primary:hover {
+              background: #357abd;
+              transform: translateY(-1px);
+            }
+
+            .btn-success {
+              background: #27ae60;
+              color: white;
+            }
+
+            .btn-success:hover {
+              background: #1e8449;
+              transform: translateY(-1px);
+            }
+
+            .result {
+              margin-top: 1.5rem;
+              padding: 1.5rem;
+              background: #f0fdf4;
+              border-radius: 8px;
+              border-left: 4px solid #27ae60;
+            }
+
+            .result h3 {
+              color: #1e293b;
+              margin-bottom: 1rem;
+              font-size: 1rem;
+            }
+
+            .country-tags {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.75rem;
+            }
+
+            .country-tag {
+              background: white;
+              padding: 0.4rem 1rem;
+              border-radius: 20px;
+              font-size: 0.85rem;
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+              border: 1px solid #e2e8f0;
+            }
+
+            .country-tag img {
+              width: 18px;
+              height: 12px;
+              border-radius: 2px;
+            }
+
+            @media (max-width: 640px) {
+              .container {
+                margin: 1rem;
+                padding: 1.5rem;
+              }
+              
+              .dropdown-content {
+                min-width: 100%;
+              }
+              
+              .actions {
+                flex-direction: column;
+              }
+              
+              .dropdown-btn {
+                max-width: 100%;
+              }
+            }
+          </style>
+
+          <div class="container">
+            <h1>🌍 Country Selector</h1>
+            <p class="subtitle">Select multiple countries with flags and modern interactions</p>
+
+            <div class="dropdown">
+              <button class="dropdown-btn">
+                <span class="btn-text">Select Countries</span>
+                <span>▼</span>
+              </button>
+              
+              <div class="dropdown-content">
+                <div class="dropdown-header">
+                  <input type="text" class="search-input" placeholder="Search countries...">
+                  <span class="selected-count">0 selected</span>
+                </div>
+                
+                <div class="countries-list"></div>
+              </div>
+            </div>
+
+            <div class="selection-summary">
+              <span class="selection-text">No countries selected</span>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn-primary toggle-all">Select All</button>
+              <button class="btn btn-success show-selected">Show Selected Countries</button>
+            </div>
+
+            <div class="result" style="display: none;">
+              <h3>Selected Countries:</h3>
+              <div class="country-tags"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      cacheElements() {
+        const root = this.root;
+        
+        this.elements = {
+          dropdownBtn: root.querySelector('.dropdown-btn'),
+          dropdownContent: root.querySelector('.dropdown-content'),
+          countriesList: root.querySelector('.countries-list'),
+          searchInput: root.querySelector('.search-input'),
+          selectedCount: root.querySelector('.selected-count'),
+          selectionText: root.querySelector('.selection-text'),
+          toggleAllBtn: root.querySelector('.toggle-all'),
+          showSelectedBtn: root.querySelector('.show-selected'),
+          result: root.querySelector('.result'),
+          countryTags: root.querySelector('.country-tags'),
+          btnText: root.querySelector('.btn-text')
+        };
+      }
+
+      bindEvents() {
+        const root = this.root;
+        const els = this.elements;
+        const dropdown = root.querySelector('.dropdown');
+
+        els.dropdownBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          els.dropdownContent.classList.toggle('show');
+        });
+
+        dropdown.addEventListener('mouseenter', () => {
+          els.dropdownContent.classList.add('show');
+        });
+
+        dropdown.addEventListener('mouseleave', () => {
+          els.dropdownContent.classList.remove('show');
+        });
+
+        els.searchInput.addEventListener('input', (e) => {
+          this.renderCountries(e.target.value);
+        });
+
+        root.addEventListener('change', (e) => {
+          if (e.target.classList.contains('checkbox')) {
+            const countryId = e.target.id;
+            const countryItem = e.target.closest('.dropdown-item');
+
+            if (e.target.checked) {
+              this.selectedCountries.add(countryId);
+              countryItem?.classList.add('selected');
+            } else {
+              this.selectedCountries.delete(countryId);
+              countryItem?.classList.remove('selected');
+            }
+
+            this.updateSelectionText();
+            this.allSelected = this.selectedCountries.size === this.countries.length;
+            els.toggleAllBtn.textContent = this.allSelected ? 'Deselect All' : 'Select All';
+          }
+        });
+
+        els.toggleAllBtn.addEventListener('click', () => {
+          this.allSelected = !this.allSelected;
+          
+          if (this.allSelected) {
+            this.countries.forEach(c => this.selectedCountries.add(c.id));
+          } else {
+            this.selectedCountries.clear();
+          }
+
+          this.renderCountries(els.searchInput.value);
+          els.toggleAllBtn.textContent = this.allSelected ? 'Deselect All' : 'Select All';
+        });
+
+        els.showSelectedBtn.addEventListener('click', () => {
+          this.showSelectedCountries();
+        });
+
+        const rootNode = this.getRootNode();
+        const closeHandler = (e) => {
+          if (!root.contains(e.target)) {
+            els.dropdownContent.classList.remove('show');
+          }
+        };
+        rootNode.addEventListener('click', closeHandler);
+        
+        this._cleanup = () => {
+          rootNode.removeEventListener('click', closeHandler);
+        };
+
+        this.renderCountries();
+      }
+
+      renderCountries(filter = '') {
+        const els = this.elements;
+        
+        const filtered = this.countries.filter(c =>
+          c.name.toLowerCase().includes(filter.toLowerCase())
+        );
+
+        els.countriesList.innerHTML = filtered.map(c => `
+          <div class="dropdown-item ${this.selectedCountries.has(c.id) ? 'selected' : ''}" data-id="${c.id}">
+            <input type="checkbox" class="checkbox" id="${c.id}" ${this.selectedCountries.has(c.id) ? 'checked' : ''}>
+            <img src="${c.flag}" alt="${c.name}" class="country-flag" loading="lazy">
+            <label for="${c.id}" class="country-name">${c.name}</label>
+          </div>
+        `).join('');
+
+        this.updateSelectionText();
+      }
+
+      updateSelectionText() {
+        const count = this.selectedCountries.size;
+        const els = this.elements;
+        
+        els.selectedCount.textContent = `${count} selected`;
+        els.btnText.textContent = count ? `${count} selected` : 'Select Countries';
+        
+        if (count === 0) {
+          els.selectionText.textContent = 'No countries selected';
+        } else if (count === 1) {
+          const id = [...this.selectedCountries][0];
+          const country = this.countries.find(c => c.id === id);
+          els.selectionText.textContent = `Selected: ${country?.name}`;
+        } else {
+          els.selectionText.textContent = `${count} countries selected`;
+        }
+      }
+
+      showSelectedCountries() {
+        const els = this.elements;
+        
+        if (this.selectedCountries.size === 0) {
+          els.countryTags.innerHTML = '<p style="color: #64748b;">No countries selected yet.</p>';
+          els.result.style.display = 'block';
+          return;
+        }
+
+        const selected = this.countries.filter(c => this.selectedCountries.has(c.id));
+        
+        els.countryTags.innerHTML = selected.map(c => `
+          <div class="country-tag">
+            <img src="${c.flag}" alt="${c.name}">
+            <span>${c.name}</span>
+          </div>
+        `).join('');
+
+        els.result.style.display = 'block';
+      }
+
+      disconnectedCallback() {
+        if (this._cleanup) this._cleanup();
+      }
+    }
+
+    customElements.define('country-selector', CountrySelector);
+  </script>

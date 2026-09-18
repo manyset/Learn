@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DOM Designer – Properties, Events & Export</title>
+
+<style>
+  body {
+    background: #2b2b2b;
+    font-family: Segoe UI, Arial, sans-serif;
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ---------- Toolbox Sidebar ---------- */
+  .toolbox {
+    width: 260px;
+    background: #333;
+    color: #fff;
+    border-right: 1px solid #444;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .toolbox.collapsed {
+    width: 40px;
+  }
+
+  .toolbox-toggle {
+    width: 100%;
+    background: #007acc;
+    color: white;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toolbox-toggle span {
+    margin-left: 8px;
+  }
+
+  .toolbox-toggle .arrow {
+    transition: transform 0.3s;
+  }
+
+  .toolbox.collapsed .toolbox-toggle .arrow {
+    transform: rotate(180deg);
+  }
+
+  .toolbox-section {
+    margin: 15px 0;
+  }
+
+  .toolbox-section h4 {
+    margin: 0 0 10px 10px;
+    color: #aaa;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .toolbox-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .toolbox-item {
+    background: #444;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toolbox.collapsed .toolbox-section,
+  .toolbox.collapsed .toolbox-items {
+    display: none;
+  }
+
+  .toolbox-item:hover {
+    background: #555;
+    border-color: #007acc;
+  }
+
+  .toolbox-item:active {
+    cursor: grabbing;
+    background: #007acc;
+  }
+
+  .toolbox-item .icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  /* ---------- Main Content ---------- */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+  }
+
+  .toolbar {
+    margin-bottom: 10px;
+    text-align: right;
+  }
+
+  .toolbar button {
+    padding: 6px 14px;
+    font-size: 14px;
+    background: #007acc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+
+  .toolbar button:hover {
+    background: #005a9e;
+  }
+
+  .designer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+    background: #f0f0f0;
+    border: 1px solid #888;
+    overflow: auto;
+  }
+
+  /* ---------- Control Elements ---------- */
+  .control {
+    position: absolute;
+    box-sizing: border-box;
+    cursor: move;
+    user-select: none;
+    background: #fff;
+    border: 1px solid #666;
+    padding: 4px;
+  }
+
+  .control.selected {
+    outline: 2px dotted #007acc;
+  }
+
+  .label { 
+    background: transparent; 
+    border: none; 
+    color: #333;
+  }
+  .textbox { 
+    height: 26px; 
+    background: white;
+  }
+  .textarea { 
+    min-height: 60px; 
+    resize: both;
+    overflow: auto;
+  }
+  .button {
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    background: linear-gradient(#fff, #ddd);
+    border-radius: 4px;
+  }
+  .panel { 
+    background: #e6e6e6; 
+    padding: 10px;
+  }
+  .box { 
+    background: #dfefff; 
+    padding: 10px;
+  }
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+  }
+  .checkbox-container input {
+    margin-right: 8px;
+  }
+  .radio-container {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+  }
+  .radio-container input {
+    margin-right: 8px;
+  }
+  .select {
+    height: 26px;
+    background: white;
+  }
+  .image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    border: 1px dashed #666;
+  }
+  .image::before {
+    content: "🖼️";
+    font-size: 20px;
+  }
+
+  .grid {
+    background:
+      linear-gradient(#ccc 1px, transparent 1px),
+      linear-gradient(90deg, #ccc 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .dragging-overlay {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    opacity: 0.8;
+  }
+
+  .drop-indicator {
+    position: absolute;
+    border: 2px dashed #007acc;
+    background: rgba(0, 122, 204, 0.1);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ---------- Property Popup ---------- */
+  .popup {
+    position: fixed;
+    width: 280px;
+    background: #fff;
+    border: 1px solid #888;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    font-size: 13px;
+    z-index: 1000;
+  }
+
+  .popup header {
+    background: #007acc;
+    color: #fff;
+    padding: 6px;
+    font-weight: 600;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 6px;
+    text-align: center;
+    cursor: pointer;
+    background: #eee;
+  }
+
+  .tab.active {
+    background: #fff;
+    border-bottom: 2px solid #007acc;
+  }
+
+  .content {
+    padding: 6px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 6px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 4px;
+    border: 1px solid #ccc;
+  }
+
+  .color-preview {
+    width: 30px;
+    height: 20px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- Toolbox Sidebar -->
+<div class="toolbox" id="toolbox">
+  <button class="toolbox-toggle" id="toggleToolbox">
+    <span>Toolbox</span>
+    <span class="arrow">▶</span>
+  </button>
+
+  <div class="toolbox-section">
+    <h4>Basic Controls</h4>
+    <div class="toolbox-items">
+      <div class="toolbox-item" data-type="label" draggable="true">
+        <div class="icon">📝</div>
+        <span>Label</span>
+      </div>
+      <div class="toolbox-item" data-type="textbox" draggable="true">
+        <div class="icon">📋</div>
+        <span>Text Input</span>
+      </div>
+      <div class="toolbox-item" data-type="textarea" draggable="true">
+        <div class="icon">📄</div>
+        <span>Text Area</span>
+      </div>
+      <div class="toolbox-item" data-type="button" draggable="true">
+        <div class="icon">🔘</div>
+        <span>Button</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbox-section">
+    <h4>Selection Controls</h4>
+    <div class="toolbox-items">
+      <div class="toolbox-item" data-type="checkbox-container" draggable="true">
+        <div class="icon">☑️</div>
+        <span>Checkbox</span>
+      </div>
+      <div class="toolbox-item" data-type="radio-container" draggable="true">
+        <div class="icon">⭕</div>
+        <span>Radio Button</span>
+      </div>
+      <div class="toolbox-item" data-type="select" draggable="true">
+        <div class="icon">▼</div>
+        <span>Dropdown</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbox-section">
+    <h4>Containers</h4>
+    <div class="toolbox-items">
+      <div class="toolbox-item" data-type="panel" draggable="true">
+        <div class="icon">📦</div>
+        <span>Panel</span>
+      </div>
+      <div class="toolbox-item" data-type="box" draggable="true">
+        <div class="icon">📁</div>
+        <span>Div Container</span>
+      </div>
+      <div class="toolbox-item" data-type="grid" draggable="true">
+        <div class="icon">#️⃣</div>
+        <span>Grid Container</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbox-section">
+    <h4>Media</h4>
+    <div class="toolbox-items">
+      <div class="toolbox-item" data-type="image" draggable="true">
+        <div class="icon">🖼️</div>
+        <span>Image</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="main-content">
+  <div class="toolbar">
+    <button id="clear">Clear All</button>
+    <button id="export">Generate Responsive HTML</button>
+  </div>
+
+  <div class="designer" id="designer">
+    <!-- Initial controls will be added here -->
+  </div>
+</div>
+
+<div class="popup" id="popup" hidden></div>
+
+<script>
+/* ---------------- Toolbox Functions ---------------- */
+const toolbox = document.getElementById('toolbox');
+const toggleBtn = document.getElementById('toggleToolbox');
+
+toggleBtn.addEventListener('click', () => {
+  toolbox.classList.toggle('collapsed');
+});
+
+// Create dragging overlay
+const draggingOverlay = document.createElement('div');
+draggingOverlay.className = 'dragging-overlay';
+draggingOverlay.hidden = true;
+document.body.appendChild(draggingOverlay);
+
+// Add drag event listeners to toolbox items
+document.querySelectorAll('.toolbox-item').forEach(item => {
+  item.addEventListener('dragstart', handleDragStart);
+  item.addEventListener('dragend', handleDragEnd);
+});
+
+const designer = document.getElementById('designer');
+let dropIndicator = null;
+
+designer.addEventListener('dragover', handleDragOver);
+designer.addEventListener('dragleave', handleDragLeave);
+designer.addEventListener('drop', handleDrop);
+
+function handleDragStart(e) {
+  const type = e.target.closest('.toolbox-item').dataset.type;
+  e.dataTransfer.setData('text/plain', type);
+  e.dataTransfer.effectAllowed = 'copy';
+  
+  // Create visual feedback
+  draggingOverlay.innerHTML = `<div style="background:#444;color:white;padding:10px;border-radius:4px;">
+    <strong>${e.target.textContent.trim()}</strong>
+  </div>`;
+  draggingOverlay.hidden = false;
+  
+  // Position overlay near cursor
+  document.addEventListener('dragover', updateDragOverlay);
+}
+
+function handleDragEnd() {
+  draggingOverlay.hidden = true;
+  document.removeEventListener('dragover', updateDragOverlay);
+  removeDropIndicator();
+}
+
+function updateDragOverlay(e) {
+  draggingOverlay.style.left = (e.clientX + 15) + 'px';
+  draggingOverlay.style.top = (e.clientY + 15) + 'px';
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  
+  if (!dropIndicator) {
+    dropIndicator = document.createElement('div');
+    dropIndicator.className = 'drop-indicator';
+    designer.appendChild(dropIndicator);
+  }
+  
+  const rect = designer.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  // Snap to grid (20px)
+  const snapX = Math.round(x / 20) * 20;
+  const snapY = Math.round(y / 20) * 20;
+  
+  dropIndicator.style.left = snapX + 'px';
+  dropIndicator.style.top = snapY + 'px';
+  dropIndicator.style.width = '120px';
+  dropIndicator.style.height = '40px';
+}
+
+function handleDragLeave() {
+  removeDropIndicator();
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  removeDropIndicator();
+  
+  const type = e.dataTransfer.getData('text/plain');
+  if (!type) return;
+  
+  const rect = designer.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  // Snap to grid
+  const snapX = Math.round(x / 20) * 20;
+  const snapY = Math.round(y / 20) * 20;
+  
+  createControl(type, snapX, snapY);
+}
+
+function removeDropIndicator() {
+  if (dropIndicator) {
+    dropIndicator.remove();
+    dropIndicator = null;
+  }
+}
+
+/* ---------------- Control Creation ---------------- */
+let controlCounter = 0;
+
+function createControl(type, x, y) {
+  const control = document.createElement('div');
+  control.className = `control ${type}`;
+  control.id = `control-${++controlCounter}`;
+  
+  // Set default dimensions based on type
+  let width = 120, height = 40, text = '';
+  
+  switch(type) {
+    case 'label':
+      width = 120; height = 24; text = 'New Label';
+      break;
+    case 'textbox':
+      width = 150; height = 26;
+      break;
+    case 'textarea':
+      width = 180; height = 60;
+      break;
+    case 'button':
+      width = 100; height = 28; text = 'Button';
+      break;
+    case 'checkbox-container':
+      width = 120; height = 24;
+      control.innerHTML = '<input type="checkbox"> <span>Checkbox</span>';
+      break;
+    case 'radio-container':
+      width = 120; height = 24;
+      control.innerHTML = '<input type="radio" name="radioGroup"> <span>Radio</span>';
+      break;
+    case 'select':
+      width = 150; height = 26;
+      control.innerHTML = '<select><option>Option 1</option></select>';
+      break;
+    case 'panel':
+      width = 200; height = 150; text = 'Panel';
+      break;
+    case 'box':
+      width = 180; height = 100; text = 'Div Container';
+      break;
+    case 'grid':
+      width = 200; height = 120;
+      break;
+    case 'image':
+      width = 120; height = 90;
+      break;
+  }
+  
+  control.style.left = x + 'px';
+  control.style.top = y + 'px';
+  control.style.width = width + 'px';
+  control.style.height = height + 'px';
+  
+  if (text && !control.innerHTML) {
+    control.textContent = text;
+  }
+  
+  // Add event listeners
+  control.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    select(control);
+    startDrag(control, e);
+  });
+  
+  control.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    select(control);
+    showPopup(control, e.clientX, e.clientY);
+  });
+  
+  designer.appendChild(control);
+  select(control);
+}
+
+/* ---------------- Selection & Drag ---------------- */
+let selected = null, drag = null, ox = 0, oy = 0;
+const popup = document.getElementById('popup');
+
+function startDrag(el, e) {
+  drag = el;
+  ox = e.clientX - el.offsetLeft;
+  oy = e.clientY - el.offsetTop;
+}
+
+document.addEventListener('mousemove', e => {
+  if (!drag) return;
+  
+  // Snap to grid while dragging
+  const rect = designer.getBoundingClientRect();
+  const x = e.clientX - ox - rect.left;
+  const y = e.clientY - oy - rect.top;
+  
+  const snapX = Math.round(x / 20) * 20;
+  const snapY = Math.round(y / 20) * 20;
+  
+  drag.style.left = snapX + 'px';
+  drag.style.top = snapY + 'px';
+});
+
+document.addEventListener('mouseup', () => drag = null);
+
+document.addEventListener('keydown', e => {
+  if (!selected) return;
+  const step = e.shiftKey ? 10 : 5;
+  const rect = selected.getBoundingClientRect();
+  
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    selected.remove();
+    selected = null;
+    return;
+  }
+  
+  if (e.key === 'ArrowLeft') selected.style.left = selected.offsetLeft - step + 'px';
+  if (e.key === 'ArrowRight') selected.style.left = selected.offsetLeft + step + 'px';
+  if (e.key === 'ArrowUp') selected.style.top = selected.offsetTop - step + 'px';
+  if (e.key === 'ArrowDown') selected.style.top = selected.offsetTop + step + 'px';
+});
+
+function select(el) {
+  document.querySelectorAll('.control').forEach(x => x.classList.remove('selected'));
+  selected = el;
+  el.classList.add('selected');
+}
+
+/* ---------------- Properties & Events Metadata ---------------- */
+const PROPS = {
+  label: ['X','Y','Width','Height','Text','Font Size','Color'],
+  textbox: ['X','Y','Width','Height','Placeholder'],
+  textarea: ['X','Y','Width','Height','Placeholder','Rows'],
+  button: ['X','Y','Width','Height','Text','Background','Color'],
+  'checkbox-container': ['X','Y','Width','Height','Text','Checked'],
+  'radio-container': ['X','Y','Width','Height','Text','Checked'],
+  select: ['X','Y','Width','Height','Options'],
+  panel: ['X','Y','Width','Height','Text','Background'],
+  box: ['X','Y','Width','Height','Text','Background','Border'],
+  grid: ['X','Y','Width','Height','Background'],
+  image: ['X','Y','Width','Height','Alt Text','Source']
+};
+
+const EVENTS = {
+  textbox: ['onChange','onFocus','onBlur'],
+  textarea: ['onChange','onFocus','onBlur'],
+  button: ['onClick','onMouseOver','onMouseOut'],
+  'checkbox-container': ['onChange'],
+  'radio-container': ['onChange'],
+  select: ['onChange'],
+  label: [],
+  panel: [],
+  box: [],
+  grid: [],
+  image: ['onClick','onLoad','onError']
+};
+
+/* ---------------- Popup ---------------- */
+function showPopup(el, x, y) {
+  const type = el.classList[1];
+  popup.innerHTML = `
+    <header>${type} Properties</header>
+    <div class="tabs">
+      <div class="tab active" data-tab="props">Properties</div>
+      <div class="tab" data-tab="events">Events</div>
+    </div>
+    <div class="content"></div>
+  `;
+  
+  // Position popup to not go off-screen
+  const popupWidth = 280;
+  const popupHeight = 400;
+  const screenX = Math.min(x, window.innerWidth - popupWidth - 10);
+  const screenY = Math.min(y, window.innerHeight - popupHeight - 10);
+  
+  popup.style.left = screenX + 'px';
+  popup.style.top = screenY + 'px';
+  popup.hidden = false;
+
+  popup.querySelectorAll('.tab').forEach(t =>
+    t.onclick = () => switchTab(el, t.dataset.tab)
+  );
+
+  switchTab(el, 'props');
+}
+
+function switchTab(el, tab) {
+  popup.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tab)
+  );
+
+  const content = popup.querySelector('.content');
+  content.innerHTML = '';
+
+  if (tab === 'props') {
+    const type = el.classList[1];
+    if (PROPS[type]) {
+      PROPS[type].forEach(p => {
+        const value = getPropertyValue(el, p);
+        content.appendChild(createPropertyRow(p, value, el));
+      });
+    }
+  }
+
+  if (tab === 'events') {
+    const type = el.classList[1];
+    if (EVENTS[type]) {
+      EVENTS[type].forEach(e => {
+        const value = el.dataset[e] || '';
+        content.appendChild(createEventRow(e, value, el));
+      });
+    }
+  }
+}
+
+function createPropertyRow(name, value, el) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  
+  const label = document.createElement('label');
+  label.textContent = name;
+  
+  const input = document.createElement('input');
+  input.dataset.prop = name;
+  input.value = value;
+  
+  input.addEventListener('input', () => applyProperties(el));
+  input.addEventListener('change', () => applyProperties(el));
+  
+  row.appendChild(label);
+  
+  if (name === 'Color' || name === 'Background') {
+    const colorContainer = document.createElement('div');
+    colorContainer.style.display = 'flex';
+    colorContainer.style.gap = '5px';
+    colorContainer.style.alignItems = 'center';
+    
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = value.startsWith('#') ? value : '#007acc';
+    colorInput.dataset.prop = name;
+    colorInput.style.width = '40px';
+    
+    const textInput = input;
+    textInput.type = 'text';
+    
+    colorInput.addEventListener('input', (e) => {
+      textInput.value = e.target.value;
+      applyProperties(el);
+    });
+    
+    textInput.addEventListener('input', () => applyProperties(el));
+    
+    colorContainer.appendChild(colorInput);
+    colorContainer.appendChild(textInput);
+    row.appendChild(colorContainer);
+  } else if (name === 'Options') {
+    const textarea = document.createElement('textarea');
+    textarea.dataset.prop = name;
+    textarea.value = value;
+    textarea.rows = 4;
+    textarea.addEventListener('input', () => applyProperties(el));
+    row.appendChild(textarea);
+  } else {
+    row.appendChild(input);
+  }
+  
+  return row;
+}
+
+function createEventRow(name, value, el) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  
+  const label = document.createElement('label');
+  label.textContent = name;
+  
+  const input = document.createElement('input');
+  input.dataset.event = name;
+  input.value = value;
+  input.placeholder = 'e.g., alert("clicked")';
+  
+  input.addEventListener('input', () => applyProperties(el));
+  
+  row.appendChild(label);
+  row.appendChild(input);
+  return row;
+}
+
+function getPropertyValue(el, prop) {
+  const style = window.getComputedStyle(el);
+  
+  switch(prop) {
+    case 'X': return el.offsetLeft;
+    case 'Y': return el.offsetTop;
+    case 'Width': return el.offsetWidth;
+    case 'Height': return el.offsetHeight;
+    case 'Text': return el.textContent || el.innerText;
+    case 'Placeholder':
+      const input = el.querySelector('input, textarea, select');
+      return input ? input.placeholder || '' : '';
+    case 'Font Size': return style.fontSize;
+    case 'Color': return style.color;
+    case 'Background': return style.backgroundColor;
+    case 'Border': return style.border;
+    case 'Checked':
+      const check = el.querySelector('input[type="checkbox"], input[type="radio"]');
+      return check ? check.checked : false;
+    case 'Rows':
+      const textarea = el.querySelector('textarea');
+      return textarea ? textarea.rows : 3;
+    case 'Options':
+      const select = el.querySelector('select');
+      if (select) {
+        return [...select.options].map(opt => opt.text).join('\n');
+      }
+      return '';
+    case 'Alt Text': return el.alt || '';
+    case 'Source': return el.src || '';
+    default: return '';
+  }
+}
+
+function applyProperties(el) {
+  const inputs = popup.querySelectorAll('input[data-prop], textarea[data-prop]');
+  
+  inputs.forEach(input => {
+    const prop = input.dataset.prop;
+    const value = input.value;
+    
+    switch(prop) {
+      case 'X': el.style.left = value + 'px'; break;
+      case 'Y': el.style.top = value + 'px'; break;
+      case 'Width': el.style.width = value + 'px'; break;
+      case 'Height': el.style.height = value + 'px'; break;
+      case 'Text': 
+        if (el.querySelector('span')) {
+          const span = el.querySelector('span');
+          if (span) span.textContent = value;
+        } else if (el.querySelector('button')) {
+          el.querySelector('button').textContent = value;
+        } else {
+          el.textContent = value;
+        }
+        break;
+      case 'Placeholder':
+        const inputEl = el.querySelector('input, textarea');
+        if (inputEl) inputEl.placeholder = value;
+        break;
+      case 'Font Size': el.style.fontSize = value; break;
+      case 'Color': el.style.color = value; break;
+      case 'Background': el.style.backgroundColor = value; break;
+      case 'Border': el.style.border = value; break;
+      case 'Checked':
+        const check = el.querySelector('input[type="checkbox"], input[type="radio"]');
+        if (check) check.checked = value === 'true' || value === true;
+        break;
+      case 'Rows':
+        const textarea = el.querySelector('textarea');
+        if (textarea) textarea.rows = parseInt(value) || 3;
+        break;
+      case 'Options':
+        const select = el.querySelector('select');
+        if (select) {
+          const options = value.split('\n').filter(opt => opt.trim());
+          select.innerHTML = options.map(opt => `<option>${opt}</option>`).join('');
+        }
+        break;
+    }
+  });
+  
+  // Apply events
+  const eventInputs = popup.querySelectorAll('input[data-event]');
+  eventInputs.forEach(input => {
+    const event = input.dataset.event;
+    el.dataset[event] = input.value;
+  });
+}
+
+document.addEventListener('mousedown', e => {
+  if (popup && !popup.contains(e.target)) {
+    popup.hidden = true;
+  }
+});
+
+/* ---------------- Toolbar Actions ---------------- */
+document.getElementById('clear').addEventListener('click', () => {
+  if (confirm('Clear all controls?')) {
+    designer.innerHTML = '';
+    selected = null;
+  }
+});
+
+/* ---------------- EXPORT ---------------- */
+document.getElementById('export').addEventListener('click', () => {
+  const DW = designer.clientWidth;
+  
+  const items = [...designer.querySelectorAll('.control')]
+    .map(el => ({
+      type: el.classList[1],
+      text: getElementText(el),
+      html: el.innerHTML,
+      left: el.offsetLeft,
+      top: el.offsetTop,
+      width: el.offsetWidth,
+      height: el.offsetHeight,
+      style: el.style.cssText,
+      events: { ...el.dataset }
+    }))
+    .sort((a, b) => a.top - b.top);
+
+  /* --- Group by rows (Y proximity) --- */
+  const rows = [];
+  items.forEach(i => {
+    const r = rows.find(r => Math.abs(r.top - i.top) < 20);
+    r ? r.items.push(i) : rows.push({ top: i.top, items: [i] });
+  });
+
+  /* --- Build HTML --- */
+  let body = '';
+  rows.forEach((row, ri) => {
+    const cols = row.items
+      .sort((a, b) => a.left - b.left)
+      .map(i => `${(i.width / DW * 100).toFixed(2)}%`)
+      .join(' ');
+
+    body += `<div class="row r${ri}">\n`;
+    row.items
+      .sort((a, b) => a.left - b.left)
+      .forEach(i => {
+        body += renderElement(i) + '\n';
+      });
+    body += `</div>\n`;
+  });
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generated Responsive Layout</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Segoe UI, Arial, sans-serif;
+    padding: 20px;
+    margin: 0;
+  }
+
+  .container {
+    max-width: ${DW}px;
+    margin: 0 auto;
+  }
+
+  .row {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  ${rows.map((r, i) => `
+  .r${i} {
+    grid-template-columns: ${r.items
+      .sort((a,b)=>a.left-b.left)
+      .map(i => (i.width / DW * 100).toFixed(2) + '%')
+      .join(' ')};
+  }`).join('')}
+
+  @media (max-width: 768px) {
+    .row {
+      grid-template-columns: 1fr !important;
+      gap: 8px;
+    }
+  }
+
+  .grid {
+    min-height: 120px;
+    background:
+      linear-gradient(#ddd 1px, transparent 1px),
+      linear-gradient(90deg, #ddd 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .panel {
+    background: #e6e6e6;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  .box {
+    background: #dfefff;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #a0c8ff;
+  }
+  
+  input, textarea, select, button {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+  }
+  
+  button {
+    background: linear-gradient(#fff, #ddd);
+    cursor: pointer;
+    padding: 6px 16px;
+  }
+  
+  button:hover {
+    background: linear-gradient(#f5f5f5, #e5e5e5);
+  }
+  
+  .image-placeholder {
+    background: #f5f5f5;
+    border: 1px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+${body}
+</div>
+
+<script>
+  // Add event handlers from designer
+  document.addEventListener('DOMContentLoaded', function() {
+    ${items.filter(i => i.events).map(i => 
+      Object.entries(i.events).map(([event, handler]) => 
+        `document.querySelector('[data-id="${i.type}"]')?.addEventListener('${event.replace('on', '').toLowerCase()}', function() { ${handler} });`
+      ).join('\n')
+    ).join('\n')}
+  });
+<\/script>
+
+</body>
+</html>
+`.trim();
+
+  download(html, 'generated-responsive.html');
+});
+
+function getElementText(el) {
+  if (el.querySelector('span')) {
+    return el.querySelector('span').textContent || '';
+  }
+  if (el.querySelector('input[type="text"], input[type="checkbox"], input[type="radio"]')) {
+    return '';
+  }
+  return el.textContent || el.innerText || '';
+}
+
+function renderElement(i) {
+  switch(i.type) {
+    case 'label':
+      return `<label style="${i.style}">${i.text}</label>`;
+    case 'textbox':
+      return `<input type="text" placeholder="${i.text || ''}" style="${i.style}">`;
+    case 'textarea':
+      return `<textarea placeholder="${i.text || ''}" style="${i.style}" rows="4"></textarea>`;
+    case 'button':
+      return `<button onclick="${i.events.onClick || ''}" style="${i.style}">${i.text}</button>`;
+    case 'checkbox-container':
+      return `<label style="display: flex; align-items: center; gap: 8px; ${i.style}">
+        <input type="checkbox"> <span>${i.text || 'Checkbox'}</span>
+      </label>`;
+    case 'radio-container':
+      return `<label style="display: flex; align-items: center; gap: 8px; ${i.style}">
+        <input type="radio" name="radioGroup"> <span>${i.text || 'Radio'}</span>
+      </label>`;
+    case 'select':
+      return i.html || `<select style="${i.style}"><option>Select option</option></select>`;
+    case 'panel':
+      return `<div class="panel" style="${i.style}">${i.text || ''}</div>`;
+    case 'box':
+      return `<div class="box" style="${i.style}">${i.text || ''}</div>`;
+    case 'grid':
+      return `<div class="grid" style="${i.style}"></div>`;
+    case 'image':
+      return `<div class="image-placeholder" style="${i.style}">
+        ${i.text ? `<img src="${i.text}" alt="${i.events.altText || ''}" style="max-width:100%;">` : '🖼️ Image'}
+      </div>`;
+    default:
+      return `<div style="${i.style}">${i.text || ''}</div>`;
+  }
+}
+
+function download(content, name) {
+  const blob = new Blob([content], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+}
+
+/* ---------------- Initialize Default Controls ---------------- */
+// Add some default controls
+setTimeout(() => {
+  createControl('label', 20, 20);
+  createControl('textbox', 150, 18);
+  createControl('button', 150, 60);
+  createControl('panel', 400, 20);
+  createControl('box', 20, 120);
+}, 100);
+</script>
+
+</body>
+</html>

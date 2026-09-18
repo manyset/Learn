@@ -1,0 +1,105 @@
+    <div>
+    <div>Div To Div Test</div>
+    <br /><br /><br /><br />
+   
+    <button id="btn2" onclick="Div2Div()">Local Div to Local Div</button>
+    <button id="btn3" onclick="Local2Foreign()">Local2Foreign</button>
+    <button id="btn4" onclick="Foreign2Local()">Foreign2Local</button>
+    <button id="btn5" onclick="Foreign2Foreign()">Foreign2Foreign</button>
+    <button id="btn6" onclick="Local2ForeignMsOpen()">Put Div in Parent menu Screen</button>
+
+    <button id="btn7" onclick="Local2ForeignComp()">Put Div in Foreign Comp</button>
+    <button id="btn8" onclick="EventStress()">EventStress</button>
+    <button id="btn9" onclick="EvDestroy()">Destroy One Event test screen</button>
+    <button id="btn10" onclick="Childs_into_Parent()">1-> Childs_into_Parent</button>
+    <button id="btn11" onclick="InspectRef()">2-> InspectRef</button>
+    <button id="btn12" onclick="DestroyChildren()">3-> Destroy Children</button>
+    <button id="btn13" onclick="destroyContainer('DesDiv', false)">4-> destroyContainer</button>
+    
+
+<div id="div1" style="padding:8px;"> 
+  <h3>Screen C</h3>
+  <button id="btnHello">Say Hello</button>
+   <input id="Text1" type="text" value="C-default" />
+</div>
+<br><br><br><br><br><br>
+
+<div id="div2" style="border-style: solid; border-color: #800000;">===== DIV2 ===</div>
+<div id="d2" style="border-style: solid; border-color: #800000;">XXXX D2  XXXX</div>
+<div id="d3" style="border-style: solid; border-color: #800000;">YYY  D3 YYYY</div>
+<div id="Stress1" style="border-style: solid; border-color: #800000;">Stress 1</div>
+<div id="Stress2" style="border-style: solid; border-color: #800000;">Stress 2</div>
+<div id="DesDiv" style="border-style: solid; border-color: #800000;">Destroy Test</div>
+
+  <script>
+    async function Div2Div() { 
+      alert("Local Div2Div testing..");
+      debugger;
+      let res = await ms.div('div1').in('div2'); // Local Div to Local Div
+    }
+
+    async function Local2Foreign() {
+       let ref = await ms.open('a.html').in('d2');
+         // await ms.call(ref, 'test');
+       await ms.div('div1').into(ref).in('DivForRemote'); // local to foreign 
+       
+    }
+    async function Foreign2Local() {
+       let ref = await ms.open('a.html').in('d2');
+       await ms.div(ref, 'div1').in('div1');  // foreign to local
+    }
+
+    async function Foreign2Foreign() {
+       let ref1 = await ms.open('a.html').in('d2');
+       let ref2 = await ms.open('b.html').in('d3');
+       await ms.div(ref2, 'div1').into(ref1).in('DivForRemote'); // foreign to foreign
+    }
+
+ async function Local2ForeignMsOpen() {
+
+     await ms.call(ms.parent().ref, 'test');    
+     await ms.div('div1').into(ms.parent().ref).in('DivForRemote'); // local to foreign
+
+    }
+    
+  async function Local2ForeignComp() {
+ 
+   let ref = await ms.open('a.html').in('div1');
+   await ms.open('b.html').into(ref).in('DivForRemote');
+
+    }
+
+ let refParent=null;
+ async function Childs_into_Parent() {
+    refParent = await ms.open("a.html").in("DesDiv");
+    await ms.open("g.html").into(refParent).in("DivForRemote",true);
+    await ms.open("i.html").into(refParent).in("DivForRemote",true);
+  }
+
+
+  let refEv1=null;
+  async function EventStress() {
+   refEv1 = await ms.open("event_stress_test.html").in("Stress1");
+   await ms.open("event_stress_test.html").in("Stress2");
+  }
+
+  function EvDestroy(){
+    alert("destroy without childs" + refEv1);
+    ms.destroy(refEv1);
+  }
+
+  function DestroyChildren(){
+    ms.destroyChildren(refParent);   // Parent not deleted
+  }
+
+  function InspectRef(){
+    console.log(ms.inspect(refParent));
+  }
+
+ function destroyContainer(div, IsDeep){
+    alert("Destroy container " + div + " IsDeep=" + IsDeep);
+    ms.destroyContainer(div, IsDeep);
+ }
+
+  </script>
+

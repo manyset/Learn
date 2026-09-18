@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Building Walkthrough - Immersive Interior Experience</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #000;
+    }
+
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #333;
+      border-top: 4px solid #e8b4b8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #loading-screen h2 {
+      color: #e8b4b8;
+      margin-top: 20px;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    #info-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(20, 20, 30, 0.85);
+      backdrop-filter: blur(15px);
+      color: #f0e6d2;
+      padding: 15px 25px;
+      border-radius: 20px;
+      border: 1px solid rgba(200, 170, 140, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    #info-panel h1 {
+      margin: 0 0 5px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #e8d5c0;
+    }
+
+    #info-panel p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #b0a090;
+    }
+
+    #controls-hint {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: #ccc;
+      padding: 10px 25px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      z-index: 10;
+      pointer-events: none;
+      letter-spacing: 1px;
+    }
+
+    #effects-panel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .effect-btn {
+      background: rgba(25, 20, 30, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(200, 170, 140, 0.4);
+      color: #d4c0a8;
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .effect-btn:hover {
+      background: rgba(80, 60, 50, 0.7);
+      border-color: #c8a882;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(200, 150, 100, 0.4);
+      transform: translateX(-3px);
+    }
+
+    .effect-btn.active {
+      background: #6b4e3d;
+      border-color: #d4a574;
+      color: white;
+      box-shadow: 0 0 25px rgba(180, 130, 80, 0.6);
+    }
+
+    #slider-panel {
+      position: absolute;
+      bottom: 100px;
+      right: 20px;
+      background: rgba(20, 20, 30, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 15px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(200, 170, 140, 0.4);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 200px;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-group label {
+      color: #c0b0a0;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .slider-group input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+      background: #3a2a1a;
+      height: 4px;
+      border-radius: 2px;
+      appearance: none;
+    }
+
+    .slider-group input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #d4a574;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      #effects-panel {
+        top: auto;
+        bottom: 20px;
+        right: 20px;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .effect-btn {
+        padding: 8px 14px;
+        font-size: 0.75rem;
+      }
+
+      #slider-panel {
+        bottom: 120px;
+        right: 10px;
+        min-width: 150px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading-screen">
+    <div class="loader"></div>
+    <h2>Loading Building...</h2>
+  </div>
+
+  <div id="info-panel">
+    <h1>🏛️ Villa Moderna</h1>
+    <p>Contemporary Architecture Walkthrough</p>
+  </div>
+
+  <div id="controls-hint">
+    🖱️ Click & Drag to Look • WASD to Move • Scroll to Zoom
+  </div>
+
+  <div id="effects-panel">
+    <button id="btn-lighting" class="effect-btn">💡 Lighting Mode</button>
+    <button id="btn-fog" class="effect-btn active">🌫️ Atmospheric Fog</button>
+    <button id="btn-shadows" class="effect-btn active">👤 Real-time Shadows</button>
+    <button id="btn-wireframe" class="effect-btn">🔍 Wireframe View</button>
+    <button id="btn-auto-walk" class="effect-btn">🚶 Auto Walk</button>
+  </div>
+
+  <div id="slider-panel">
+    <div class="slider-group">
+      <label>☀️ Time of Day</label>
+      <input type="range" id="time-slider" min="0" max="100" value="50">
+    </div>
+    <div class="slider-group">
+      <label>💡 Interior Brightness</label>
+      <input type="range" id="brightness-slider" min="20" max="150" value="80">
+    </div>
+    <div class="slider-group">
+      <label>🌈 Fog Density</label>
+      <input type="range" id="fog-slider" min="10" max="100" value="50">
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": { 
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module" src="3d-WebGL-building.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+
+<h3> Child Comp</h3>
+ <label id="lbl1"> This lbl1 label should change only from Child</label>
+ 
+ <button id="btnParentMode1">(Mode 1) -Change from Child</button>
+ <button id="btnParentMode2">(Mode 2) -Change from Child</button>
+ <button id="btnParentMode3"> Try change label lbl3 exist only at Parent</button>
+
+<script type="module">
+
+import ms from './ms.js';
+await ms.ready();
+
+/* console.log("TEST → ELEMENT:", ms.id('lbl1'));
+console.log("TEST → ROOT:", ms.id('lbl1').getRootNode());
+console.log("DOCUMENT →", document.querySelector('#lbl1'));
+ */
+
+ms.id('btnParentMode1').onclick =  changeLabelMode1;
+
+ms.el.button('btnParentMode2').on('click', changeLabelMode2);
+
+ms.id('btnParentMode3').onclick = changeLabelMode3;
+
+function changeLabelMode1() {
+  
+  ms.id('lbl1').innerText = "Child Only Changed (..Mode 1)";
+
+}
+function changeLabelMode2() {
+  
+  ms.id('lbl1').innerText = "Child Only Changed (Mode 2)";
+
+}
+function changeLabelMode3() {
+  
+  alert("This should not work as lbl3 is not in child. It should not find lbl3."); 
+  ms.id('lbl3').innerText = "Child changed patrent lbl3  X";
+   
+}
+
+</script>

@@ -1,0 +1,64 @@
+
+This API is micro frontend related. the same .js may have been used from different sources (See HiCharts.js Example below). Specially the common JS files such as three.module.js, HiCharts.js etc. We need to control this situation. For that we have stated what are common JS files inside GlobalConfig.json (CommonJS section). Also we dont want to re download if any .js file has been already downloaded to browser. 
+
+Logic for JSON lookup:
+Read the .html comp and get the linked .js file NAME/s. (I have listed several ways those .js can be linked; there can be any other ways too.).
+Find that .js file NAME in commonJS section of GlobalConfig.json.
+* If found, load the file stated at JSON (IF it has not yet downloaded); not the file stated inside component. And after download, mark it as 'Downloaded'.
+  Else, load the file stated inside comp if it has not yet downloaded. And after download, mark it as 'Downloaded'. 
+
+This system has full control over .js and .css. It works independing browser cache rules/ settings. 
+Note: Before decide file names for JS & CSS, it is developer resposibility to check the common .js & .css paths and names stated inside GlobalConfig.json. 
+
+Implement the same idea for CommonCSS section too ..!
+  ...
+  "CommonCSS": [
+    "./Sales/OurSys1.css",
+    "./CommonReports.css",
+    "https://www.Hicharts.com/repo/HiCharts.css"
+  ],
+  ....
+
+
+You will need to further enhance this idea and logic.- Suggest first..!
+
+Calling .js files from comps:
+
+This is comp A:
+...
+ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/"
+  }
+...
+
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  <script type="module" src="HiCharts.js"></script> 
+...
+
+-----------------------
+This is comp B:
+...
+ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js",
+    "three/addons/": "http://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/"
+  }
+...
+
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+   <script type="module" src="/repo/HiCharts.js"></script> 
+....
+--------------
+
+
+This is GlobalConfig.json :
+
+...
+  "CommonJS": [
+    "./Sales/OurSys1.mjs",
+    "./CommonReports.js",
+    "https://www.Hicharts.com/repo/HiCharts.js"
+  ],
+...
+
+----------------

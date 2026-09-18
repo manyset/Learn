@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite Tester - With Auto Increment. Uses modern sqlite3.mjs (Module)</title>
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 10px; background: #f0f0f0; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 15px; border-radius: 6px; }
+        h2 { margin-top: 0; color: #333; border-bottom: 1px solid #4CAF50; padding-bottom: 5px; font-size: 20px; }
+        
+        button { padding: 4px 8px; margin: 2px; cursor: pointer; background: #4CAF50; color: white; 
+                 border: none; border-radius: 3px; font-size: 12px; font-weight: bold; }
+        button:hover { opacity: 0.8; }
+        .danger { background: #f44336; }
+        .warning { background: #ff9800; }
+        
+        .stats { display: flex; justify-content: space-between; margin: 8px 0; padding: 5px 8px; 
+                 background: #f9f9f9; border-radius: 3px; font-size: 12px; font-weight: bold; }
+        
+        input { padding: 3px 5px; width: 70px; border: 1px solid #ddd; border-radius: 3px; font-size: 12px; }
+        label { font-size: 12px; color: #555; margin-right: 3px; }
+        
+        .input-group { display: flex; align-items: center; margin: 8px 0; flex-wrap: wrap; gap: 15px; }
+        
+        #log { background: #1e1e1e; color: #0f0; padding: 10px; border-radius: 4px; 
+               height: 400px; overflow: auto; font-family: 'Courier New', monospace; 
+               font-size: 13px; line-height: 1.4; border: 1px solid #333; }
+        
+        .message { padding: 5px; margin: 5px 0; border-radius: 3px; font-size: 12px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        
+        .diagnostic { background: #fff3cd; color: #856404; padding: 5px; margin: 5px 0; border-radius: 3px; font-size: 12px; }
+        
+        .sql-section { margin-top: 15px; padding-top: 10px; border-top: 1px solid #ddd; }
+        .sql-textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; 
+                        font-family: 'Courier New', monospace; font-size: 13px; margin: 5px 0; 
+                        background: #1e1e1e; color: #0f0; height: 80px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🗄️ SQLite Tester - Uses modern sqlite3.mjs (Module) + workers</h2>
+        
+        <div class="stats">
+            <span id="dbStatus">📁 DB: Not initialized</span>
+            <span id="recordCount">📊 Records: 0</span>
+        </div>
+
+        <div class="diagnostic" id="diagnostic">
+            🔍 Diagnostic: Page loaded. Click "Check Files" first.
+        </div>
+
+        <div>
+            <button id="checkFilesBtn">🔍 Check Files</button>
+            <button id="initDBBtn">1. Init DB</button>
+            <button id="insertBtn">2. Insert</button>
+            <button id="bulkBtn">⚡ Bulk</button>
+            <button id="queryBtn">3. Query</button>
+            <button id="deleteAllBtn" class="warning">5. Delete All</button>
+            <button id="deleteDBBtn" class="danger">🗑️ Delete DB</button>
+            <button id="clearConsoleBtn">🧹 Clear</button>
+        </div>
+
+        <div class="input-group">
+            <div>
+                <label>Insert:</label>
+                <input type="number" id="insertCount" min="1" value="100">
+            </div>
+            <div>
+                <label>Query limit:</label>
+                <input type="number" id="queryLimit" min="1" value="20">
+            </div>
+        </div>
+
+        <div class="sql-section">
+            <label>Custom SQL:</label>
+            <textarea id="sqlInput" class="sql-textarea" placeholder="Enter any SQL command here...">SELECT * FROM MsgTbl LIMIT 10</textarea>
+            <div>
+                <button id="executeSQLBtn" style="background: #2196F3;">▶ Execute SQL</button>
+                <button id="clearSQLBtn" style="background: #6c757d;">Clear</button>
+                <span style="margin-left: 10px; font-size: 11px; color: #666;">(SELECT, INSERT, UPDATE, DELETE, etc.)</span>
+            </div>
+        </div>
+        
+        <div id="message" class="message"></div>
+        <h3 style="font-size: 14px; margin: 5px 0;">Console:</h3>
+        <div id="log">Loading...</div>
+    </div>
+
+    <script type="module">
+        import db from './db.mjs';
+        
+        // ===========================================
+        // DOM ELEMENTS
+        // ===========================================
+        const logDiv = document.getElementById('log');
+        const msgDiv = document.getElementById('message');
+        const dbStatus = document.getElementById('dbStatus');
+        const recordSpan = document.getElementById('recordCount');
+        const insertInput = document.getElementById('insertCount');
+        const queryInput = document.getElementById('queryLimit');
+        const diagnosticDiv = document.getElementById('diagnostic');
+        const sqlInput = document.getElementById('sqlInput');
+        
+        // Buttons
+        const checkFilesBtn = document.getElementById('checkFilesBtn');
+        const initDBBtn = document.getElementById('initDBBtn');
+        const insertBtn = document.getElementById('insertBtn');
+        const bulkBtn = document.getElementById('bulkBtn');
+        const queryBtn = document.getElementById('queryBtn');
+        const deleteAllBtn = document.getElementById('deleteAllBtn');
+        const deleteDBBtn = document.getElementById('deleteDBBtn');
+        const clearConsoleBtn = document.getElementById('clearConsoleBtn');
+        const executeSQLBtn = document.getElementById('executeSQLBtn');
+        const clearSQLBtn = document.getElementById('clearSQLBtn');
+
+        // ===========================================
+        // UTILITY FUNCTIONS
+        // ===========================================
+        function log(msg, isError = false) {
+            if (!logDiv) return;
+            const div = document.createElement('div');
+            div.textContent = msg;
+            div.style.color = isError ? '#ff6b6b' : '#0f0';
+            logDiv.appendChild(div);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(msg);
+        }
+
+        function updateDiagnostic(msg, isError = false) {
+            if (!diagnosticDiv) return;
+            diagnosticDiv.innerHTML = `🔍 ${msg}`;
+            diagnosticDiv.style.background = isError ? '#f8d7da' : '#fff3cd';
+        }
+
+        function showMessage(msg, isError = false) {
+            if (!msgDiv) return;
+            msgDiv.className = `message ${isError ? 'error' : 'success'}`;
+            msgDiv.textContent = msg;
+            setTimeout(() => { msgDiv.textContent = ''; }, 3000);
+        }
+
+        function getInsertCount() {
+            let val = parseInt(insertInput?.value) || 100;
+            return Math.min(Math.max(val, 1), 100000);
+        }
+
+        function getQueryLimit() {
+            let val = parseInt(queryInput?.value) || 20;
+            return Math.min(Math.max(val, 1), 10000);
+        }
+
+async function updateRecordCount() {
+    if (!db?.ready) return;
+    try {
+        // Use MsgTbl1 (with the '1') since that's what you created
+        const result = await db.query('SELECT COUNT(*) as cnt FROM MsgTbl1');
+        if (result?.success && result.data?.[0]) {
+            const count = result.data[0][0];
+            recordSpan.innerHTML = `📊 Records: ${count}`;
+            return count;
+        }
+    } catch (e) {
+        console.log('Count update error:', e);
+    }
+    return 0;
+}
+
+        // ===========================================
+        // RANDOM GENERATORS
+        // ===========================================
+        function randomAddress() {
+            const streets = ['Main St', 'Oak Ave', 'Maple Rd', 'Cedar Ln', 'Pine Dr', 'Elm Blvd'];
+            const cities = ['Springfield', 'Riverside', 'Franklin', 'Greenville', 'Madison'];
+            return `${Math.floor(Math.random()*9999)+1} ${streets[Math.random()*streets.length|0]}, ${cities[Math.random()*cities.length|0]}`;
+        }
+
+        function randomMessage() {
+            const words = ['hello', 'world', 'test', 'data', 'random', 'message', 'sqlite', 'database'];
+            let result = [];
+            for (let i = 0; i < Math.random()*5+2; i++) {
+                result.push(words[Math.random()*words.length|0]);
+            }
+            return result.join(' ');
+        }
+
+        function randomAmount() {
+            return Math.floor(Math.random() * 50000) + 1;
+        }
+
+        // ===========================================
+        // CORE FUNCTIONS
+        // ===========================================
+        async function checkFiles() {
+            log('🔍 Checking files...');
+            const files = ['./jswasm/sqlite3.js', './jswasm/sqlite3.mjs', './jswasm/sqlite3.wasm', './db.mjs'];
+            for (const file of files) {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    log(`  ${response.ok ? '✅' : '❌'} ${file}`);
+                } catch (e) {
+                    log(`  ❌ ${file} - Error`, true);
+                }
+            }
+        }
+
+        async function initDB() {
+            if (!db) return;
+            log('📁 Initializing...');
+            const state = await db.init();
+               console.log('2. db.init() returned:', state);  // DEBUG
+            if (state?.success) {
+                await db.exec(`CREATE TABLE IF NOT EXISTS MsgTbl1 (
+                    msgId INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    Address TEXT, 
+                    Message TEXT, 
+                    Amount INTEGER
+                )`);
+                dbStatus.innerHTML = '📁 DB: Ready';
+                await updateRecordCount();
+                log('✅ Database ready');
+                showMessage('Database ready');
+            }
+        }
+
+        async function insertData() {
+            if (!db?.ready) return;
+            const count = getInsertCount();
+            log(`📝 Inserting ${count} records...`);
+            
+            const start = performance.now();
+           
+let success = 0;
+
+for (let i = 0; i < count; i++) {
+    try {
+        const r = await db.exec(
+            'INSERT INTO MsgTbl (Address, Message, Amount) VALUES(?, ?, ?)',
+            [randomAddress(), randomMessage(), randomAmount()]
+        );
+        
+        // r is now: { success: true, changes: 1, lastInsertRowid: 123 }
+        if (r.success==true) {
+            success++;
+        }
+    } catch (e) {
+        log(`  ❌ Error: ${e.message}`, true);
+    }
+}
+            
+            const time = (performance.now() - start).toFixed(2);
+            log(`✅ Inserted ${success}/${count} records in ${time}ms`);
+            
+            await updateRecordCount();
+            setTimeout(async () => {
+                await updateRecordCount();
+            }, 50);
+        }
+
+        async function insertDataBulk() {
+            if (!db?.ready) return;
+            const count = getInsertCount();
+            log(`⚡ Bulk inserting ${count} records...`);
+            
+            const start = performance.now();
+            const batchSize = 10000;
+            let success = 0;
+            
+            for (let batch = 0; batch < count; batch += batchSize) {
+                const currentBatch = Math.min(batchSize, count - batch);
+                let values = [];
+                let params = [];
+                
+                for (let i = 0; i < currentBatch; i++) {
+                    values.push('(?, ?, ?)');
+                    params.push(randomAddress(), randomMessage(), randomAmount());
+                }
+                
+                try {
+                    const result = await db.exec(
+                        `INSERT INTO MsgTbl (Address, Message, Amount) VALUES ${values.join(',')}`, 
+                        params
+                    );
+                    if (result?.success) success += currentBatch;
+                } catch (e) {
+                    log(`  ❌ Batch error: ${e.message}`, true);
+                }
+            }
+            
+            const time = (performance.now() - start).toFixed(2);
+            log(`✅ Bulk inserted ${success}/${count} records in ${time}ms`);
+            
+            await updateRecordCount();
+            setTimeout(async () => {
+                await updateRecordCount();
+            }, 50);
+        }
+
+        async function queryData() {
+            if (!db?.ready) return;
+            const limit = getQueryLimit();
+            log(`🔍 Querying last ${limit} records...`);
+            
+            const start = performance.now();
+            await updateRecordCount();
+            
+            const result = await db.query(`SELECT * FROM MsgTbl ORDER BY msgId DESC LIMIT ${limit}`);
+            
+            if (result?.success && result.data) {
+                const time = (performance.now() - start).toFixed(2);
+                log('─'.repeat(90));
+                result.data.reverse().forEach(row => {
+                    const id = row[0];
+                    const addr = row[1]?.substring(0,25) + (row[1]?.length > 25 ? '...' : '');
+                    const msg = row[2]?.substring(0,20) + (row[2]?.length > 20 ? '...' : '');
+                    log(`  [${id}] Addr: ${addr} | Msg: ${msg} | Amt: $${row[3]}`);
+                });
+                log('─'.repeat(90));
+                log(`✅ Query returned ${result.data.length} rows in ${time}ms`);
+            }
+        }
+
+        async function executeSQL() {
+            if (!db?.ready) {
+                log('❌ Database not initialized', true);
+                return;
+            }
+            
+            const sql = sqlInput?.value.trim();
+            if (!sql) {
+                log('❌ No SQL entered', true);
+                return;
+            }
+            
+            log(`▶ Executing: ${sql}`);
+            const start = performance.now();
+            
+            try {
+                if (sql.trim().toUpperCase().startsWith('SELECT')) {
+                    const result = await db.query(sql);
+                    const time = (performance.now() - start).toFixed(2);
+                    
+                    if (result?.success) {
+                        log(`✅ Query returned ${result.data?.length || 0} rows in ${time}ms`);
+                        if (result.data?.length > 0) {
+                            log('📊 Results:');
+                            result.data.forEach((row, i) => {
+                                log(`  Row ${i+1}: ${JSON.stringify(row)}`);
+                            });
+                        }
+                    } else {
+                        log(`❌ Query failed: ${result?.message || 'Unknown error'}`, true);
+                    }
+                } else {
+                    const result = await db.exec(sql);
+                    const time = (performance.now() - start).toFixed(2);
+                    
+                    if (result?.success) {
+                        log(`✅ Executed successfully in ${time}ms`);
+                        await updateRecordCount();
+                    } else {
+                        log(`❌ Execution failed: ${result?.message || 'Unknown error'}`, true);
+                    }
+                }
+            } catch (e) {
+                log(`❌ Error: ${e.message}`, true);
+            }
+        }
+
+        function clearSQL() {
+            if (sqlInput) sqlInput.value = '';
+        }
+
+        async function deleteAll() {
+            if (!confirm('Delete all?')) return;
+            if (!db?.ready) return;
+            
+            log('🧹 Deleting all...');
+            await db.exec('DELETE FROM MsgTbl');
+            await updateRecordCount();
+            setTimeout(async () => {
+                await updateRecordCount();
+            }, 50);
+            log('✅ All deleted');
+        }
+
+        async function deleteDB() {
+            if (!confirm('Delete DB file?')) return;
+            try {
+                await db?.close();
+                const root = await navigator.storage.getDirectory();
+                await root.removeEntry('shared-app.db').catch(() => {});
+                log('✅ DB file deleted');
+                dbStatus.innerHTML = '📁 DB: Deleted';
+                recordSpan.innerHTML = '📊 Records: 0';
+            } catch (e) {
+                log(`❌ Error: ${e.message}`, true);
+            }
+        }
+
+        function clearConsole() {
+            if (logDiv) logDiv.innerHTML = '';
+            log('Console cleared.');
+        }
+
+        // ===========================================
+        // ATTACH EVENT LISTENERS
+        // ===========================================
+        checkFilesBtn.addEventListener('click', checkFiles);
+        initDBBtn.addEventListener('click', initDB);
+        insertBtn.addEventListener('click', insertData);
+        bulkBtn.addEventListener('click', insertDataBulk);
+        queryBtn.addEventListener('click', queryData);
+        deleteAllBtn.addEventListener('click', deleteAll);
+        deleteDBBtn.addEventListener('click', deleteDB);
+        clearConsoleBtn.addEventListener('click', clearConsole);
+        executeSQLBtn.addEventListener('click', executeSQL);
+        clearSQLBtn.addEventListener('click', clearSQL);
+
+        // ===========================================
+        // AUTO-UPDATE COUNTER
+        // ===========================================
+        setInterval(async () => {
+            if (db?.ready) {
+                await updateRecordCount();
+            }
+        }, 500);
+
+        log('✅ Ready. Click "Check Files" first.');
+    </script>
+</body>
+</html>

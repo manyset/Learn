@@ -1,0 +1,38 @@
+requirement is changed.
+
+we dont let user get control and design error popup.
+Eng has to auto provide it. Buttons are [Report] And [Close]
+If [report] clicked, err is posted with given url and App is RELOADED.
+If [Close] clicked, App is RELOADED.
+All kind of errors must be tracked.
+
+See new json:
+
+{
+  "ErrorPopup": true,
+  "ErrorGeneralTitle": 'There is an error. Report this (Y/N)?',
+  "ErrorShowOnPopup": false,
+  "ErrorServerURL":'http://aaaaaaa/',
+  "ErrorConsole": false,
+  "debug": true,
+  "globalEvents": {
+    "menu": {
+      "window": ["keydown"],
+      "document": ["click"]
+    }
+  }
+}
+
+
+
+Thanks for remind. programmer should do recovery at the same time keeping system control on errors.
+Like this..
+     let b = await ms.inject('classcomp','demo1');
+  // suppose there is an error and Eng has shown the system popup. However, programmer has planned in this specific case to direct the end user to another screen for recovery.
+
+     if (b.ok==false) {
+       ms.ErrorClose(); // <<== If popup has been opened, this will immediately close it. Whether to continue to next line with the error or calling an error free action is decided by the programmer logic. 
+
+       ms.open('Safe1');
+       return;
+     }

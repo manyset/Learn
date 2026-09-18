@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal SQLite OPFS Test</title>
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; }
+        button { padding: 10px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h2>Minimal SQLite OPFS Test</h2>
+    <p>Files location: <strong>/jswasm/</strong></p>
+    <button onclick="runTest()">Run Test</button>
+    <button onclick="copyProxyFile()">Copy Proxy File to Root</button>
+    <pre id="output">Ready...</pre>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const line = document.createElement('div');
+            line.textContent = msg;
+            if (type === 'success') line.style.color = 'green';
+            if (type === 'error') line.style.color = 'red';
+            output.appendChild(line);
+            console.log(msg);
+        }
+
+        // Function to copy proxy file to root (temporary workaround)
+        async function copyProxyFile() {
+            try {
+                log('📋 Attempting to copy proxy file to root...');
+                
+                // Fetch the proxy file from jswasm
+                const response = await fetch('./jswasm/sqlite3-opfs-async-proxy.js');
+                const content = await response.text();
+                
+                // Create a blob and download it
+                const blob = new Blob([content], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                
+                // Trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sqlite3-opfs-async-proxy.js';
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                log('✅ Download started - save this file to the root folder', 'success');
+                log('📁 Save to: E:\\NBM\\_ManySet\\RunTime\\sqlite3-opfs-async-proxy.js');
+            } catch (e) {
+                log('❌ Error: ' + e.message, 'error');
+            }
+        }
+
+        async function runTest() {
+            output.innerHTML = '';
+            log('🚀 Starting minimal test...');
+            
+            try {
+                const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+                log(`📁 Base URL: ${baseUrl}`);
+                
+                const jswasmPath = baseUrl + 'jswasm/';
+                log(`📁 jswasm path: ${jswasmPath}`);
+                
+                // Method 1: Direct worker creation with path override
+                log('\n🔧 Method 1: Direct SQLite with path override');
+                
+                const workerCode = `
+                    // Worker code with forced paths
+                    const jswasmPath = '${jswasmPath}';
+                    
+                    // Completely override worker constructor
+                    const originalWorker = self.Worker;
+                    self.Worker = function(url, options) {
+                        console.log('Worker creation intercepted:', url);
+                        // Force proxy file path
+                        if (url === 'sqlite3-opfs-async-proxy.js') {
+                            url = jswasmPath + 'sqlite3-opfs-async-proxy.js';
+                        }
+                        return new originalWorker(url, options);
+                    };
+                    
+                    // Override fetch
+                    const originalFetch = self.fetch;
+                    self.fetch = function(url, options) {
+                        if (typeof url === 'string' && !url.startsWith('http')) {
+                            const filename = url.split('/').pop();
+                            url = jswasmPath + filename;
+                        }
+                        return originalFetch.call(self, url, options);
+                    };
+                    
+                    // Load SQLite
+                    importScripts(jswasmPath + 'sqlite3.js');
+                    
+                    let sqlite3;
+                    
+                    // Wait for init
+                    const checkInterval = setInterval(() => {
+                        if (typeof sqlite3InitModule !== 'undefined') {
+                            clearInterval(checkInterval);
+                            
+                            sqlite3InitModule({
+                                locateFile: (file) => jswasmPath + file
+                            }).then(module => {
+                                sqlite3 = module;
+                                self.postMessage({ type: 'ready', version: module.version.libVersion });
+                                
+                                // Test database
+                                try {
+                                    let db;
+                                    let mode;
+                                    
+                                    if (sqlite3.oo1?.OpfsDb) {
+                                        try {
+                                            db = new sqlite3.oo1.OpfsDb('/test.db');
+                                            mode = 'OPFS';
+                                        } catch (e) {
+                                            db = new sqlite3.oo1.DB(':memory:');
+                                            mode = 'In-Memory (OPFS failed: ' + e.message + ')';
+                                        }
+                                    } else {
+                                        db = new sqlite3.oo1.DB(':memory:');
+                                        mode = 'In-Memory (OpfsDb not available)';
+                                    }
+                                    
+                                    // Simple test
+                                    db.exec('CREATE TABLE IF NOT EXISTS t(x)');
+                                    db.exec('INSERT INTO t(x) VALUES(99)');
+                                    
+                                    let result;
+                                    db.exec({
+                                        sql: 'SELECT x FROM t',
+                                        callback: (row) => { result = row[0]; }
+                                    });
+                                    
+                                    db.close();
+                                    
+                                    self.postMessage({
+                                        type: 'result',
+                                        data: { mode, result }
+                                    });
+                                } catch (e) {
+                                    self.postMessage({ type: 'error', error: e.message });
+                                }
+                            }).catch(e => {
+                                self.postMessage({ type: 'error', error: e.message });
+                            });
+                        }
+                    }, 100);
+                `;
+                
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const workerUrl = URL.createObjectURL(blob);
+                const worker = new Worker(workerUrl);
+                
+                worker.onmessage = function(e) {
+                    const { type, version, data, error } = e.data;
+                    
+                    if (type === 'ready') {
+                        log(`✅ SQLite v${version} loaded in worker`, 'success');
+                    } else if (type === 'result') {
+                        log(`✅ Test successful!`, 'success');
+                        log(`   Mode: ${data.mode}`);
+                        log(`   Result: ${data.result}`);
+                    } else if (type === 'error') {
+                        log(`❌ Error: ${error}`, 'error');
+                    }
+                };
+                
+                worker.onerror = function(e) {
+                    log(`❌ Worker error: ${e.message}`, 'error');
+                };
+                
+                // Method 2: Try loading proxy file directly
+                log('\n🔧 Method 2: Testing proxy file accessibility');
+                try {
+                    const proxyResponse = await fetch(jswasmPath + 'sqlite3-opfs-async-proxy.js');
+                    if (proxyResponse.ok) {
+                        const proxyText = await proxyResponse.text();
+                        log(`✅ Proxy file accessible (${proxyText.length} bytes)`, 'success');
+                        
+                        // Try to create a worker from it
+                        try {
+                            const proxyWorker = new Worker(jswasmPath + 'sqlite3-opfs-async-proxy.js');
+                            log(`✅ Proxy worker created successfully`, 'success');
+                            proxyWorker.terminate();
+                        } catch (e) {
+                            log(`❌ Proxy worker creation failed: ${e.message}`, 'error');
+                        }
+                    } else {
+                        log(`❌ Proxy file not accessible: HTTP ${proxyResponse.status}`, 'error');
+                    }
+                } catch (e) {
+                    log(`❌ Proxy fetch failed: ${e.message}`, 'error');
+                }
+                
+                // Method 3: Check SharedArrayBuffer
+                log('\n🔧 Method 3: Checking SharedArrayBuffer');
+                if (typeof SharedArrayBuffer !== 'undefined') {
+                    log('✅ SharedArrayBuffer is available', 'success');
+                    
+                    // Test OPFS directly
+                    try {
+                        const root = await navigator.storage.getDirectory();
+                        log('✅ OPFS root directory accessible', 'success');
+                        
+                        // Try to create a test file
+                        const fileHandle = await root.getFileHandle('test.txt', { create: true });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write('test');
+                        await writable.close();
+                        log('✅ OPFS write successful', 'success');
+                        
+                        // Clean up
+                        await root.removeEntry('test.txt');
+                    } catch (e) {
+                        log(`❌ OPFS direct test failed: ${e.message}`, 'error');
+                    }
+                } else {
+                    log('❌ SharedArrayBuffer NOT available - check headers', 'error');
+                }
+                
+            } catch (e) {
+                log(`❌ Fatal: ${e.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

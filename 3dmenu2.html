@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Holographic Menu • Creative • No Constraints</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a14;
+        }
+
+        #title {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 12px;
+            z-index: 10;
+            text-shadow: 0 0 30px cyan, 0 0 60px blue;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 40px;
+            border-radius: 60px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #status-panel {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            background: rgba(20, 30, 50, 0.8);
+            backdrop-filter: blur(10px);
+            color: #aaffaa;
+            padding: 16px 32px;
+            border-radius: 60px;
+            border: 1px solid #88ff88;
+            font-size: 1.2rem;
+            z-index: 10;
+            box-shadow: 0 10px 30px black;
+            letter-spacing: 1px;
+        }
+
+        #legend {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            color: #ccc;
+            padding: 20px 30px;
+            border-radius: 30px;
+            border: 1px solid #4466aa;
+            font-size: 1rem;
+            z-index: 10;
+            line-height: 2;
+            box-shadow: 0 10px 30px black;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .color-dot {
+            widyyth: 18px;
+            height: 18px;
+            border-radius: 50%;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .instruction {
+            position: absolute;
+            top: 120px;
+            right: 40px;
+            color: #ffaa88;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid #ffaa88;
+            z-index: 10;
+        }
+    </style>
+    </head>
+
+    <body>
+        <div id="title">HOLO MENU</div>
+        <div id="status-panel">✨ Ready</div>
+        <div id="legend">
+            <div class="legend-item"><span class="color-dot" style="color:#44aaff;"></span> FILE</div>
+            <div class="legend-item"><span class="color-dot" style="color:#ff44aa;"></span> EDIT</div>
+            <div class="legend-item"><span class="color-dot" style="color:#aaff44;"></span> VIEW</div>
+            <div class="legend-item"><span class="color-dot" style="color:#ffaa44;"></span> TOOLS</div>
+            <div class="legend-item"><span class="color-dot" style="color:#aa88ff;"></span> PLUGINS</div>
+            <div class="legend-item"><span class="color-dot" style="color:#ff6688;"></span> HELP</div>
+        </div>
+        <div class="instruction">🖱️ Drag to rotate • Hover cubes • Click to select</div>
+
+        <!-- Import Three.js and OrbitControls from CDN -->
+        <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+        <script type="module">
+            import * as THREE from 'three';
+            import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+            // --- 1. Setup Scene ---
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a14);
+            scene.fog = new THREE.FogExp2(0x0a0a14, 0.02);
+
+            const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(8, 4, 12);
+            camera.lookAt(0, 1, 0);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ReinhardToneMapping;
+            renderer.toneMappingExposure = 1.3;
+            document.body.appendChild(renderer.domElement);
+
+            // --- 2. Controls ---
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 1.2;
+            controls.enableZoom = true;
+            controls.maxPolarAngle = Math.PI / 2.2;
+            controls.minDistance = 5;
+            controls.maxDistance = 25;
+            controls.target.set(0, 1.5, 0);
+
+            // --- 3. Lighting ---
+            const ambientLight = new THREE.AmbientLight(0x404060);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+            dirLight.position.set(5, 10, 7);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            const d = 10;
+            dirLight.shadow.camera.left = -d;
+            dirLight.shadow.camera.right = d;
+            dirLight.shadow.camera.top = d;
+            dirLight.shadow.camera.bottom = -d;
+            scene.add(dirLight);
+
+            const pointLight1 = new THREE.PointLight(0x4466ff, 0.8);
+            pointLight1.position.set(3, 4, 5);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xff66aa, 0.6);
+            pointLight2.position.set(-4, 3, -4);
+            scene.add(pointLight2);
+
+            // --- 4. Environment ---
+            // Grid floor
+            const gridHelper = new THREE.GridHelper(20, 20, 0x44aaff, 0x335588);
+            gridHelper.position.y = -0.2;
+            scene.add(gridHelper);
+
+            // Floating particles
+            const particleGeo = new THREE.BufferGeometry();
+            const particleCount = 800;
+            const particlePositions = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount; i++) {
+                particlePositions[i * 3] = (Math.random() - 0.5) * 40;
+                particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+                particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+            }
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+            const particleMat = new THREE.PointsMaterial({ color: 0x88aadd, size: 0.08, transparent: true, blending: THREE.AdditiveBlending });
+            const particles = new THREE.Points(particleGeo, particleMat);
+            scene.add(particles);
+
+            // Central glowing sphere
+            const coreGeo = new THREE.SphereGeometry(1.0, 32, 32);
+            const coreMat = new THREE.MeshStandardMaterial({ color: 0x335588, emissive: 0x112244 });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            core.position.set(0, 1.5, 0);
+            core.castShadow = true;
+            scene.add(core);
+
+            // --- 5. Menu Items (Creative 3D Shapes) ---
+            const menuItems = [
+                { label: 'FILE', color: 0x44aaff, icon: '📁', desc: 'File operations' },
+                { label: 'EDIT', color: 0xff44aa, icon: '✏️', desc: 'Undo/redo, cut/copy' },
+                { label: 'VIEW', color: 0xaaff44, icon: '👁️', desc: 'View modes, grids' },
+                { label: 'TOOLS', color: 0xffaa44, icon: '🔧', desc: 'Transform, sculpt' },
+                { label: 'PLUGINS', color: 0xaa88ff, icon: '🔌', desc: 'Extension manager' },
+                { label: 'HELP', color: 0xff6688, icon: '❓', desc: 'Docs & support' }
+            ];
+
+            const menuMeshes = [];
+            const radius = 4.5;
+
+            menuItems.forEach((item, index) => {
+                const angle = (index / menuItems.length) * Math.PI * 2 - Math.PI / 2; // start at top
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const y = 2.0 + Math.sin(angle * 2) * 0.6;
+
+                // Create a group for each menu item
+                const group = new THREE.Group();
+
+                // Main shape: a glowing cube with bevel effect (using multiple cubes)
+                const mainGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+                const mainMat = new THREE.MeshStandardMaterial({
+                    color: item.color,
+                    emissive: item.color,
+                    emissiveIntensity: 0.3,
+                    transparent: true,
+                    opacity: 0.9,
+                    roughness: 0.2,
+                    metalness: 0.1
+                });
+                const mainCube = new THREE.Mesh(mainGeo, mainMat);
+                mainCube.castShadow = true;
+                mainCube.receiveShadow = true;
+                group.add(mainCube);
+
+                // Inner floating cube
+                const innerGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+                const innerMat = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    emissive: item.color,
+                    emissiveIntensity: 0.8,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const innerCube = new THREE.Mesh(innerGeo, innerMat);
+                innerCube.castShadow = true;
+                innerCube.receiveShadow = true;
+                innerCube.position.set(0.1, 0.1, 0.1);
+                group.add(innerCube);
+
+                // Orbiting ring
+                const ringGeo = new THREE.TorusGeometry(0.9, 0.03, 8, 30);
+                const ringMat = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    emissive: item.color,
+                    emissiveIntensity: 0.5
+                });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 2;
+                ring.rotation.z = angle;
+                group.add(ring);
+
+                // Small floating spheres around
+                for (let i = 0; i < 4; i++) {
+                    const orbGeo = new THREE.SphereGeometry(0.1, 6, 6);
+                    const orbMat = new THREE.MeshStandardMaterial({ color: item.color, emissive: item.color });
+                    const orb = new THREE.Mesh(orbGeo, orbMat);
+                    const orbAngle = (i / 4) * Math.PI * 2;
+                    orb.position.set(Math.cos(orbAngle) * 0.8, Math.sin(orbAngle) * 0.8, 0);
+                    group.add(orb);
+                }
+
+                group.position.set(x, y, z);
+
+                // Store metadata
+                group.userData = { label: item.label, desc: item.desc, color: item.color };
+
+                scene.add(group);
+                menuMeshes.push(group);
+
+                // Add text sprite
+                const canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = 'Bold 24px "Segoe UI"';
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = '#00aaff';
+                ctx.shadowBlur = 10;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(item.icon + ' ' + item.label, canvas.width / 2, canvas.height / 2);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: true });
+                const sprite = new THREE.Sprite(spriteMat);
+                sprite.scale.set(1.5, 0.75, 1);
+                sprite.position.set(x, y - 1.4, z);
+                scene.add(sprite);
+            });
+
+            // --- 6. Raycaster for Interaction ---
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            const statusDiv = document.getElementById('status-panel');
+
+            window.addEventListener('mousemove', (event) => {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(menuMeshes, true);
+
+                // Reset all emissive
+                menuMeshes.forEach(mesh => {
+                    mesh.traverse(child => {
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(m => {
+                                    if (m.emissive) m.emissiveIntensity = 0.3;
+                                });
+                            } else {
+                                if (child.material.emissive) child.material.emissiveIntensity = 0.3;
+                            }
+                        }
+                    });
+                });
+
+                if (intersects.length > 0) {
+                    let hit = intersects[0].object;
+                    while (hit.parent && !menuMeshes.includes(hit)) {
+                        hit = hit.parent;
+                    }
+                    if (menuMeshes.includes(hit)) {
+                        hit.traverse(child => {
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach(m => {
+                                        if (m.emissive) m.emissiveIntensity = 1.2;
+                                    });
+                                } else {
+                                    if (child.material.emissive) child.material.emissiveIntensity = 1.2;
+                                }
+                            }
+                        });
+                        statusDiv.innerHTML = `🔍 ${hit.userData.label} — ${hit.userData.desc}`;
+                    }
+                } else {
+                    statusDiv.innerHTML = '✨ Ready';
+                }
+            });
+
+            window.addEventListener('click', () => {
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(menuMeshes, true);
+
+                if (intersects.length > 0) {
+                    let hit = intersects[0].object;
+                    while (hit.parent && !menuMeshes.includes(hit)) {
+                        hit = hit.parent;
+                    }
+                    if (menuMeshes.includes(hit)) {
+                        statusDiv.innerHTML = `✅ SELECTED: ${hit.userData.label} — ${hit.userData.desc}`;
+
+                        // Pulse effect
+                        hit.traverse(child => {
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach(m => {
+                                        if (m.emissive) m.emissiveIntensity = 2.0;
+                                    });
+                                } else {
+                                    if (child.material.emissive) child.material.emissiveIntensity = 2.0;
+                                }
+                            }
+                        });
+                        setTimeout(() => {
+                            hit.traverse(child => {
+                                if (child.material) {
+                                    if (Array.isArray(child.material)) {
+                                        child.material.forEach(m => {
+                                            if (m.emissive) m.emissiveIntensity = 0.3;
+                                        });
+                                    } else {
+                                        if (child.material.emissive) child.material.emissiveIntensity = 0.3;
+                                    }
+                                }
+                            });
+                        }, 200);
+                    }
+                }
+            });
+
+            // --- 7. Animation Loop ---
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Gentle rotation of menu items
+                menuMeshes.forEach((mesh, i) => {
+                    mesh.rotation.y += 0.002;
+                    mesh.rotation.x += 0.001;
+                });
+
+                controls.update();
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // --- 8. Resize Handler ---
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        </script>
+    </body>

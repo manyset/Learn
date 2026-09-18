@@ -1,0 +1,120 @@
+/* ===== DIALOG BASE ===== */
+
+.ms-dialog {
+  background: #ffffff;
+  border-radius: 10px;
+  width: 320px;
+  padding: 18px 18px 14px 18px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: ms-dialog-fade 0.15s ease-out;
+}
+
+/* ===== HEADER ===== */
+
+.ms-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.ms-dialog-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.ms-dialog-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* ===== MESSAGE ===== */
+
+.ms-dialog-message {
+  font-size: 14px;
+  color: #444;
+  margin: 12px 0 18px 0;
+  line-height: 1.4;
+}
+
+/* ===== ACTIONS ===== */
+
+.ms-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ===== BUTTONS ===== */
+
+.ms-dialog-btn {
+  min-width: 70px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ms-dialog-btn:hover {
+  background: #e8e8e8;
+}
+
+.ms-dialog-btn:active {
+  transform: scale(0.96);
+}
+
+/* ===== ICON MODES ===== */
+
+.ms-dialog-critical .ms-dialog-icon::before {
+  content: "⚠";
+  color: #e53935;
+  font-size: 18px;
+}
+
+.ms-dialog-warn .ms-dialog-icon::before {
+  content: "⚠";
+  color: #f9a825;
+  font-size: 18px;
+}
+
+.ms-dialog-info .ms-dialog-icon::before {
+  content: "ℹ";
+  color: #1e88e5;
+  font-size: 18px;
+}
+
+.ms-dialog-cool .ms-dialog-icon::before {
+  content: "✓";
+  color: #43a047;
+  font-size: 18px;
+}
+
+/* ===== PRIMARY / DEFAULT BUTTON ===== */
+
+.ms-dialog-btn:first-child {
+  background: #1976d2;
+  color: white;
+  border: none;
+}
+
+.ms-dialog-btn:first-child:hover {
+  background: #1565c0;
+}
+
+/* ===== ANIMATION ===== */
+
+@keyframes ms-dialog-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

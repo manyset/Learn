@@ -1,0 +1,97 @@
+Tell about UX of the component to AI. 
+...
+......
+
+And tell this too..
+
+
+Tech specification: (TEMPLATE 1)
+
+Generate a modern ES6 GUI component.
+
+Requirements:
+
+Do not use inline events.
+
+Do not use document.querySelectorAll.
+
+Do not rely on global document.
+
+Use element.getRootNode() to scope DOM access.
+
+Must work inside Shadow DOM and standalone.
+
+Avoid global variables.
+
+Use <script type="module">.
+
+No external libraries.
+
+The component must be self-contained and safe inside nested Shadow DOM.
+
+
+---------------------------------------
+OR Use this (TEMPLATE 2)
+
+=====================
+Generate a modern ES6 GUI component.
+
+Architecture Requirements:
+
+1. The component must be fully self-contained.
+2. It must work both:
+   - Inside Shadow DOM
+   - As a standalone page
+3. It must be safe inside nested Shadow DOM.
+
+DOM Rules (Strict):
+
+4. Do NOT use inline events (no onclick, onmouseover, etc).
+5. Do NOT use document.querySelectorAll.
+6. Do NOT use document.querySelector.
+7. Do NOT rely on global document for DOM access.
+8. All DOM queries must be scoped to the component root only.
+9. Use element.getRootNode() or this.shadowRoot for DOM access.
+10. Never query outside the component’s own root.
+
+Event Rules:
+
+11. Use addEventListener only.
+12. Events must be attached to elements inside the component root.
+13. Do NOT attach global document-level or window-level listeners unless absolutely necessary.
+14. If global listeners are required, they must be carefully scoped and removable.
+
+Structure Rules:
+
+15. Use <script type="module">.
+16. Avoid global variables.
+17. Use ES6+ features (class, arrow functions, template literals, etc.).
+18. No external libraries.
+19. Do not assume the component is attached to document.body.
+
+Behavior Rules:
+
+20. The component must not break if injected dynamically.
+21. The component must not assume it is the only component on the page.
+22. It must not pollute the global namespace.
+23. All styles must remain inside the component.
+
+Return only the component code.
+
+
+===== TEMPLATE 3 ====
+✅ AI-Friendly Short Spec (Recommended)
+Generate a modern ES6 GUI component.
+
+Requirements:
+
+• No inline events (no onclick, etc).
+• Do not use document.querySelectorAll.
+• Avoid querying the global document directly.
+• Scope all DOM access to the component root.
+• Use element.getRootNode() or this.shadowRoot for DOM access.
+• Must work inside Shadow DOM and as standalone.
+• Avoid global variables.
+• Use <script type="module">.
+• No external libraries.
+• Component must be self-contained and not pollute global scope.

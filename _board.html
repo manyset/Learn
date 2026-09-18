@@ -1,0 +1,102 @@
+
+<h3>DASH BOARD</h3>
+
+<button onclick="MenuCall()">MENU CALL</button>
+
+<button onclick="openBigStyle()">BigStyle</button>
+
+<div id="ScreenArea"
+     style="border:1px solid #aaa; margin-top:12px; padding:10px;">
+  <small>Content will appear here…</small>
+</div>
+
+<script type="module">
+
+let refOfA = null;
+let refOfGrid = null;
+// let snap = null;   // store snapshot here
+
+// @public
+async function openA() {
+   // const target = __ms_root.querySelector("#ScreenArea");
+
+    // FIRST LOAD
+    if (!refOfA) {
+        refOfA = await ms.open("a.html").in("ScreenArea"); //"ScreenArea");
+       // snap = ms.save(ref);  // <<-- USAGE HERE IS WRONG  
+        return;
+    }
+
+    // RESTORE A
+    refOfA = await ms.restore(refOfA).in("ScreenArea");  // uses the snapshot automatically
+    alert(refOfA.refId);
+    //  refOfA = await ms.open(refOfA).in(target);   
+}
+
+
+// @public
+async function MenuCall() {
+    debugger;
+    const comp =  new ms.component('menu.html');  
+await comp.open(true);
+
+//    var res  = await ms.open('menu.html', true);
+    //var res
+}
+
+
+// @public
+async function openB() {
+      ms.save(refOfA);  
+    // const area = __ms_root.querySelector("#ScreenArea");
+    ms.open("b.html").in("ScreenArea"); //"ScreenArea");
+}
+
+// @public
+function openC() {
+      ms.save(refOfGrid);  
+      // const area = __ms_root.querySelector("#ScreenArea");
+    ms.open("c.html").in("ScreenArea");
+}
+// @public
+function openh() {
+     ms.open("h.html").in("ScreenArea");
+}
+// @public
+function openi() {
+    ms.open("i.html").in("ScreenArea");
+}
+// @public
+function openBigStyle() {
+   ms.open("BigStyle.html").in("ScreenArea");
+  
+}
+
+// @public
+async function grid() {
+   // const target = __ms_root.querySelector("#ScreenArea");
+
+    // FIRST LOAD
+    if (!refOfGrid) {
+        refOfGrid = await ms.open("GridCall.html").in("ScreenArea");
+       // snap = ms.save(ref);  // <<-- USAGE HERE IS WRONG  
+        return;
+    }
+    // RESTORE
+    await measureTime("Grid process", async () => {
+    refOfGrid = await ms.restore(refOfGrid).in("ScreenArea");      // uses the snapshot automatically
+    });
+
+
+}
+ 
+  async function measureTime(label, fn) {
+  const start = performance.now();
+  await fn();  // run the async block
+  const end = performance.now();
+  console.log(`${label} took ${(end - start).toFixed(2)} ms`);
+  alert(`${label} took ${(end - start).toFixed(2)} ms`);
+}
+
+</script>
+

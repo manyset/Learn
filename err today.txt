@@ -1,0 +1,12 @@
+
+1) when click a button based on-->  ms.id('login1').addEventListener('click', CallBoard);  
+      jumps to   const prev = CURRENT_INSTANCE;  of class MSDomRef 
+2) when click a button based on-->  document.getElementById('login2').addEventListener('click', CallBoard);
+     No Jump..! - Ok
+3) when click on any inline button,
+   jumps to--> const prev = CURRENT_INSTANCE; of the function bindInlineHandlers(root, instance) 
+
+
+at the browser dev tools, components are shown as eg-  0be8ab17-6906-43c0-912f-cffb05843c42
+can you show as login.html etc..
+

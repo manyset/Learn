@@ -1,0 +1,156 @@
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Overlay background */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+
+    /* Floating popup */
+    .floating-div {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 320px;
+      background-color: #fff;
+      border: 2px solid #333;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    /* Header bar for dragging */
+    .popup-header {
+      background: #444;
+      color: #fff;
+      padding: 8px;
+      cursor: move;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .popup-header .close-btn {
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .popup-content {
+      padding: 15px;
+    }
+
+    .popup-content input[type="text"] {
+      width: 90%;
+      padding: 6px;
+      margin-bottom: 10px;
+    }
+
+    .popup-content button {
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+
+    /* Output area in parent form */
+    #output {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+
+  <h1>Parent Form</h1>
+  <button id="b1">Open Popup</button>
+  <div id="output">Value from popup will appear here.</div>
+
+  <!-- Overlay -->
+  <div id="overlay" class="overlay" onclick="closeDiv()"></div>
+
+  <!-- Floating Div -->
+  <div id="floatingDiv" class="floating-div">
+    <div id="popupHeader" class="popup-header">
+      <span>Popup Window</span>
+      <span class="close-btn" onclick="closeDiv()">✖</span>
+    </div>
+    <div class="popup-content">
+      <input type="text" id="popupInput" placeholder="Enter text here">
+      <button id="sendButton">Send to Parent</button>
+    </div>
+  </div>
+
+  <script>
+
+    ms.id('b1').onclick = openDiv;
+     ms.id('sendButton').onclick = sendValue;
+
+    const floatingDiv = ms.id("floatingDiv");
+    const overlay = ms.id("overlay");
+    const header = ms.id("popupHeader");
+
+    function openDiv() {
+      floatingDiv.style.display = "block";
+      overlay.style.display = "block";
+    }
+
+    function closeDiv() {
+      floatingDiv.style.display = "none";
+      overlay.style.display = "none";
+    }
+
+    // Function in parent form to receive value
+    function receiveValue(val) {
+      ms.id("output").textContent = "Received from popup: " + val;
+    }
+
+    // Called when popup button is clicked
+    function sendValue() {
+      const val = ms.id("popupInput").value;
+      receiveValue(val); // pass to parent function
+      closeDiv(); // optionally close popup after sending
+    }
+
+    // Dragging logic
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    header.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      floatingDiv.style.transform = ""; // remove center transform
+      offsetX = e.clientX - floatingDiv.offsetLeft;
+      offsetY = e.clientY - floatingDiv.offsetTop;
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    });
+
+    function onMouseMove(e) {
+      if (!isDragging) return;
+      floatingDiv.style.left = e.clientX - offsetX + "px";
+      floatingDiv.style.top = e.clientY - offsetY + "px";
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
+  </script>

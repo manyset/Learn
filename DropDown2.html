@@ -1,0 +1,53 @@
+  <link rel="stylesheet" href="style3.css">
+  <div class="dropdown">
+    <button class="dropbtn">🌍 Select Country</button>
+    <div class="dropdown-content">
+      <div class="item" data-country="Sri Lanka">
+        <img src="https://flagcdn.com/w40/lk.png" alt="Sri Lanka Flag"> Sri Lanka
+      </div>
+      <div class="item" data-country="United States">
+        <img src="https://flagcdn.com/w40/us.png" alt="USA Flag"> United States
+      </div>
+      <div class="item" data-country="United Kingdom">
+        <img src="https://flagcdn.com/w40/gb.png" alt="UK Flag"> United Kingdom
+      </div>
+      <div class="item" data-country="Japan">
+        <img src="https://flagcdn.com/w40/jp.png" alt="Japan Flag"> Japan
+      </div>
+    </div>
+  </div>
+
+  <div id="selected"></div>
+
+  <script>
+    const items = document.querySelectorAll('.dropdown-content .item');
+    const selectedDiv = document.getElementById('selected');
+    const dropdownContent = document.querySelector('.dropdown-content');
+
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        const country = item.getAttribute('data-country');
+        selectedDiv.textContent = `Selected Country: ${country}`;
+        dropdownContent.classList.remove('show');
+      });
+    });
+
+    const dropdown = document.querySelector('.dropdown');
+    dropdown.addEventListener('mouseover', () => {
+      dropdownContent.classList.add('show');
+    });
+    dropdown.addEventListener('mouseout', () => {
+      dropdownContent.classList.remove('show');
+    });
+
+// Flag selection print...
+items.forEach(item => {
+  item.addEventListener('click', () => {
+    const country = item.getAttribute('data-country');
+    const flag = item.querySelector('img').src;
+    selectedDiv.innerHTML = `<img src="${flag}" style="width:28px;vertical-align:middle;margin-right:8px;"> ${country}`;
+    dropdownContent.classList.remove('show');
+  });
+});
+
+  </script>

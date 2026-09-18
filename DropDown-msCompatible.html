@@ -1,0 +1,232 @@
+
+  <country-picker></country-picker>
+
+  <script type="module">
+    class CountryPicker extends HTMLElement {
+      constructor() {
+        super();
+        this.root = this.attachShadow({ mode: 'open' });
+        this.selected = new Set();
+        this.countries = [
+          { value: 'United States', code: 'us', flag: 'https://flagcdn.com/us.svg' },
+          { value: 'United Kingdom', code: 'gb', flag: 'https://flagcdn.com/gb.svg' },
+          { value: 'Canada', code: 'ca', flag: 'https://flagcdn.com/ca.svg' },
+          { value: 'Germany', code: 'de', flag: 'https://flagcdn.com/de.svg' },
+          { value: 'France', code: 'fr', flag: 'https://flagcdn.com/fr.svg' },
+          { value: 'Italy', code: 'it', flag: 'https://flagcdn.com/it.svg' },
+          { value: 'Japan', code: 'jp', flag: 'https://flagcdn.com/jp.svg' },
+          { value: 'India', code: 'in', flag: 'https://flagcdn.com/in.svg' },
+          { value: 'Brazil', code: 'br', flag: 'https://flagcdn.com/br.svg' },
+          { value: 'Australia', code: 'au', flag: 'https://flagcdn.com/au.svg' }
+        ];
+      }
+
+      connectedCallback() {
+        this.render();
+        this.bindEvents();
+      }
+
+      render() {
+        this.root.innerHTML = `
+          <style>
+            :host {
+              display: block;
+              width: 240px;
+              font-family: system-ui, -apple-system, sans-serif;
+            }
+            .dropdown {
+              position: relative;
+              width: 100%;
+            }
+            .dropdown-btn {
+              background: #4a90e2;
+              color: white;
+              padding: 8px 14px;
+              font-size: 13px;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              width: 100%;
+              text-align: left;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .dropdown-btn:hover {
+              background: #357ABD;
+            }
+            .dropdown-content {
+              position: absolute;
+              top: 110%;
+              left: 0;
+              right: 0;
+              background: white;
+              border-radius: 6px;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+              opacity: 0;
+              transform: scaleY(0);
+              transform-origin: top;
+              pointer-events: none;
+              transition: transform 0.2s, opacity 0.2s;
+              max-height: 260px;
+              overflow-y: auto;
+              z-index: 1000;
+              border: 1px solid #edf2f7;
+            }
+            .dropdown-content.show {
+              opacity: 1;
+              transform: scaleY(1);
+              pointer-events: auto;
+            }
+            .dropdown-item {
+              display: flex;
+              align-items: center;
+              padding: 7px 12px;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .dropdown-item:hover {
+              background: #f8fafc;
+            }
+            .dropdown-item img {
+              width: 18px;
+              height: 14px;
+              margin-right: 8px;
+              object-fit: cover;
+              border: 1px solid #e2e8f0;
+            }
+            .dropdown-item label {
+              flex: 1;
+              font-size: 12px;
+              color: #1e293b;
+              cursor: pointer;
+            }
+            .dropdown-item input {
+              margin-right: 8px;
+              width: 14px;
+              height: 14px;
+              accent-color: #4a90e2;
+              cursor: pointer;
+            }
+            .result-btn {
+              margin-top: 12px;
+              background: #27ae60;
+              color: white;
+              padding: 8px 14px;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              width: 100%;
+              font-size: 13px;
+            }
+            .result {
+              margin-top: 10px;
+              padding: 8px 12px;
+              background: #f8fafc;
+              border-left: 3px solid #4a90e2;
+              font-size: 12px;
+              color: #1e293b;
+              border-radius: 4px;
+              min-height: 36px;
+              word-break: break-word;
+            }
+            .arrow {
+              font-size: 10px;
+            }
+          </style>
+          <div class="dropdown">
+            <button class="dropdown-btn">
+              <span class="btn-text">Select countries</span>
+              <span class="arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+              ${this.countries.map(c => {
+                const id = `${c.code}-${crypto.randomUUID?.().slice(0,4) || Math.random().toString(36).substr(2,4)}`;
+                return `
+                  <div class="dropdown-item">
+                    <input type="checkbox" value="${c.value}" id="${id}">
+                    <img src="${c.flag}" alt="${c.value}" loading="lazy">
+                    <label for="${id}">${c.value}</label>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+          <button class="result-btn">Show selected</button>
+          <div class="result">—</div>
+        `;
+      }
+
+      bindEvents() {
+        const root = this.root;
+        const btn = root.querySelector('.dropdown-btn');
+        const content = root.querySelector('.dropdown-content');
+        const dropdown = root.querySelector('.dropdown');
+        const resultBtn = root.querySelector('.result-btn');
+        const resultDiv = root.querySelector('.result');
+        const btnText = root.querySelector('.btn-text');
+
+        if (!btn || !content) return;
+
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          content.classList.toggle('show');
+        });
+
+        dropdown.addEventListener('mouseleave', () => {
+          content.classList.remove('show');
+        });
+
+        root.addEventListener('change', (e) => {
+          if (e.target.matches('input[type="checkbox"]')) {
+            if (e.target.checked) {
+              this.selected.add(e.target.value);
+            } else {
+              this.selected.delete(e.target.value);
+            }
+            btnText.textContent = this.selected.size ? `${this.selected.size} selected` : 'Select countries';
+          }
+        });
+
+        resultBtn.addEventListener('click', () => {
+          const values = Array.from(this.selected);
+          resultDiv.textContent = values.length ? values.join(', ') : 'No countries selected';
+          
+          const toast = document.createElement('div');
+          toast.textContent = values.length ? `✓ ${values.length} selected` : '✗ None';
+          toast.style.cssText = `
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: ${values.length ? '#27ae60' : '#94a3b8'};
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: system-ui;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+          `;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2000);
+        });
+
+        const rootNode = this.getRootNode();
+        const closeHandler = (e) => {
+          if (!root.contains(e.target)) {
+            content.classList.remove('show');
+          }
+        };
+        rootNode.addEventListener('click', closeHandler);
+        
+        this._cleanup = () => {
+          rootNode.removeEventListener('click', closeHandler);
+        };
+      }
+
+      disconnectedCallback() {
+        if (this._cleanup) this._cleanup();
+      }
+    }
+
+    customElements.define('country-picker', CountryPicker);
+  </script>

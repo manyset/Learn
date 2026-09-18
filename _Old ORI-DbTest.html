@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite OPFS with .mjs (Worker)</title>
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
+    <style>
+        body { font-family: monospace; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        pre { background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 5px; overflow: auto; max-height: 500px; }
+        .success { color: #4caf50; font-weight: bold; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ SQLite OPFS with .mjs (Worker-Based)</h1>
+        <p>Files location: <strong>/jswasm/</strong></p>
+        <button onclick="runTest()">Run Test</button>
+        <button onclick="clearDatabase()">Clear Database</button>
+        <pre id="output">Ready. Click "Run Test" to start...</pre>
+    </div>
+
+    <script type="module">
+        const output = document.getElementById('output');
+        
+        function log(message, type = 'info') {
+            const line = document.createElement('div');
+            line.textContent = message;
+            if (type === 'success') line.style.color = '#4caf50';
+            if (type === 'error') line.style.color = '#f44336';
+            if (type === 'info') line.style.color = '#2196f3';
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+
+        // Clear output
+        window.clearOutput = function() {
+            output.innerHTML = '';
+        };
+
+        // Main test function
+        window.runTest = async function() {
+            clearOutput();
+            log('🚀 Starting SQLite OPFS test with .mjs...');
+            
+            try {
+                const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+                const jswasmPath = baseUrl + 'jswasm/';
+                log(`📁 jswasm path: ${jswasmPath}`);
+
+                // Create worker code as a blob
+                const workerCode = `
+                    // Worker thread
+                    console.log = function(...args) {
+                        self.postMessage({ type: 'log', data: args.join(' ') });
+                    };
+                    
+                    console.error = function(...args) {
+                        self.postMessage({ type: 'error', data: args.join(' ') });
+                    };
+
+                    const jswasmPath = '${jswasmPath}';
+                    
+                    // Import SQLite .mjs module in worker
+                    import(jswasmPath + 'sqlite3.mjs').then(module => {
+                        const sqlite3InitModule = module.default;
+                        
+                        return sqlite3InitModule({
+                            locateFile: (file) => jswasmPath + file
+                        });
+                    }).then(sqlite3 => {
+                        console.log('✅ SQLite loaded in worker v' + sqlite3.version.libVersion);
+                        
+                        // Store sqlite3 instance
+                        self.sqlite3 = sqlite3;
+                        
+                        self.postMessage({ type: 'ready' });
+                    }).catch(error => {
+                        console.error('❌ SQLite init failed:', error.message);
+                        self.postMessage({ type: 'error', data: error.message });
+                    });
+
+                    // Handle messages from main thread
+                    self.onmessage = function(e) {
+                        if (e.data.type === 'run-db') {
+                            try {
+                                console.log('📂 Opening OPFS database...');
+                                
+                                // Use the correct OPFS API from .mjs
+                                const opfs = new sqlite3.oo1.OpfsDb('/test.db');
+                                console.log('✅ OPFS database opened');
+                                
+                                // Create table
+                                opfs.exec(\`
+                                    CREATE TABLE IF NOT EXISTS users (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        name TEXT NOT NULL,
+                                        email TEXT,
+                                        created DATETIME DEFAULT CURRENT_TIMESTAMP
+                                    )
+                                \`);
+                                console.log('✅ Table created');
+                                
+                                // Insert data
+                                const stmt = opfs.prepare('INSERT INTO users (name, email) VALUES (?, ?)');
+                                
+                                const users = [
+                                    ['Alice Johnson', 'alice@example.com'],
+                                    ['Bob Smith', 'bob@example.com'],
+                                    ['Carol White', 'carol@example.com']
+                                ];
+                                
+                                for (const user of users) {
+                                    stmt.bind(user);
+                                    stmt.step();
+                                    stmt.reset();
+                                }
+                                stmt.finalize();
+                                console.log('✅ 3 records inserted');
+                                
+                                // Query data
+                                const results = [];
+                                opfs.exec({
+                                    sql: 'SELECT * FROM users ORDER BY id',
+                                    callback: (row) => {
+                                        results.push({
+                                            id: row[0],
+                                            name: row[1],
+                                            email: row[2],
+                                            created: row[3]
+                                        });
+                                    }
+                                });
+                                
+                                // Get count
+                                let count = 0;
+                                opfs.exec({
+                                    sql: 'SELECT COUNT(*) FROM users',
+                                    callback: (row) => { count = row[0]; }
+                                });
+                                
+                                opfs.close();
+                                console.log('✅ Database closed');
+                                
+                                self.postMessage({
+                                    type: 'result',
+                                    data: {
+                                        users: results,
+                                        count: count
+                                    }
+                                });
+                                
+                            } catch (error) {
+                                console.error('❌ Database error:', error.message);
+                                self.postMessage({ type: 'error', data: error.message });
+                            }
+                        }
+                    };
+                `;
+
+                // Create worker from blob
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const workerUrl = URL.createObjectURL(blob);
+                const worker = new Worker(workerUrl);
+                
+                log('✅ Worker created');
+
+                // Handle worker messages
+                worker.onmessage = function(e) {
+                    const { type, data } = e.data;
+                    
+                    switch(type) {
+                        case 'log':
+                            log(data);
+                            break;
+                        case 'ready':
+                            log('✅ Worker ready, running database operations...', 'success');
+                            worker.postMessage({ type: 'run-db' });
+                            break;
+                        case 'result':
+                            log('\n' + '='.repeat(60));
+                            log('📊 DATABASE RESULTS');
+                            log('='.repeat(60));
+                            log(`\n📋 Users (${data.count} records):`);
+                            data.users.forEach(u => {
+                                log(`  ${u.id}. ${u.name} - ${u.email} (${u.created})`);
+                            });
+                            log('\n' + '='.repeat(60));
+                            log('✅ Test completed successfully!', 'success');
+                            
+                            // Store for later use
+                            window.lastResult = data;
+                            break;
+                        case 'error':
+                            log(`❌ ${data}`, 'error');
+                            break;
+                    }
+                };
+
+                worker.onerror = function(error) {
+                    log(`❌ Worker error: ${error.message}`, 'error');
+                };
+
+                // Store worker for later use
+                window.currentWorker = worker;
+                
+            } catch (error) {
+                log(`❌ Fatal error: ${error.message}`, 'error');
+            }
+        };
+
+        // Clear database function
+        window.clearDatabase = async function() {
+            if (!window.currentWorker) {
+                log('❌ No active worker. Run test first.', 'error');
+                return;
+            }
+            
+            log('🧹 Clearing database...');
+            
+            // Create a new worker for clearing
+            const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            const jswasmPath = baseUrl + 'jswasm/';
+            
+            const clearWorkerCode = `
+                const jswasmPath = '${jswasmPath}';
+                
+                import(jswasmPath + 'sqlite3.mjs').then(module => {
+                    const sqlite3InitModule = module.default;
+                    return sqlite3InitModule({
+                        locateFile: (file) => jswasmPath + file
+                    });
+                }).then(sqlite3 => {
+                    const db = new sqlite3.oo1.OpfsDb('/test.db');
+                    db.exec('DROP TABLE IF EXISTS users');
+                    db.close();
+                    self.postMessage({ type: 'cleared' });
+                }).catch(error => {
+                    self.postMessage({ type: 'error', data: error.message });
+                });
+            `;
+            
+            const blob = new Blob([clearWorkerCode], { type: 'application/javascript' });
+            const workerUrl = URL.createObjectURL(blob);
+            const worker = new Worker(workerUrl);
+            
+            worker.onmessage = function(e) {
+                if (e.data.type === 'cleared') {
+                    log('✅ Database cleared successfully', 'success');
+                } else if (e.data.type === 'error') {
+                    log(`❌ Clear error: ${e.data.data}`, 'error');
+                }
+                worker.terminate();
+                URL.revokeObjectURL(workerUrl);
+            };
+        };
+
+        // Check files function
+        window.checkFiles = async function() {
+            clearOutput();
+            log('🔍 Checking files in /jswasm/...');
+            
+            const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            const jswasmPath = baseUrl + 'jswasm/';
+            
+            const files = [
+                'sqlite3.js',
+                'sqlite3.mjs', 
+                'sqlite3.wasm',
+                'sqlite3-opfs-async-proxy.js'
+            ];
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(jswasmPath + file, { method: 'HEAD' });
+                    if (response.ok) {
+                        log(`✅ ${file} - Found`, 'success');
+                    } else {
+                        log(`❌ ${file} - Not Found`, 'error');
+                    }
+                } catch (e) {
+                    log(`❌ ${file} - Error: ${e.message}`, 'error');
+                }
+            }
+        };
+
+        // Auto-check files on load
+        setTimeout(checkFiles, 500);
+    </script>
+</body>
+</html>

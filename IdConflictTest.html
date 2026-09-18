@@ -1,0 +1,27 @@
+
+<h1>ID Conflict Test</h1>
+<h3> Parent Comp</h3>
+
+<label id="lbl1"> this lb1 must be changed only from Parent.</label> 
+<button id="setvals">Try change from Parent</button>
+<br>
+<label id="lbl3"> this lbl3 can be changed only from Parent.</label>
+
+
+<div id="div1"> </div>
+
+
+ <script type="module" >
+  import ms from './ms.js';
+  await ms.ready();
+
+  await ms.inject('IdConflictChild', 'div1');
+
+  ms.id('setvals').onclick = setvals;
+    
+  async function setvals()
+  {
+     ms.id('lbl1').innerText = "  Changed from Parent";
+  }
+
+</script>
