@@ -1,0 +1,159 @@
+<ms-public>
+  <functions>ParentTest</functions>
+</ms-public>
+
+<label id='lbl1' style="display:inline-flex; align-items:center; gap:8px;">
+  Test Via: ms.open / Inject => <input type="checkbox" id="chkOpen" style="width:30px; height:30px; accent-color:blue;">
+</label>
+
+<h2 id='lbl11'>lbl11</h2>
+<h2 id="prod">Product</h2> <br>
+
+<div id="menu"> MS TESTER</div>
+
+<ScreenPark1 style="border:2px solid black; padding:20px; display:flex"></ScreenPark1>> MENU </ScreenPark1>
+<div id="ScreenPark2"></div>
+
+<br><br>===================================================================<br>
+
+<area1>1111111111111111111111</area1>
+<area2>222222222222222222222</area2>
+<ms-area3>3333333333333333</ms-area3>
+<ms-area4>3333333333333333</ms-area4>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  // for childs
+  ms.loadingAnimation.FullScreen = true;
+  ms.loadingAnimation.type = "image";
+  ms.loadingAnimation.ContentOpacity = 1;
+  ms.loadingAnimation.BackgroundOpacity = 0;
+  ms.loadingAnimation.Blur = false;
+  //ms.loadingAnimation.Delay = 250;
+
+  //
+
+  /*   const [a1, a2] = await ms.injectMany(
+      ['TextBox1', 'ms-area3', { append: true }],
+      ['grid3d', 'ms-area3']
+    );
+  
+    const [b1, b2] = await ms.injectMany(
+      ['b', 'area1', { append: true }],
+      ['b', 'ms-area4', { append: true }]
+    ); */
+
+
+  //  ms.bus.on('invoice.created', data => {
+  // alert("here..a.");
+  //  console.log('bus on ' + data.id);
+  //}); 
+
+  // LOGIN CHECK - ERP-Grade Recommendation
+  //  const session = ms.store.get('auth.session'); //OR ms.store.get('auth.session').logged
+  //  if (!session?.logged) { 
+  // await ms.open('login'); // use await here to use return;
+  // await ms.stop(); // INSTEAD OF RETURN
+  //return; // says ILLEGAL
+  //  }
+
+  // Input string of MENU 
+  const menuString = `SmallerMsCompWorld, SmallerMsCompTruck, Layout-By-ms.layout, Layout-By-semantic-Elements, Section, StandardHtmlEleStyle, Declarative_Param, InjectAppendTop, LoadingMsAnim, Style-Override, image, autoFill, combo-ms, combo-demo1, grid, IdConflictTest, UiEmit-Demo, popupCaller, DialogDemo, a, b,TimerDemo,PopupConfirm,PopupWin,
+    DropDown-msCompatible, DropDown1, DropDown2, DropDown3,
+    Div2DivTest, GridCall, BigStyle, event_stress_test, ClassCall, LayoutShell, NoDivs, 
+    NoDivs-dashboard, DeepInject, gridCardsFromJson, JsonGrid3, 
+    gridSimple1, gridOnLoad1, grid3D, gridFlex1,
+    ERP-Menu, DynamicDiv, gridSimpleCard, holo1, HighChartBasic1, HighCharts-StreamGraph, 3dpiechart1, 3dPieChart2, 3dBarChart1, TabScreenCaller, 3dmenu1, 3dmenu2, 3dmenu3, 3dmenu4, 3dmenu5, 3d-WebXR, 3d-WebGL, 3d-WebGL-building, 3d-WebXR-WebGL, SqLiteTool, SqLite-My, codegen2, LoadingMsDeclarativeAnim, LoadingMsAnim, ErrorCaller, ErrorGen`;
+
+  // Function to handle clicks
+  async function show(item) {
+
+    //setTimeout(()=>{
+    //  ms.bus.emit('invoice.created', { id: 3100 });
+    //}, 50);
+
+
+    // can use without e  
+    //const el = e.currentTarget;
+    //el.style.background = 'yellow';
+    //
+    try {
+      if (ms.id("chkOpen").checked)
+        await ms.open(item);
+      else {
+        // alert("Ok 1");
+        // console.error(item);
+        let ref = await ms.inject(item, 'ScreenPark1');
+        ms.id('lbl11').innerText = "Injected: " + item;
+
+        //alert("Ok 2");
+      }
+    }
+    catch (e) {
+
+      console.error('MANUAL RECOVERY. Handled...', e);
+      throw e;   // let engine handle
+      // ms.ErrorClose();  
+      //ms.open('ErrorMsg');
+    }
+
+
+
+  }
+
+  // Convert to array
+  const items = menuString.split(",");
+
+  // Reference to menu container
+  const menu = ms.id("menu");
+
+  // Dynamically create menu items
+  items.forEach(item => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = "#";
+    a.textContent = item.trim();
+    // a.onclick = () => show(item.trim());
+    a.onclick = () => show(item.trim()); // OR ms.call(show, item.trim());  // e is Auto passed.
+    li.appendChild(a);
+    menu.appendChild(li);
+
+  });
+
+
+  // ms.id("lbl1").addEventListener("mouseover", function() { 
+  //  ms.id("menu").style.backgroundColor = "orange";
+  //}); 
+
+  export function ParentTest(x) {
+    alert("Parent called : " + x);
+  }
+
+
+</script>
+
+<style>
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #f30808;
+  }
+
+  li {
+    display: inline;
+  }
+
+  li a {
+    color: rgb(147, 44, 238);
+    padding: 10px 15px;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  li a:hover {
+    background-color: #ee2dae;
+  }
+</style>

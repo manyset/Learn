@@ -1,0 +1,63 @@
+<ms-public>
+    <default-css>label, select, input, button, check, radio</default-css>
+</ms-public>
+
+<label for="ice-cream">Choose flavors:</label>
+<select id="ice-cream" name="flavors" size="4" multiple>
+    <option value="chocolate">Chocolate</option>
+    <option value="vanilla">Vanilla</option>
+    <option value="strawberry">Strawberry</option>
+    <option value="mint">Mint</option>
+</select>
+
+<br><br><br>
+
+<label for="cars">Choose a car:</label>
+<select id="cars" name="cars">
+    <option value="volvo">Volvo</option>
+    <option value="saab">Saab</option>
+    <option value="mercedes">Mercedes</option>
+</select>
+
+<br>
+
+<label for="browser">Choose your browser:</label>
+<input list="browsers" id="browser" name="browser">
+<datalist id="browsers">
+    <option value="Chrome">
+    <option value="Firefox">
+    <option value="Safari">
+    <option value="Edge">
+</datalist>
+
+<br>
+
+<!-- A standard single-line text input field -->
+<label for="username">Username:</label>
+<input type="text" id="username" name="username" placeholder="Enter your username">
+
+<br>
+
+<!-- Inline Radio Button Example -->
+<label style="display: inline-flex; align-items: center; gap: 8px; font-family: sans-serif; cursor: pointer;">
+    <input type="radio" name="choice" style="width: 18px; height: 18px; accent-color: #28a745; cursor: pointer;">
+    <input type="radio" name="choice" style="width: 18px; height: 18px; accent-color: #28a745; cursor: pointer;">
+
+    <span>Accept terms</span>
+</label>
+
+<br>
+
+<!-- Inline Checkbox Example -->
+<label
+    style="display: inline-flex; align-items: center; gap: 8px; font-family: sans-serif; cursor: pointer; margin-right: 15px;">
+    <input type="checkbox" style="width: 18px; height: 18px; accent-color: #007bff; cursor: pointer;">
+    <input type="checkbox" style="width: 18px; height: 18px; accent-color: #007bff; cursor: pointer;">
+    <span>Subscribe to newsletter</span>
+</label>
+
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+</script>

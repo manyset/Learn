@@ -1,0 +1,38 @@
+<ms-public>
+       <functions>getStyles</functions>
+       <default-css>label, div, option, grid, combo, input, button</default-css>
+</ms-public>
+
+<br><br><br><br><br>
+<button id="btnGridLocalPagingLocalJoin">grid- Local paging and Local Join</button>
+<button id="btnGridServerPagingLocalJoin">GridServerPagingLocalJoin</button>
+
+
+
+<button id="btnGrid">Full featured Grid</button>
+<button id="btnRead">Read</button>
+<button id="btnWrite">Write</button>
+
+
+<div id="GridLocalPagingLocalJoin">grid- Local paging and Local Join</div>
+<div id="GridServerPagingLocalJoin">grid- Local paging and Local Join</div>
+
+<div id='buttonset'></div>
+<div id='grid1'></div>
+
+<div id='grid2' style="
+       height:700px;
+       width:1500px;
+       overflow:hidden;
+       border:1px solid red;"></div>
+
+
+<div id='grid3'></div>
+
+
+<script type="module" src="./grid.js"></script>
+<script type="module">
+       import ms from './msLib/ms.js'
+       await ms.ready();
+
+</script>

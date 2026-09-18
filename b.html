@@ -1,0 +1,91 @@
+<ms-public>
+  <access></access>
+  <functions>sayHello, test</functions>
+</ms-public>
+
+
+<div id="div1" style="padding:8px;">
+  <h3>Screen B</h3>
+
+  <button id="btnHello">Say Hello</button>
+  <button id="btnParent">Call ms.parent().f1()</button>
+  <button id="btn1">Mouse Move</button>
+</div>
+
+<div id="d2"></div>
+
+<!-- compA.html -->
+<button onclick="TimerB()">Timer B</button>
+<div id="boxB" style="padding:10px;border:1px solid red">
+  Com B Timer Display
+</div>
+
+
+<label id="lbl1"> b CHECK</label>
+
+<script type="module">
+
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+
+  // await new Promise(r => setTimeout(r,1000));
+  console.log("component loaded");
+
+  /* console.log("TEST → ELEMENT:", ms.id('lbl1'));
+  console.log("TEST → ROOT:", ms.id('lbl1').getRootNode());
+  console.log("DOCUMENT →", document.querySelector('#lbl1'));
+   */
+
+  // ms.id('btnParent').onclick = CallParent;
+  //ms.id('btnHello').onclick =  sayHello;
+
+  ms.el.button('btnHello').onclick = sayHello; //.on('click', sayHello);
+  //ms.el.button('btnHello').onclick = () => sayHello();
+  //ms.el.button('btnHello').on('click', sayHello);
+
+  async function CallParent() {
+    alert("calling parent..");
+    let p = ms.parent();
+    alert(p.ref);
+  }
+
+  function helloFromB(msg) {
+    alert("B received: " + (msg || "No message"));
+  }
+
+
+  export async function sayHello(msg) {
+
+    ms.id('lbl1').innerText = "B Changed...... " + msg;
+    // helloFromB("Hello from B button");
+
+    //let p = ms.parent();
+    //alert(p.ref);
+
+
+  }
+
+
+  function init() {
+    // NEC-safe: find button inside shadow DOM
+    const btn = __ms_root.querySelector("#btnHello");
+
+    if (btn) {
+      btn.addEventListener("click", sayHello);
+    }
+  }
+
+  let cnt = 0;
+  function TimerB() {
+    //
+    const box = ms.id("boxB");
+    // BAD: global timer
+    window.setInterval(() => {
+      box.innerHTML = cnt++; // "B: " + new Date().toLocaleTimeString();
+    }, 2000);
+  }
+
+
+
+</script>

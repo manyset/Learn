@@ -1,0 +1,15 @@
+<h1>we have injected A into div A and again B into A's DivForB </h1>
+
+<div id='aa'></div>
+<script type="module">
+   import ms from './msLib/ms.js';
+   await ms.ready();
+
+   let a = await ms.inject('a.html', ms.id('aa'));
+
+   let b = await ms.inject('b.html', a.DivForB); // OR ms.inject('b.html', a['DivForB']); 
+
+   a.test(1002);
+   b.sayHello('SayHello');
+
+</script>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semantic Layout</title>
+  <link rel="stylesheet" href="NoDivs.css" />
+</head>
+
+<body>
+
+  <header>
+    <h1>My Website - Header</h1>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Docs</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <aside>
+      <h3>Left Sidebar</h3>
+      <ul>
+        <li>Related link</li>
+        <li>Resources</li>
+        <li>Notes</li>
+      </ul>
+    </aside>
+
+    <section>
+      <h2>Main Content</h2>
+      <article>
+        <h3>Article Title</h3>
+        <p>
+        <div id="a"></div>
+        <MyB></MyB>
+        This is the primary content area. Layout is controlled entirely
+        with CSS Grid and Flexbox.
+        </p>
+      </article>
+    </section>
+
+    <aside>
+      <h3>Right Sidebar</h3>
+      <ul>
+        <li>Recent Posts</li>
+        <li>Categories</li>
+        <li>Tags</li>
+        <li>Archive</li>
+      </ul>
+      <div>
+        <h4>Advertisement</h4>
+        <p>Your ad here</p>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <p>© 2026 My Website</p>
+  </footer>
+
+</body>
+
+</html>
+
+
+<script type="module">
+  import ms from './msLib/ms.js';
+
+  import * as NoDivFuns from './NoDivs.js';
+  NoDivFuns.CallB();
+
+  ms.inject('a.html', 'a');
+</script>

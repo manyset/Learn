@@ -1,0 +1,18 @@
+<div id="grid1"></div>
+
+<script type="module">
+  import ms from "./msLib/ms.js";
+  await ms.ready();
+
+  const countryCombo = ms.form.combo();
+  countryCombo.multiSelect = true;
+
+  const g = ms.form.grid();
+  g.pageSize = 10;
+  g.data = ms.data("Inventory", "/itemsDataGrid", "items");
+  g.dataJoin("itemsCountry", "id=itemId");
+  countryCombo.data = ms.data("Inventory", "/itemsDataGrid", "countries", true);
+  g.comboFields.add(countryCombo);
+
+  await ms.insert(g, "grid1");
+</script>

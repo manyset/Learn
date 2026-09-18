@@ -1,0 +1,152 @@
+<ms-public>
+  <functions>f1</functions>
+  <events>invoice.*,order.created</events>
+</ms-public>
+
+
+<label id="lbl1"> dboard CHECK</label>
+
+<h2 id="db">DBOARD </h2>
+<p id="output"></p>
+<button id="CallMenu">CallMenu -Normal Way</button>
+<button id="b2">CallMenu -doc by id</button>
+<button id="setvals">Set Vals</button>
+<button id="showStates">Show Load States</button>
+
+<!-- <ms-com id="t2" src="TextBox1"></ms-com>   -->
+
+<div id="a"></div>
+<div id="b"></div>
+<ms-today> ..Today... </ms-today>
+<ms-zone id="z1"> ZONE 1</ms-zone>
+<ms-zone id="z2"> ZONE 2</ms-zone>
+<area1>1111111111111111111111</area1>
+<area2>222222222222222222222</area2>
+<ms-area3>3333333333333333</ms-area3>
+<ms-area4>3333333333333333</ms-area4>
+
+
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  function onLoad(params) {
+    if (params == null) return;
+
+    alert("passed to dboard constructor : " + params.val);
+    console.log(params.val);
+  }
+
+  //  ms.id('setvals').onclick = setvals;
+  // ms.id('setvals').on('click', setvals);
+
+  // await ms.inject('a', 'a');
+  await ms.inject('b', 'b');
+
+  // ms.el.button('b2').onclick = ms.call(ms.inject, 'b', 'a');
+
+
+  // OK ms.el.button('b2').onclick = () => ms.inject('b', 'a');
+  // OK ms.el.button('b2').onclick = ms.call(() => ms.inject('b', 'a'));
+  ms.id('setvals').onclick = setvals;
+
+  //  await ms.preload('grid3D', 'b', 'a');
+  //  await ms.preloadQueue('a', 'b');
+
+  // New Batch Inject..
+  const [a, b] = await ms.inject(
+    ['a', 'area1'],
+    ['b', 'ms-area4', { append: true }]
+  );
+  a.test();
+
+  // Old way..
+  const [a1, a2, a3] = await ms.inject(
+    ['TextBox1', 'ms-area3', { append: true }],
+    ['grid3d', 'ms-area3', { append: true }]
+  );
+
+  /*   const [b1, b2] = await ms.injectMany(
+    ['a','area1'],
+    ['b','ms-area4', {append:true}]
+    );    */
+
+
+  ms.id('lbl1').innerText = " XXXXXXXX dboard CHECK - InjectMany";
+  ms.el.label('lbl1').innerText = " YYYYYYYYYY dboard CHECK - InjectMany";
+
+  ms.el.button('CallMenu').onclick = () => CallMenu();
+  //ms.el.button('CallMenu').onclick = CallMenu;  
+  //ms.id('CallMenu').onclick = CallMenu;  
+  //ms.el.button('CallMenu').onclick = ms.call(CallMenu);
+
+  ms.id('showStates').onclick = showStates;
+  // let x = await ms.open('menu_simplest');
+
+
+  // const heading = ms.q("#db"); heading.style.color = "blue";
+
+  /*   await ms.inject('b', 'ms-today');
+    let a = await ms.inject('grid3D', 'z1');
+    let b = await ms.inject("DropDown3", "z2");  */
+
+
+  // document.getElementById('b2').addEventListener('click', CallMenu);
+
+
+  export async function f1() {
+    alert("f1 of dboard");
+  }
+
+  /* ms.store.on('auth.session', (v)=>{
+     if (!v.logged)
+       ms.open('Login');
+      // else console.log('login ok');
+  }); */
+
+
+  async function showStates() {
+    alert(ms.loadState('a'));
+    alert(ms.loadState('grid3D'));
+
+  }
+  async function setvals() {
+
+    // ms.id('lbl1').innerText = "  dboard CHANGED";
+
+    // alert("emit..")
+
+    // ms.bus.emit('invoice.created', { id: 100 });
+
+    //    await ms.id('t1').SetVal(120);
+    //  await ms.id('t2').SetVal(222);
+
+  }
+
+  async function CallMenu() {
+
+
+    // ms.id('output').innerText = "sss";
+    // alert("CallMenu");
+    const session = ms.store.get('auth.session'); //OR ms.store.get('auth.session').logged
+    if (!session?.logged) {
+      //  alert("Not Logged in")
+      //  await ms.open('login'); // use await here to use return;
+      //  await ms.stop();
+      //return; // says ILLEGAL
+    }
+
+
+    /*      setTimeout(()=>{
+      ms.bus.emit('invoice.created', { id: 100 });
+    }, 50); */
+
+    ms.bus.emit('invoice.created', { id: 100 });
+    let x = await ms.open('menu');
+
+    //let x = await ms.open('ClassCall');
+    // let er = await ms.inject('TextBox1', ms.id('a'));
+
+  }
+</script>

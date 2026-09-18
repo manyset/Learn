@@ -1,0 +1,137 @@
+{"AutoConfig": "true"},
+{
+  "_comment": "Do not change Tags. Change values only. Help: https://www.manySet.com/Docs/GlobalConfig/",
+  "ErrorSettings": {
+    "ErrorPopup": true,
+    "ErrorWarning": "System error occured. Re try.",
+    "ErrorDetail": true,
+    "ErrorConsole": true,
+    "ErrorServerURL": null,
+    "ErrorCustomPopupURL": "./msHTML/CustomErr.html"
+  },
+  "DatabaseAccess": {
+    "DbReadComponents": [
+      "./Sales/InvoComp1",
+      "./Reports/",
+      "XXlogin",
+      "https://abc.com/abc/"
+    ],
+    "DbWriteComponents": [
+      "./Sales/InvoComp1",
+      "./Reports/",
+      "XXlogin",
+      "https://abc.com/abc/"
+    ]
+  },
+  "HttpSettings": {
+    "Defaults": {
+      "Timeout": 30000,
+      "Credentials": "same-origin",
+      "Headers": {
+        "Accept": "application/json"
+      },
+      "AllowedOrigins": [
+        "self"
+      ],
+      "Logging": false
+    },
+    "ComponentServices": {
+      "./App/Shell/login": "Auth",
+      "./Sales/": "Sales",
+      "./Inventory/": "Inventory",
+      "./ServerTest1": "Inventory",
+      "./ServerGridData": "Inventory"
+    },
+    "Services": {
+      "Auth": {
+        "BaseURL": "/api/auth",
+        "Credentials": "include",
+        "Authentication": {
+          "Type": "Cookie"
+        },
+        "AllowedComponents": [
+          "./App/Shell/login"
+        ]
+      },
+      "Sales": {
+        "BaseURL": "/api/sales",
+        "Authentication": {
+          "Type": "Bearer",
+          "TokenStoreKey": "auth.accessToken"
+        },
+        "AllowedComponents": [
+          "./Sales/"
+        ]
+      },
+      "Inventory": {
+        "BaseURL": "http://localhost:5000/api/inventory",
+        "AllowedOrigins": [
+          "http://localhost:5000"
+        ],
+        "AllowedComponents": [
+          "./Inventory/",
+          "./Sales/",
+          "./ServerTest1",
+          "./ServerGridData",
+          "./grid"
+        ]
+      }
+    }
+  },
+  "LoadingAnimation": {
+    "Enabled": true,
+    "FullScreen": false,
+    "Type_can_be:": "skeleton, skeleton-spinner, spinner, wave, image",
+    "Type": "image",
+    "AnimatedImage": "./msIMAGES/AnimatedGif.gif",
+    "ImageSize": "80,80",
+    "BackgroundOpacity": 0.01,
+    "ContentOpacity": 0.65,
+    "FadeDuration": 0,
+    "Delay": 0,
+    "LockUI": false,
+    "Blur": false,
+    "SpinnerSize": 40,
+    "CSS": "./msCSS/DefaultLoadingBackground.css"
+  },
+  "CommonJS": [
+    "./Sales/OurSys1.mjs",
+    "./CommonReports.js",
+    "./helper.js",
+    "./IdConflictTest/IdConflictTest.js",
+    "https://www.Hicharts.com/repo/HiCharts.js"
+  ],
+  "CommonCSS": [
+    "./Sales/OurSys1.css",
+    "./CommonReports.css",
+    "https://www.Hicharts.com/repo/HiCharts.css"
+  ],
+  "default-css": {
+    "button": "./msCSS/ButtonDefault.css",
+    "input": "./msCSS/InputDefault.css",
+    "select": "./msCSS/SelectDefault.css",
+    "label": "./msCSS/LabelDefault.css",
+    "check": "./msCSS/CheckDefault.css",
+    "radio": "./msCSS/RadioDefault.css",
+    "div": "./msCSS/DIvDefault.css",
+    "ms-com": "./msCSS/MsComDefault.css",
+    "img": "./msCSS/ImageDefault.css",
+    "image": "./msCSS/ImageDefault.css",
+    "section": "./msCSS/SectionDefault.css",
+    "layout": "./msCSS/LayoutDefault.css",
+    "dialog": "./msCSS/DialogDefault.css",
+    "popup": "./msCSS/PopupDefault.css",
+    "combo": "./msCSS/ComboDefault.css",
+    "grid": "./msCSS/GridDefault.css"
+  },
+  "GlobalDOMEvents": [],
+  "EventBus": {
+    "EventEmitComponents": [
+      "Sales/",
+      "Inventory/"
+    ],
+    "EventListenComponents": [
+      "*"
+    ]
+  }
+}

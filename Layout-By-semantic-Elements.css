@@ -1,0 +1,44 @@
+  .layout-shell {
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: #f5f7fa;
+      color: #1f2937;
+      font-family: "Segoe UI", Arial, sans-serif;
+  }
+
+  .layout-header,
+  .layout-footer {
+      min-height: 48px;
+      padding: 12px;
+      background: #16324f;
+      color: white;
+  }
+
+  .layout-body {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr) 180px;
+  }
+
+  .layout-side,
+  .layout-content {
+      min-width: 0;
+      padding: 12px;
+  }
+
+  .layout-side {
+      background: #e9eef5;
+      border-inline: 1px solid #cfd8e3;
+  }
+
+  .layout-content {
+      background: white;
+  }
+
+  @media (max-width: 760px) {
+      .layout-body {
+          grid-template-columns: 1fr;
+      }
+  }

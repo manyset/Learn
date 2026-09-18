@@ -1,0 +1,188 @@
+<ms-public>
+   <default-css>no-popup</default-css>
+</ms-public>
+
+grid<h1>POPUP CALLER.. Attn: There is a known issue. popup OR Listen OR Emit conflicts IDs. check lbl22
+   Error Says Element not found in current component: lbl22
+   Note: This happens only when we navigate from menu_simplest.html which calls this popupCaller.html. But No error if
+   we directly run this popupCaller.html and call/ activate this trigger2.
+   However, no error for the way we have done for trigger1. ie- lbl11.innerText = data; // ✔ always correct Because At
+   the top of coding we have -> let lbl11; lbl22 = ms.id("lbl11");
+
+</h1>
+
+<button id="btnOpen">Open Popup</button>
+<button id="btnOpen2">Open Popup 2</button>
+<button id="btnOpen3">Open Big Popup 3</button>
+<button id="btnClose">Close</button>
+<label id="lbl11">lbl11 :</label>
+<label id="lbl22">lbl22 :</label>
+<br><br><br><br><br>
+
+
+<textarea>..</textarea>
+
+<script type="module">
+
+   import ms from './msLib/ms.js';
+
+   await ms.ready();
+
+   // 🔴 !!! - capture LOCAL references ONCE at the top BEFORE RUN Any Other Commands..!
+   let lbl11;
+   lbl11 = ms.id("lbl11");
+   // let lbl22;
+   // lbl22 = ms.id("lbl22");
+   /////////////////////////
+
+
+   ms.id('btnOpen').onclick = () => OpenPopup1();
+
+   ms.id('btnOpen2').onclick = () => OpenPopup2();
+
+   ms.id('btnOpen3').onclick = () => OpenPopup3();
+
+   ms.id('btnClose').onclick = () => ClosePopup();
+
+   let ref;
+   let pop1;
+   let pop2;
+   let pop3;
+
+
+   function trigger1(e, data) {
+      lbl11.innerText = data;   // lbl11 is ✔ always correct
+      console.log(data);
+      //ms.id("lbl11").innerText = data; // 'AAAAAA'; // += "\n"+data;
+
+   }
+   function trigger2(e, data) {
+      ms.id("lbl22").innerText = data; // Error Says Element not found in current component: lbl22 
+      // Note: This happens only when we navigate from menu_simplest.html which calls this popupCaller.html. But No error if we directly run this popupCaller.html and call/ activate this trigger2.
+      // However, no error for the way we have done for trigger1. ie-  lbl11.innerText = data;  // ✔ always correct Because At the top of coding we have --> let lbl11; lbl22 = ms.id("lbl11");    
+      console.log(data);
+
+   }
+
+   function ClosePopup() {
+      // ms.ui.unlisten(ref, trigger1);
+      alert("closing");
+      // close
+      //ref.close();   // or
+      pop1.close();
+
+
+   }
+
+
+   async function OpenPopup1() {
+      // ref = null;
+      pop1 = ms.popup('PopupChild');
+
+      // style
+      pop1.title = 'Product Selection';
+      pop1.width = '500px';
+      pop1.height = '400px';
+      pop1.top = 0;
+      pop1.left = 20;
+      pop1.autoShrink = true;
+      pop1.contentMargin = '8px 12px';
+      pop1.contentCenter = true;   // 
+      pop1.resizable = true;       // default
+
+      pop1.style = {
+         backgroundColor: "lightblue",
+         borderRadius: "10px",
+         boxShadow: "0 18px 44px rgba(15, 31, 45, 0.35)",
+         "--ms-popup-title-background": "red",
+         "--ms-popup-title-color": "black"
+      };
+
+      // behavior defaults
+      pop1.modal = false;
+      pop1.closeOnBackdrop = false;
+      pop1.closeOnEsc = true;
+
+      await pop1.open();
+
+      // Listen to above reference ref.
+      ms.ui.listen(pop1, trigger1);
+      //let res = await pop.popfun1();
+      //alert(res);
+      // ms.ui.throttle(trigger1, 50);
+
+   }
+
+   async function OpenPopup2() {
+      // ref = null;
+      pop2 = ms.popup('PopupChild');
+
+      // style
+      pop2.title = 'Second Product Selection';
+      pop2.width = '400px';
+      pop2.height = '300px';
+      pop2.top = 300;
+      pop2.left = 300;
+      pop2.autoShrink = true;
+      pop2.contentCenter = true;
+
+      /* pop1.style = {
+         backgroundColor: "lightblue",
+         borderRadius: "10px",
+         boxShadow: "0 18px 44px rgba(15, 31, 45, 0.35)",
+         "--ms-popup-title-background": "red",
+         "--ms-popup-title-color": "black"
+      }; */
+
+      // behavior defaults
+      pop2.modal = false;
+      pop2.closeOnBackdrop = false;
+      pop2.closeOnEsc = true;
+
+
+      await pop2.open();
+
+      // Listen to above reference ref.
+      ms.ui.listen(pop2, trigger2);
+      // ms.ui.throttle(trigger1, 50);
+
+   }
+
+   async function OpenPopup3() {
+      // ref = null;
+      pop3 = ms.popup('3d-WebGL-building');
+      // pop3.modal = true;
+
+      //pop3.closeOnBackdrop = false;
+      // style
+      /*  pop3.title = 'Product Selection 3';
+       pop3.width = '800px';
+       pop3.height = '800px';
+       pop3.top = 20;
+       pop3.left = 80;
+       pop3.autoShrink = true;
+       pop3.contentMargin = '8px 12px';
+       pop3.style = {
+          backgroundColor: '#ffffff',
+          borderRadius: '10px',
+          boxShadow: '0 18px 44px rgba(15, 31, 45, 0.35)',
+          '--ms-popup-title-background': '#24506f'
+       };
+ 
+       // behavior defaults
+       pop3.modal = false;
+       pop3.closeOnBackdrop = false;
+       pop3.closeOnEsc = true; */
+
+
+      await pop3.open();
+
+      // Listen to above reference ref.
+      ms.ui.listen(pop3, trigger1);
+      //let res = await pop.popfun1();
+      //alert(res);
+      // ms.ui.throttle(trigger1, 50);
+
+   }
+
+</script>

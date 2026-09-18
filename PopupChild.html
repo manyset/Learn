@@ -1,0 +1,40 @@
+<ms-public>
+  <functions>popfun1</functions>
+</ms-public>
+
+<h1>POPUP Child..</h1>
+
+
+<h2> Product List To Cart..</h2>
+<select id="myDropdown">
+  <option value="1">Apple</option>
+  <option value="2">Banana</option>
+  <option value="3">Orange</option>
+  <option value="4">Mango</option>
+  <option value="5">Grapes</option>
+</select>
+<p id="result"></p>
+
+<button id="addToCart">Add To Cart ( To Back Screen)</button>
+
+
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  ms.id('addToCart').onclick = AddToCart;
+
+  function AddToCart(e) {
+    let product = ms.id("myDropdown").selectedOptions[0].text;
+
+    ms.ui.emit(e, product);
+
+    // OR say==> let data = {product: ms.id("myDropdown").selectedOptions[0].text};
+  }
+
+
+  export function popfun1() {
+    return 123;
+  }
+</script>

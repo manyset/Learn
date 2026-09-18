@@ -1,0 +1,46 @@
+log<ms-public>
+  <functions>f22, f3</functions>
+  <classes>Person</classes>
+  <elements>Text1</elements>
+  <holders></holders>
+  <store></store>
+</ms-public>
+
+<h2>Class Demo 1</h2>
+<input id="Text1" type="text" value="default..." />
+<script type="module">
+  import ms from './msLib/ms.js';
+
+
+  export class Person {
+
+    constructor(name, age) {
+      this.name = name;
+      this.age = age;
+    }
+    greet() {
+      console.log(`Hello, my name is ${this.name} and I'm ${this.age} years old.`);
+      // alert(ms.id('Text1').value);
+      // alert("GREET");
+      return ms.id('Text1').value;
+    }
+  }
+
+  export async function f2() {
+    try {
+
+      // alert("F2 called");
+      return "f2 called";
+
+    }
+    catch (e) {
+      console.error('MANUAL RECOVERY TRIED BUT NOT COMPLETD AND JUST THROWN ERROR');
+      ms.open('ErrorMsg');
+      throw e;
+
+    }
+    // return ms.id('Text1').value; 
+  }
+
+
+</script>

@@ -1,0 +1,15 @@
+<div id="Fixedcontainer2"></div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await loadGrid();
+  async function loadGrid() {
+    alert("loadGrid started....");
+
+    let gridId = await ms.inject("gridComp", 'Fixedcontainer2');
+    let x = gridId.FillGrid(3);
+
+  }
+
+  // window.loadGrid = loadGrid;
+</script>

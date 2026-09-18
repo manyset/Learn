@@ -1,0 +1,731 @@
+<ms-public>
+    <functions>redrawPieChart</functions>
+</ms-public>
+
+<div id="compRoot" class="comp-root">
+    <div id="canvas-container" class="canvas-container"></div>
+    <div id="panel" class="panel">
+        <div class="chart-title" id="chartTitle">🥧 3D Pie Chart</div>
+        <div class="btn-row" id="btn-row">
+            <button data-sample="1" class="active-sample">📊 Market Share</button>
+            <button data-sample="2">💰 Budget Allocation</button>
+            <button data-sample="3">🌍 Browser Stats</button>
+            <button data-sample="4">🎨 Custom Colors</button>
+            <button data-sample="5">📱 Device Usage</button>
+        </div>
+    </div>
+    <div id="legend" class="legend"></div>
+    <div class="hint">🖱️ Drag to rotate · Scroll to zoom · Right‑drag to pan</div>
+
+    <style>
+        .comp-root {
+            position: relative;
+            width: 100%;
+            min-height: 500px;
+            height: 100%;
+            overflow: hidden;
+            background: #1a1a2e;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .comp-root * {
+            box-sizing: border-box;
+        }
+
+        .comp-root .canvas-container {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .comp-root .canvas-container canvas {
+            display: block;
+        }
+
+        .comp-root .panel {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(22, 22, 40, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 16px 22px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 380px;
+            max-width: 95%;
+            transition: all 0.3s ease;
+        }
+
+        .comp-root .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .comp-root .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .comp-root .btn-row button {
+            padding: 8px 15px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .comp-root .btn-row button:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: #4ecdc4;
+            color: #fff;
+            box-shadow: 0 0 14px rgba(78, 205, 196, 0.25);
+        }
+
+        .comp-root .btn-row button:active {
+            transform: scale(0.96);
+            transition: transform 0.08s ease;
+        }
+
+        .comp-root .btn-row button.active-sample {
+            background: #4ecdc4;
+            color: #111;
+            border-color: #4ecdc4;
+            font-weight: 600;
+        }
+
+        .comp-root .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            background: rgba(22, 22, 40, 0.92);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            max-width: 95%;
+        }
+
+        .comp-root .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: #ddd;
+        }
+
+        .comp-root .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .comp-root .hint {
+            position: absolute;
+            bottom: 18px;
+            right: 22px;
+            z-index: 10;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            pointer-events: none;
+            letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 600px) {
+            .comp-root .panel {
+                min-width: auto;
+                width: 94%;
+                padding: 12px 14px;
+                gap: 6px;
+                border-radius: 12px;
+                top: 10px;
+            }
+
+            .comp-root .chart-title {
+                font-size: 1rem;
+            }
+
+            .comp-root .btn-row button {
+                padding: 6px 11px;
+                font-size: 0.72rem;
+                border-radius: 18px;
+            }
+
+            .comp-root .legend {
+                gap: 8px;
+                padding: 8px 14px;
+                bottom: 10px;
+            }
+
+            .comp-root .hint {
+                bottom: 8px;
+                right: 10px;
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+
+    <!--
+    External dependencies (CDN):
+    - Three.js 0.160.0: https://unpkg.com/three@0.160.0/build/three.module.js
+    - OrbitControls: https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js
+    - CSS2DRenderer: https://unpkg.com/three@0.160.0/examples/jsm/renderers/CSS2DRenderer.js
+    
+    For offline/local deployment, replace the import map URLs with local file paths
+    or use a bundler that resolves the "three" and "three/addons/" imports.
+  -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+    <script type="module">
+        import * as THREE from "three";
+        import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+        import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+
+        import ms from "./ms.js";
+        await ms.ready();
+
+        // ─── Get component root and elements using ms.id() ───
+        const root = ms.id("compRoot");
+        const container = ms.id("canvas-container");
+        const titleEl = ms.id("chartTitle");
+        const legendEl = ms.id("legend");
+        const btnRow = ms.id("btn-row");
+        const allBtns = btnRow.querySelectorAll("button[data-sample]");
+
+        // ─── Scene setup ───
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('#1a1a2e');
+        scene.fog = new THREE.Fog('#1a1a2e', 15, 50);
+
+        // WebGL renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.3;
+        container.appendChild(renderer.domElement);
+
+        // CSS2D renderer for labels
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0';
+        labelRenderer.domElement.style.left = '0';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        labelRenderer.domElement.style.zIndex = '2';
+        container.appendChild(labelRenderer.domElement);
+
+        // Camera
+        const camera = new THREE.PerspectiveCamera(45, 2, 0.5, 100);
+        camera.position.set(6, 5, 10);
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.minDistance = 3;
+        controls.maxDistance = 25;
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        // ─── Lighting ───
+        scene.add(new THREE.AmbientLight('#8899bb', 3.0));
+        scene.add(new THREE.HemisphereLight('#ffffff', '#334455', 2.2));
+
+        const sun = new THREE.DirectionalLight('#ffffff', 5.5);
+        sun.position.set(8, 12, 8);
+        sun.castShadow = true;
+        sun.shadow.mapSize.width = 2048;
+        sun.shadow.mapSize.height = 2048;
+        sun.shadow.camera.near = 0.5;
+        sun.shadow.camera.far = 50;
+        sun.shadow.camera.left = -15;
+        sun.shadow.camera.right = 15;
+        sun.shadow.camera.top = 15;
+        sun.shadow.camera.bottom = -15;
+        sun.shadow.bias = -0.0002;
+        scene.add(sun);
+
+        const fillLight = new THREE.DirectionalLight('#aaccff', 1.8);
+        fillLight.position.set(-5, 3, -4);
+        scene.add(fillLight);
+
+        // Ground plane
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(30, 30),
+            new THREE.MeshStandardMaterial({ color: '#2a2a38', roughness: 0.55, metalness: 0.05 })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -3.5;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Circular grid helper
+        const gridCircle = new THREE.Mesh(
+            new THREE.RingGeometry(2.8, 3.0, 64),
+            new THREE.MeshBasicMaterial({ color: '#444466', side: THREE.DoubleSide, transparent: true, opacity: 0.5 })
+        );
+        gridCircle.rotation.x = -Math.PI / 2;
+        gridCircle.position.y = -0.01;
+        scene.add(gridCircle);
+
+        // ─── Dynamic groups ───
+        const pieGroup = new THREE.Group();
+        const labelGroup = new THREE.Group();
+        scene.add(pieGroup);
+        scene.add(labelGroup);
+
+        // ─── Color palette ───
+        const palette = [
+            '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#a29bfe',
+            '#fd79a8', '#00cec9', '#6ab04c', '#e056a0', '#f0932b',
+            '#6c5ce7', '#eb4d4b', '#7ed6df', '#ff9ff3', '#54a0ff'
+        ];
+
+        function getColor(slice, i) {
+            return (slice.color && slice.color.startsWith('#')) ? slice.color : palette[i % palette.length];
+        }
+
+        // Track disposable resources for cleanup
+        const disposableGeometries = [];
+        const disposableMaterials = [];
+
+        function clearGroup(group) {
+            while (group.children.length) {
+                const child = group.children[0];
+                if (child.geometry) {
+                    child.geometry.dispose();
+                }
+                if (child.material) {
+                    const mats = Array.isArray(child.material) ? child.material : [child.material];
+                    mats.forEach(m => {
+                        if (m.map) m.map.dispose();
+                        m.dispose();
+                    });
+                }
+                group.remove(child);
+            }
+        }
+
+        // ─── Create 3D pie slice ───
+        function createPieSlice(startAngle, endAngle, radius, height, colorHex, explodeDistance = 0) {
+            const group = new THREE.Group();
+            const angleSpan = endAngle - startAngle;
+            const segments = 64;
+
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            const segCount = Math.max(2, Math.ceil((angleSpan / (Math.PI * 2)) * segments));
+            for (let i = 0; i <= segCount; i++) {
+                const a = startAngle + (i / segCount) * angleSpan;
+                shape.lineTo(Math.cos(a) * radius, Math.sin(a) * radius);
+            }
+            shape.closePath();
+
+            const extrudeSettings = {
+                steps: 1,
+                depth: height,
+                bevelEnabled: true,
+                bevelThickness: 0.05,
+                bevelSize: 0.05,
+                bevelSegments: 3
+            };
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            geometry.rotateX(-Math.PI / 2);
+            disposableGeometries.push(geometry);
+
+            const material = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(colorHex),
+                roughness: 0.35,
+                metalness: 0.1,
+            });
+            disposableMaterials.push(material);
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            group.add(mesh);
+
+            // Edge lines
+            const edgesGeo = new THREE.EdgesGeometry(geometry, 30);
+            disposableGeometries.push(edgesGeo);
+            const edgeMat = new THREE.LineBasicMaterial({
+                color: new THREE.Color(colorHex).multiplyScalar(0.35),
+                transparent: true,
+                opacity: 0.6,
+            });
+            disposableMaterials.push(edgeMat);
+            const edgeLine = new THREE.LineSegments(edgesGeo, edgeMat);
+            group.add(edgeLine);
+
+            // Explode outward
+            const midAngle = startAngle + angleSpan / 2;
+            group.position.x = Math.cos(midAngle) * explodeDistance;
+            group.position.z = Math.sin(midAngle) * explodeDistance;
+
+            return group;
+        }
+
+        // ─── Create percentage label ───
+        function createLabel(text, angle, radius, height, explodeDist) {
+            const midAngle = angle;
+            const r = radius * 1.45;
+            const x = Math.cos(midAngle) * r + Math.cos(midAngle) * explodeDist;
+            const z = Math.sin(midAngle) * r + Math.sin(midAngle) * explodeDist;
+
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = '#ffffff';
+            div.style.fontSize = '14px';
+            div.style.fontWeight = 'bold';
+            div.style.fontFamily = '"Inter", system-ui, sans-serif';
+            div.style.textShadow = '0 0 8px rgba(0,0,0,0.7)';
+            div.style.background = 'rgba(0,0,0,0.6)';
+            div.style.padding = '3px 10px';
+            div.style.borderRadius = '12px';
+
+            const label = new CSS2DObject(div);
+            label.position.set(x, height + 0.3, z);
+            return label;
+        }
+
+        // ─── Build legend ───
+        function buildLegend(slices) {
+            legendEl.innerHTML = '';
+            slices.forEach((s, i) => {
+                const color = getColor(s, i);
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+          <div class="legend-color" style="background:${color};"></div>
+          <span>${s.label || 'Slice ' + (i + 1)} (${s.value})</span>
+        `;
+                legendEl.appendChild(item);
+            });
+        }
+
+        // ─── Public redraw function ───
+        function redrawPieChart(jsonString) {
+            let data;
+            try {
+                data = JSON.parse(jsonString);
+            } catch (e) {
+                console.error('❌ Invalid JSON:', e.message);
+                return;
+            }
+            if (!data || !Array.isArray(data.slices)) {
+                console.error('❌ JSON must contain a "slices" array.');
+                return;
+            }
+
+            titleEl.textContent = data.title || '🥧 3D Pie Chart';
+
+            const slices = data.slices;
+            const total = slices.reduce((sum, s) => sum + (s.value || 0), 0);
+            if (total <= 0) {
+                console.error('❌ Total value must be > 0');
+                return;
+            }
+
+            const radius = data.radius || 2.5;
+            const height = data.height || 0.8;
+            const explode = data.explode || 0.0;
+
+            // Dispose old resources
+            disposableGeometries.forEach(g => g.dispose());
+            disposableMaterials.forEach(m => m.dispose());
+            disposableGeometries.length = 0;
+            disposableMaterials.length = 0;
+
+            // Clear old content
+            clearGroup(pieGroup);
+            clearGroup(labelGroup);
+
+            // Build slices
+            let currentAngle = -Math.PI / 2;
+
+            slices.forEach((slice, i) => {
+                const value = slice.value || 0;
+                const proportion = value / total;
+                const angleSpan = proportion * Math.PI * 2;
+                const endAngle = currentAngle + angleSpan;
+                const color = getColor(slice, i);
+
+                const sliceGroup = createPieSlice(currentAngle, endAngle, radius, height, color, explode);
+                pieGroup.add(sliceGroup);
+
+                // Percentage label
+                const pct = ((proportion * 100).toFixed(1)) + '%';
+                const midAngle = currentAngle + angleSpan / 2;
+                const lbl = createLabel(pct, midAngle, radius, height, explode);
+                labelGroup.add(lbl);
+
+                // Slice name label
+                if (slice.label) {
+                    const nameDiv = document.createElement('div');
+                    nameDiv.textContent = slice.label;
+                    nameDiv.style.color = '#cccccc';
+                    nameDiv.style.fontSize = '12px';
+                    nameDiv.style.fontWeight = '500';
+                    nameDiv.style.fontFamily = '"Inter", system-ui, sans-serif';
+                    nameDiv.style.textShadow = '0 0 6px rgba(0,0,0,0.8)';
+                    const nameLabel = new CSS2DObject(nameDiv);
+                    const r2 = radius * 1.7;
+                    nameLabel.position.set(
+                        Math.cos(midAngle) * r2 + Math.cos(midAngle) * explode,
+                        height + 0.15,
+                        Math.sin(midAngle) * r2 + Math.sin(midAngle) * explode
+                    );
+                    labelGroup.add(nameLabel);
+                }
+
+                currentAngle = endAngle;
+            });
+
+            // Center cylinder
+            const coreGeo = new THREE.CylinderGeometry(0.25, 0.25, height, 32);
+            disposableGeometries.push(coreGeo);
+            const coreMat = new THREE.MeshStandardMaterial({
+                color: '#ffffff',
+                roughness: 0.2,
+                metalness: 0.4,
+                emissive: '#222222',
+                emissiveIntensity: 0.3
+            });
+            disposableMaterials.push(coreMat);
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            core.position.y = height / 2;
+            core.castShadow = true;
+            core.receiveShadow = true;
+            pieGroup.add(core);
+
+            // Top and bottom discs
+            const discGeo = new THREE.CylinderGeometry(radius, radius, 0.05, 64);
+            disposableGeometries.push(discGeo);
+            const discMat = new THREE.MeshStandardMaterial({
+                color: '#ffffff',
+                roughness: 0.3,
+                metalness: 0.2,
+                transparent: true,
+                opacity: 0.15
+            });
+            disposableMaterials.push(discMat);
+
+            const topDisc = new THREE.Mesh(discGeo, discMat);
+            topDisc.position.y = height;
+            topDisc.receiveShadow = true;
+            pieGroup.add(topDisc);
+
+            const bottomDisc = new THREE.Mesh(discGeo.clone(), discMat);
+            bottomDisc.position.y = 0;
+            bottomDisc.receiveShadow = true;
+            pieGroup.add(bottomDisc);
+
+            // Build legend
+            buildLegend(slices);
+
+            // Reset camera
+            const fitDist = radius * 3.2 + height;
+            camera.position.set(fitDist * 0.7, fitDist * 0.6, fitDist * 0.9);
+            controls.target.set(0, height / 2, 0);
+            controls.update();
+
+            console.log(`✅ Pie chart redrawn: ${slices.length} slices, total=${total}`);
+        }
+
+        // ─── Sample data ───
+        const samples = {
+            1: {
+                title: '📊 Market Share Q1 2024',
+                slices: [
+                    { label: 'Apple', value: 35, color: '#ff6b6b' },
+                    { label: 'Samsung', value: 28, color: '#4ecdc4' },
+                    { label: 'Xiaomi', value: 15, color: '#45b7d1' },
+                    { label: 'Oppo', value: 12, color: '#f9ca24' },
+                    { label: 'Others', value: 10, color: '#a29bfe' },
+                ],
+                radius: 2.5,
+                height: 0.7,
+                explode: 0.0,
+            },
+            2: {
+                title: '💰 Annual Budget Allocation',
+                slices: [
+                    { label: 'R&D', value: 40, color: '#6c5ce7' },
+                    { label: 'Marketing', value: 25, color: '#fd79a8' },
+                    { label: 'Operations', value: 20, color: '#00cec9' },
+                    { label: 'HR', value: 10, color: '#f9ca24' },
+                    { label: 'Legal', value: 5, color: '#e056a0' },
+                ],
+                radius: 2.5,
+                height: 0.8,
+                explode: 0.0,
+            },
+            3: {
+                title: '🌍 Browser Market Share',
+                slices: [
+                    { label: 'Chrome', value: 64, color: '#4ecdc4' },
+                    { label: 'Safari', value: 19, color: '#54a0ff' },
+                    { label: 'Firefox', value: 8, color: '#ff9f43' },
+                    { label: 'Edge', value: 6, color: '#6ab04c' },
+                    { label: 'Other', value: 3, color: '#a29bfe' },
+                ],
+                radius: 2.5,
+                height: 0.6,
+                explode: 0.0,
+            },
+            4: {
+                title: '🎨 Custom Color Exploded',
+                slices: [
+                    { label: 'Red', value: 30, color: '#ff4757' },
+                    { label: 'Blue', value: 25, color: '#3742fa' },
+                    { label: 'Green', value: 20, color: '#2ed573' },
+                    { label: 'Yellow', value: 15, color: '#ffa502' },
+                    { label: 'Purple', value: 10, color: '#a55eea' },
+                ],
+                radius: 2.3,
+                height: 0.9,
+                explode: 0.4,
+            },
+            5: {
+                title: '📱 Device Usage by OS',
+                slices: [
+                    { label: 'Android', value: 72, color: '#3ddc84' },
+                    { label: 'iOS', value: 27, color: '#007aff' },
+                    { label: 'Other', value: 1, color: '#ff9f43' },
+                ],
+                radius: 2.5,
+                height: 0.7,
+                explode: 0.0,
+            },
+        };
+
+        // ─── Button handlers ───
+        function setActive(n) {
+            allBtns.forEach(b => b.classList.toggle('active-sample', b.dataset.sample === String(n)));
+        }
+
+        btnRow.addEventListener('click', e => {
+            const btn = e.target.closest('button[data-sample]');
+            if (!btn) return;
+            const n = parseInt(btn.dataset.sample, 10);
+            if (samples[n]) {
+                redrawPieChart(JSON.stringify(samples[n]));
+                setActive(n);
+            }
+        });
+
+        // Keyboard shortcut (R key to reload current sample)
+        root.setAttribute("tabindex", "0");
+        root.addEventListener('keydown', e => {
+            if (e.key === 'r' || e.key === 'R') {
+                const active = btnRow.querySelector('.active-sample');
+                if (active && samples[parseInt(active.dataset.sample, 10)]) {
+                    redrawPieChart(JSON.stringify(samples[parseInt(active.dataset.sample, 10)]));
+                }
+            }
+        });
+
+        // ─── Size management using container dimensions ───
+        function resizeChart() {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            if (!w || !h) return;
+
+            renderer.setSize(w, h);
+            labelRenderer.setSize(w, h);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        }
+
+        // Initial size
+        resizeChart();
+
+        // ResizeObserver on container (using .el for real HTMLElement)
+        const resizeObserver = new ResizeObserver(resizeChart);
+        resizeObserver.observe(container.el);
+
+        // ─── Render loop ───
+        let animationId;
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+
+        // ─── Initial load ───
+        redrawPieChart(JSON.stringify(samples[1]));
+        setActive(1);
+
+        console.log('🥧 3D Pie Chart ready! (MS-compatible)');
+
+        // ─── Cleanup function ───
+        function onClose() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+
+            resizeObserver?.disconnect();
+
+            // Dispose tracked resources
+            disposableGeometries.forEach(g => g.dispose());
+            disposableMaterials.forEach(m => m.dispose());
+            disposableGeometries.length = 0;
+            disposableMaterials.length = 0;
+
+            clearGroup(pieGroup);
+            clearGroup(labelGroup);
+
+            renderer?.dispose();
+
+            if (labelRenderer?.domElement) {
+                labelRenderer.domElement.remove();
+            }
+
+            if (renderer?.domElement) {
+                renderer.domElement.remove();
+            }
+        }
+    </script>
+</div>

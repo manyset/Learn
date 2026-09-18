@@ -1,0 +1,107 @@
+<ms-public>
+  <default-css>*, layout</default-css>
+  <functions>setHeaderText, getRefs</functions>
+</ms-public>
+
+<div id="layoutHost"></div>
+<p id="layoutStatus">Template layout starting...</p>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  // 1st Create Layout
+  let layoutRefs;
+
+  const layout = ms.layout();
+
+  layout.minHeight = 420;
+  layout.gap = 8;
+
+  layout.header.src = "HeaderComp";
+  //layout.header.width = 170;
+  //layout.header.heigh = 52;
+  layout.header.text = 'ERP Dashboard';
+  layout.header.textStyle = { color: "red", fontWeight: "600", fontSize: "18px" };
+  layout.header.style = { backgroundColor: "red", color: "red" };
+  layout.header.cardType = true; // default for content, shown here for clarity.
+  layout.header.horizontal = true; // default true for header and footer.
+  layout.header.gap = 12;
+  layout.header.cardRadius = 14;
+  layout.header.cardShadow = "0 8px 20px rgba(15, 23, 42, 0.18)";
+
+  // Middle Section (ie content)
+
+  layout.content.src = "gridComp";
+  //layout.content.width = 150;
+  //layout.content.heigh = 200;
+  layout.content.style = { backgroundColor: "#f8fafc", padding: "12px" };
+  layout.content.cardType = true; // default for content, shown here for clarity.
+  layout.content.columns = 4;
+  layout.content.gap = 12;
+  layout.content.cardRadius = 14;
+  layout.content.cardShadow = "0 8px 20px rgba(15, 23, 42, 0.18)";
+
+
+  layout.footer.text = 'Footer Dashboard';
+  layout.footer.textStyle = { color: "white", fontWeight: "600", fontSize: "18px" };
+  layout.footer.src = "FooterComp";
+  //layout.footer.width = 170;
+  //layout.footer.heigh = 46;
+  layout.footer.style = { backgroundColor: "red", color: "red" };
+  layout.footer.cardType = true; // default for content, shown here for clarity.
+  layout.footer.horizontal = true; // default true for header and footer.
+  layout.footer.gap = 12;
+  layout.footer.cardRadius = 14;
+  layout.footer.cardShadow = "0 8px 20px rgba(15, 23, 42, 0.18)";
+
+
+  layout.left.src = "LeftPanelComp";
+  //layout.left.width = 170;
+  //layout.left.heigh = 200;
+  layout.left.style = { backgroundColor: "#f8fafc", padding: "12px" };
+  layout.left.cardType = true; // default for content, shown here for clarity.
+  layout.left.gap = 12;
+  layout.left.cardRadius = 14;
+  layout.left.cardShadow = "0 8px 20px rgba(15, 23, 42, 0.18)";
+
+
+  layout.right.src = "RightPanelComp";
+  //layout.right.width = 170;
+  //layout.right.heigh = 200;
+  layout.right.style = { backgroundColor: "#f8fafc", padding: "12px" };
+  layout.right.cardType = true; // default for content, shown here for clarity.
+  layout.right.gap = 12;
+  layout.right.cardRadius = 14;
+  layout.right.cardShadow = "0 8px 20px rgba(15, 23, 42, 0.18)";
+
+
+  // Insert
+  layoutRefs = await ms.insert(layout, "layoutHost");
+
+
+  // Later Additional injections into the same slots after the first layout bulk inject.
+
+  await ms.inject(
+    ["TabScreenCaller", layoutRefs.content, { append: true }],
+    ["TabScreenCaller", layoutRefs.content, { append: true }],
+    ["TabScreenCaller", layoutRefs.content, { append: true }],
+    ["TabScreenCaller", layoutRefs.content, { append: true }],
+    ["TabScreenCaller", layoutRefs.content, { append: true }],
+    ["TabScreenCaller", layoutRefs.content, { append: true }],
+    ["TabScreenCaller", layoutRefs.left, { append: true }]
+  );
+  //
+
+  ms.id("layoutStatus").textContent = "Template layout loaded";
+
+  export function getRefs() {
+    return layoutRefs;
+  }
+
+  export function setHeaderText(text) {
+    const headerSlot = layoutRefs?.header?.el;
+    if (headerSlot) headerSlot.dataset.note = text;
+    ms.id("layoutStatus").textContent = text;
+  }
+</script>

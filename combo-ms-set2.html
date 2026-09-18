@@ -1,0 +1,60 @@
+<button id="btnRead">Read Combo Values from child comp</button>
+
+<MyCombo1></MyCombo1> <br><br><br>
+
+<MyCombo2></MyCombo2> <br><br><br>
+
+<div id="MyCombo3"></div>
+
+<script type="module">
+
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  // await ms.style.inject('cmbProducts',  './CSS/combo2.css');
+
+  ////////////////////////////////////////////////
+  let c = ms.form.combo();
+  c.data = [
+    { value: 1, label: 'aaaa' },
+    { value: 2, label: 'bbbb' }
+  ];
+  c.value = [1, 2];
+
+  c.style = "./CSS/mscombo22.css"; // If not set then get from GlobalConfig..
+
+  ms.insert(c, 'MyCombo1');
+
+  console.log("DATA:", c.data);
+  // 🔴 mount via engine
+
+
+  ////////////////////////////////////////////////
+  let d = ms.form.combo();
+  d.data = [
+    { value: 1, label: 'cccc' }
+  ];
+  d.value = [1];
+  ms.insert(d, 'MyCombo2');
+
+
+
+  ////////////////////////////////////////////////
+  let e = ms.form.combo();
+  e.data = [
+    { value: 1, label: 'dddd' },
+    { value: 2, label: 'eeeeee' }
+  ];
+  e.value = [1];
+  ms.insert(e, 'MyCombo3');
+
+
+  //////////////////////////////////////
+  ms.id('btnRead').onclick = () => {
+
+    ms.id('btnRead').innerText = "Selected ValueS: c=" + JSON.stringify(c.value) + " , e = " + JSON.stringify(e.value);
+
+  };
+
+
+</script>

@@ -1,0 +1,42 @@
+<div id="combo"></div>
+<div id="status">Loading items...</div>
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    try {
+
+        let c = ms.form.combo();
+        c.id = "itemCombo";
+        const data = await ms.http.get("Inventory", "/items"); // http://localhost:5000/api/inventory/items
+        c.data = ms.data(data, "id", "name");
+
+        // OR
+
+        /*         c.data = items.map(item => ({
+                    value: item.id,
+                    label: item.name
+                })); */
+
+
+        /*
+grid.data = data;                         // all rows, all fields
+grid.data = ms.data(data);                // same as above
+grid.data = ms.data(data, "id", "name");  // selected columns
+
+combo.data = ms.data(data, "id", "name");
+
+txtCustomer.value = ms.data(customer, "name");
+// or plain JS:
+txtCustomer.value = customer.name;
+
+        */
+
+        ms.insert(c, "combo");
+        ms.id("status").textContent = `${items.length} item(s) loaded`;
+    }
+    catch (error) {
+        ms.id("status").textContent = `Failed to load items: ${error.message}`;
+    }
+</script>

@@ -1,0 +1,97 @@
+<button id="btnStyleInject">Style Inject</button>
+<button id="btnInject">Inject Another Set</button>
+
+<MyCombo1></MyCombo1> <br><br><br>
+
+<MyCombo2></MyCombo2> <br><br><br>
+
+<div id="MyCombo3"></div>
+
+<div id="set2"></div>
+
+<script type="module">
+
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  // await ms.style.inject('cmbProducts',  './CSS/combo2.css');
+
+  ////////////////////////////////////////////////
+  let c = ms.form.combo();
+
+  c.id = 'cmb1';
+  c.style = "./CSS/mscombo22.css"; // If not set then get from GlobalConfig..
+
+  c.multiSelect = false;
+
+  c.data = [
+    { CID: 1, Country: "Japan.." },
+    { CID: "UK", Country: "UK.." },
+    { CID: "US", Country: "USA.." },
+    { CID: 4, Country: "Lanka.." },
+    { CID: "5", Country: "India.." },
+    { CID: "6", Country: "France.." },
+    { CID: "7", Country: "Jamica.." },
+    { CID: 8, Country: "Jarda.." },
+    { CID: 9, Country: "Usbek.." },
+    { CID: 10, Country: "kotte.." },
+    { CID: 11, Country: "colomb.." },
+    { CID: 12, Country: "Indunesia.." },
+    { CID: 13, Country: "afgan.." },
+    { CID: 14, Country: "nigeria.." }
+  ];
+  c.value = ['US', 1];
+  c.width = 120;
+  ms.insert(c, 'MyCombo1');
+
+  console.log("DATA:", c.data);
+  // 🔴 mount via engine
+
+
+  ////////////////////////////////////////////////
+  let d = ms.form.combo();
+  d.data = [
+    { "value": "1", "label": "Van" },
+    { value: 2, label: 'Car' },
+    { value: 3, label: 'Bus' }
+  ];
+  d.value = [2];
+  ms.insert(d, 'MyCombo2');
+
+
+
+  ////////////////////////////////////////////////
+  let e = ms.form.combo();
+  e.data = [
+    { value: 1, label: 'USA' },
+    { value: 2, label: 'Japan' },
+    { value: 3, label: 'UK' }
+  ];
+  e.value = [1];
+  ms.insert(e, 'MyCombo3');
+
+
+  //////////////////////////////////////
+  ms.id('btnStyleInject').onclick = () => {
+
+    console.log(c.value); // selected key field value
+    console.log(c.keyField);      // "CID"
+    console.log(c.textField);     // "Country"
+
+    console.log(c.getItem("2"));  // { CID:"2", Country:"Japan" }
+    console.log(c.getText("2"));  // "Japan.."
+    console.log(c.displayText()); // Japan.. (+2 more..)
+
+
+    ms.id('btnStyleInject').innerText = "Selected Value: " + JSON.stringify(e.value);
+
+    ms.style.inject('MyCombo1', './CSS/combo2.css');
+    ms.style.inject('MyCombo3', './CSS/combo2.css');
+
+  };
+
+  ms.id('btnInject').onclick = () => {
+    ms.inject('combo-ms-set2.html', 'set2');
+  };
+
+</script>

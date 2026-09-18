@@ -1,0 +1,232 @@
+<!--
+SAMPLE DATA
+
+updateBarChart('{"title":"My Chart","labels":["A","B","C"],"values":[10,25,15]}')
+
+{"title":"Monthly Revenue ($k)","labels":["Jan","Feb","Mar","Apr"],"values":[120,95,140,160]}
+
+{"title":"Team Headcount","labels":["Eng","Sales","Support","Design"],"values":[34,18,12,6],"colors":["#e8a33d","#3d9a8b","#6c7bd6","#d16b8f"]}
+
+{"title":"Website Traffic","labels":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"values":[420,510,480,600,550,300,275]}
+
+{"title":"Small dataset","labels":["Yes","No"],"values":[7,3]}
+-->
+<ms-public>
+  <access></access>
+  <classes>ClassA, ClassB.Method1,.. </classes>
+  <functions>FillGrid, test, FillGrid, FillGrid, FillGrid, FillGrid, FillGrid, FillGrid, FillGrid, FillGrid,
+    FillGrid,
+    FillGrid, FillGrid, FillGrid, FillGrid</functions>
+  <containers>content, sidebar</containers>
+</ms-public>
+
+
+<h3>Screen A</h3>
+
+<button id="barchart">BAR CHART RE LOAD</button>
+
+<input id="bardata" type="text"
+  value='{"title":"Monthly Revenue ($k)","labels":["Jan","Feb","Mar","Apr"],"values":[120,95,140,160]}'>
+
+<div id="for3dbar"></div>
+
+
+<button id="btnHello">Say Hello</button>
+<button id="btnParent">Call ms.parent().f1()</button>
+<button id="btn1">Mouse Move</button>
+
+<div style="padding:8px;">
+  Screen A
+  <div id='div1'> DIV1 OF A..
+    <input id="Text1" type="text" value="A-default..." />
+    <input type="text" id="username" name="username" placeholder="Enter your name">
+    <!-- Not detect Why?->  <button id="btnBack">Save Instance (park)</button> -->
+    <button onclick="btnPrint()">Insert B</button>
+    <button onclick="BackTo()">back to login</button>
+    <button id="b1" onclick="TimerA()">Timer A</button>
+  </div>
+
+  <div id="bpark" style="margin-top:10px; border:1px solid #ccc; padding:8px;"></div>
+
+  <div id="DivForB" style="border:1px solid #aaa; margin-top:12px; padding:10px;">
+    <small>Content will appear here…</small>
+
+    <div id="DivForRemote" data-ms-public style="border-style: solid; border-color: #800000;">DIV FOR REMOTE</div>
+  </div>
+
+  <!-- compA.html -->
+  <div style="padding:10px;border:1px solid red">
+    Com A Timer Display:
+    <input id="boxA" type="text" value="0" />
+  </div>
+
+  <div id="counter">0</div>
+
+
+</div>
+
+<!-- ================================ Coding =============================================== -->
+
+<script type="module" src='./a.js'></script>
+<script type="module">
+
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  // This Anim setting does NOT affect how this current component loadeding is animated.
+  // * It affects only Future ms.inject(), ms.open(), or <ms-com> loading started by this component.
+  // The Anim for this component itself is controlled by its Parent / Caller.
+  // If the parent/caller has no local Anim setting, GlobalConfig LoadingAnimation is used.
+
+  //ms.loadingAnimation.FullScreen = false;
+  ms.loadingAnimation.Type = "image";
+  //ms.loadingAnimation.AnimatedImage = "./msIMAGES/AnimatedGif.gif";
+  //ms.loadingAnimation.ImageSize = "80,80";
+  //
+  // await new Promise(resolve => setTimeout(resolve, 1900));
+
+  loadA();
+  async function loadA() {
+    await ms.inject('LoadingSlowA', 'for3dbar', { append: true });
+  }
+
+  // function onLoad(args = {}) { alert("onLoad at A.  args.customerId = " + args.customerId); }
+
+  function onShow() {
+    // alert('onShow...');
+  }
+
+  function onClose() {
+    alert('onClose...');
+  }
+  async function onBeforeHide() {
+    const r = await ms.dialog({
+      message: "Unsaved changes on A. Leave?",
+      buttons: ["Stay", "Leave"]
+    });
+
+    return r === "Leave";
+  }
+
+  function onFocus() {
+    // alert('onFocus...');
+  }
+  function onLostFocus() {
+    // alert('onLostFocus...');
+  }
+
+
+  ms.el.button('barchart').onclick = barchart;
+
+  //await new Promise(r => setTimeout(r,1000));
+  console.log("component loaded");
+
+
+  //  ms.onLoad = LoadingFn; // GPT says complicated..
+  /* 
+    function onLoad({ customerId = 0, supplierId = 0 } = {}) {
+      alert('Customer..: ' + customerId + ', Supplier: ' + supplierId);
+    } */
+
+  // function onLoad(args = {}) {
+  //   const val = args.val ?? 0;
+  //   alert('onload / OR Constructor of a.html called PARAMS :' + val);
+  // }
+  ////////////////////////////////////////////////////////
+
+  export async function barchart() {
+    // ms.parent().ParentTest('22');
+    let bar = await ms.inject('3dBarChart1.html', 'for3dbar', { append: true });
+    bar.updateBarChart(ms.id('bardata').value);
+    //await ms.inject('LoadingSlowB', 'for3dbar', { append: true });
+
+  }
+  /* 
+    export async function test(x) {
+  
+      ms.id('Text1').value = x + ' passed..';
+    }
+   */
+
+  var x = 100;
+  var tid;
+  // y=900;
+
+  // @public
+  async function BackTo() {
+    const o = await ms.open('login.html');
+  }
+
+  // @public
+  async function btnPrint() {
+    alert("btnPrint " + x);
+    clearInterval(tid); return;
+
+    const o = await ms.open('b.html').in("DivForB");
+
+    // alert(document.getElementById('Text1').value);
+    // ms.save();
+    // alert("saved");
+
+    // locate our instance and park (engine provides ms.listInstances to debug)
+    // const list = ms.listInstances();
+    // console.log('instances', list);
+  }
+
+  // @public
+  function SetVal(x) {
+    //  __ms_root.querySelector("#Text1").value=x;
+    ms.id('Text1').value = x;
+
+  }
+
+  // @public
+  /*   export async function test(x) {
+  
+      ms.id('Text1').value = x + ' passed..';
+    } */
+
+
+  let cnt = 0;
+  async function TimerA() {
+    /*    const box = document.getElementById("boxA");
+      // BAD: global timer
+      window.setInterval(()=>{
+        box.innerHTML = cnt++; // "A: " + new Date().toLocaleTimeString();
+      }, 500); */
+
+    /*   const el = document.getElementById("boxA");
+      let cnt=0;
+      // GLOBAL timer (non-per-cloned in MS71)
+      window.setInterval(() => {
+        // UI mutation
+        el.value = cnt++
+      }, 500); */
+
+    // ms.ready(()=>{
+    // window.addEventListener("click",()=>console.log("click"));
+    //});
+
+    x = x + 1;
+    //const el = document.getElementById("counter");
+    // GLOBAL timer (non-per-cloned in MS71)
+    //tid = window.setInterval(() => {
+    // UI mutation
+    //  el.textContent = Number(el.textContent) + 1;
+    //}, 500);
+
+    alert("before");
+    //ms.ready(()=>{
+    // alert("ready");
+    // window.addEventListener("click", handleClick);
+    //});
+
+
+  }
+
+  function handleClick() {
+    alert("Window clicked!");
+  }
+
+
+</script>

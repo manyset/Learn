@@ -1,0 +1,31 @@
+<link rel="stylesheet" href="Layout-By-semantic-Elements.css" type="text/css">
+
+<main id="layoutShell" class="layout-shell">
+  <header id="headerPanel" class="layout-header"></header>
+
+  <section class="layout-body">
+    <aside id="leftPanel" class="layout-side layout-left"></aside>
+    <section id="contentPanel" class="layout-content"></section>
+    <aside id="rightPanel" class="layout-side layout-right"></aside>
+  </section>
+
+  <footer id="footerPanel" class="layout-footer"></footer>
+</main>
+
+
+
+<script type="module">
+
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  await ms.inject(
+    ["HeaderComp.html", "headerPanel"],
+    ["FooterComp.html", "footerPanel"],
+    ["LeftPanelComp", "leftPanel"],
+    ["RightPanelComp", "rightPanel"],
+    ["grid3d", "contentPanel"]
+  );
+
+
+</script>

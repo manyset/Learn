@@ -1,0 +1,17 @@
+<div>
+  <b>LoadingSlowA</b>
+  <p>Loaded after a short delay.</p>
+</div>
+
+<script type="module">
+  import ms from './msLib/ms.js';
+  await ms.ready();
+
+  /*   ms.loadingAnimation.FullScreen = true;
+    ms.loadingAnimation.Type = "image";
+    ms.loadingAnimation.AnimatedImage = "./msIMAGES/AnimatedGif.gif";
+    ms.loadingAnimation.ImageSize = "80,80";
+   */
+
+  // await new Promise(resolve => setTimeout(resolve, 1200));
+</script>
