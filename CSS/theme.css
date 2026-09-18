@@ -1,0 +1,10 @@
+.my-theme {
+  background: #222;
+  color: #fff;
+  border: 2px solid orange;
+}
+
+mscombo.my-theme {
+  display: block;
+  padding: 10px;
+}

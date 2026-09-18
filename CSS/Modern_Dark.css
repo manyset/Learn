@@ -1,0 +1,88 @@
+
+.table {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  border: 1px solid #333;
+}
+
+.row {
+  display: table-row;
+  transition: all 0.2s ease;
+}
+
+.cell {
+  display: table-cell;
+  padding: 12px 8px;
+  text-align: left;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.cell:not(:last-child) {
+  border-right: none;
+}
+
+/* Header */
+.row:first-child .cell {
+  background: #2a2a2a;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #404040;
+  padding: 14px 8px;
+}
+
+/* Hover effect */
+.row:not(:first-child):hover .cell {
+  background: #2a2a2a;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+/* Remove highlight from row below */
+.row:hover + .row .cell {
+  background: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+/* Header no hover */
+.row:first-child:hover .cell {
+  background: #2a2a2a !important;
+  cursor: default;
+}
+
+/* Accent border on hover */
+.row:not(:first-child):hover .cell {
+  position: relative;
+}
+
+.row:not(:first-child):hover .cell:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #00d4ff, #0099ff);
+}
+
+/* Subtle animation */
+.row:not(:first-child) {
+  animation: fadeIn 0.4s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
