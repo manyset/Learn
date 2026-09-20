@@ -1,80 +1,87 @@
-<!-- THIS WAS NEEDED TO PREVENT A CRITICAL IIS ERROR 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <base href="/" />
-</head>  
--->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- THIS WAS NEEDED TO PREVENT A CRITICAL IIS ERROR
+    <base href="/" />
+    -->
+    <title>Index</title>
+</head>
 
-<h2> index.html Ok--</h2>
-<div id="d3"></div>
-<button id="btnLogin">2. Login Normal 3</button>
+<body>
 
-<!-- OK ==> <script type="module" src="./index.js"></script>  -->
+    <h2>index.html Ok--</h2>
 
-<script type="module">
-const ms = await import(
-    './msLib/ms.js?t=' + Date.now()
-);
+    <div id="d3"></div>
 
-//  import ms from './msLib/ms-a83f71c4d913.js';
-  await ms.ready();
+    <button id="btnLogin">2. Login Normal 3</button>
 
-  //document.getElementById('btnLogin').innerHTML = '<h1>OK</h1>';
-  ms.el.button('BtnLogin').innerHTML = '<h1>OK</h1>';
-  //ms.el.input('email').value = 'a@b.com';
+    <script type="module">
+        const ms = await import(
+            './msLib/ms.js?t=' + Date.now()
+        );
 
+        // import ms from './msLib/ms-a83f71c4d913.js';
 
-  ms.id('btnLogin').onclick = CallLogin;
-  let x = 100;
-  ms.inject('A', 'd3');
-  CallB();
+        await ms.ready();
 
-  function CallB() {
-    ms.inject('b', 'd3', { append: true });
-  }
+        // document.getElementById('btnLogin').innerHTML = '<h1>OK</h1>';
+        ms.el.button('BtnLogin').innerHTML = '<h1>OK</h1>';
 
-  async function CallLogin() {
-    // eeee;
-    //    alert("Login start..");
+        // ms.el.input('email').value = 'a@b.com';
 
-    //  const btn = ms.id('btnLogin');
-    // btn.disabled = true;
+        ms.id('btnLogin').onclick = CallLogin;
 
+        let x = 100;
 
-    await ms.open('login');
+        ms.inject('A', 'd3');
 
-  }
-</script>
+        CallB();
 
+        function CallB() {
+            ms.inject('b', 'd3', { append: true });
+        }
 
-<!--
-  // await ms.ready();
-//  ms.id('btnLogin').onclick = CallLogin;
-   //  await ms.ready();
-   // await ms.rootReady();
- // await ms.open('login');
-   
-   // ms.id('btnLogin').on('click', () => CallLogin(123));
-   // ms.id('btnLogin').addEventListener('click', CallLogin);
+        async function CallLogin() {
+            // eeee;
+            // alert("Login start..");
 
+            // const btn = ms.id('btnLogin');
+            // btn.disabled = true;
 
+            await ms.open('login');
+        }
+    </script>
 
- //  await ms.ready();
- //   await ms.open('login');
-    
-//   debugger;
-  //await ms.ready();
- //  ms.id('login2').on('click',CallLogin);
- //  document.getElementById('login1').addEventListener('click',CallLogin);
- // ms.id('login2').addEventListener('click', CallLogin);
+    <!--
+        // await ms.ready();
+        // ms.id('btnLogin').onclick = CallLogin;
+        // await ms.ready();
+        // await ms.rootReady();
+        // await ms.open('login');
 
-  //document.getElementById('login1').onclick = async () => {
- //  await ms.open('login');
-  //};
+        // ms.id('btnLogin').on('click', () => CallLogin(123));
+        // ms.id('btnLogin').addEventListener('click', CallLogin);
 
+        // await ms.ready();
+        // await ms.open('login');
 
-// CallLogin();  
-// debugger;
+        // debugger;
+        // await ms.ready();
 
+        // ms.id('login2').on('click', CallLogin);
+        // document.getElementById('login1').addEventListener('click', CallLogin);
+        // ms.id('login2').addEventListener('click', CallLogin);
 
--->
+        // document.getElementById('login1').onclick = async () => {
+        //     await ms.open('login');
+        // };
+
+        // CallLogin();
+        // debugger;
+    -->
+
+</body>
+</html>
