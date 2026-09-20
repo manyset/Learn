@@ -2,7 +2,8 @@ import ms from './msLib/ms.js';
 await ms.ready();
 
 
-// function onLoad(args = {}) { alert("onLoad at A.  args.customerId = " + args.customerId); }
+ function onLoad(args = {}) 
+ { alert(" 11 onLoad at A.  args.customerId = " + args.customerId); }
 
 function onShow() {
     alert('onShow...');
