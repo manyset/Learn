@@ -12,7 +12,11 @@
 <!-- OK ==> <script type="module" src="./index.js"></script>  -->
 
 <script type="module">
-  import ms from './msLib/ms-a83f71c4d913.js';
+const ms = await import(
+    './msLib/ms.js?t=' + Date.now()
+);
+
+//  import ms from './msLib/ms-a83f71c4d913.js';
   await ms.ready();
 
   //document.getElementById('btnLogin').innerHTML = '<h1>OK</h1>';
