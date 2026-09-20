@@ -1,4 +1,4 @@
-alert('ms22.js');
+alert('ms222222.js');
 /**
  * @license ManySet
  * ms.js
