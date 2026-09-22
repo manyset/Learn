@@ -1,4 +1,3 @@
-alert('form.js');
 /**
  * @license ManySet
  * form.js

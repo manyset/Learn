@@ -1,4 +1,3 @@
-alert('ms ZZZZZ.js');
 /**
  * @license ManySet
  * ms.js
