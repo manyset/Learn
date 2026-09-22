@@ -1,0 +1,19 @@
+<div id='d1'></div>
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    async function onLoad() {
+
+        await ms.inject('HeaderComp', 'd1', { append: true });
+        await ms.inject('gridComp', 'd1', { append: true });
+        await ms.inject('FooterComp', 'd1', { append: true });
+        await ms.inject('LeftPanelComp', 'd1', { append: true });
+        await ms.inject('RightPanelComp', 'd1', { append: true });
+        await ms.inject('TabScreenCaller', 'd1', { append: true });
+
+
+    }
+
+</script>

@@ -1,0 +1,12 @@
+<h1> When 1st inject starts, All other linked injects are pre-loaded..! </h1>
+<div id='d1'></div>
+
+<script type="module">
+    import ms from './msLib/ms.js';
+    await ms.ready();
+
+    async function onLoad() {
+        await ms.inject('CallTree-Test2', 'd1', { append: true });
+    }
+
+</script>
