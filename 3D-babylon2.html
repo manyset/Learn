@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Sneaker Configurator — Babylon.js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1a1a1a;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            touch-action: none;
+            outline: none;
+        }
+
+        /* ---- Header ---- */
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 30px;
+            color: white;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #header .price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff6b35;
+        }
+
+        /* ---- Config Panel ---- */
+        #config-panel {
+            position: absolute;
+            top: 90px;
+            right: 20px;
+            width: 280px;
+            background: rgba(20, 20, 25, 0.92);
+            border-radius: 14px;
+            padding: 20px;
+            color: white;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        #config-panel h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #888;
+            margin: 18px 0 10px 0;
+            font-weight: 600;
+        }
+
+        #config-panel h3:first-child {
+            margin-top: 0;
+        }
+
+        .swatch-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .swatch {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .swatch:hover {
+            transform: scale(1.12);
+        }
+
+        .swatch.active {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3);
+        }
+
+        .option-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 3px 3px 3px 0;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ccc;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .option-btn.active {
+            background: #ff6b35;
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        #add-to-cart {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #add-to-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        /* ---- Footer hint ---- */
+        #hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: #ccc;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 10;
+            backdrop-filter: blur(6px);
+        }
+
+        /* ---- Loading ---- */
+        #loading {
+            position: absolute;
+            inset: 0;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff6b35;
+            font-size: 14px;
+            letter-spacing: 2px;
+            z-index: 100;
+            transition: opacity 0.6s;
+        }
+
+        #loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="renderCanvas"></canvas>
+
+    <div id="header">
+        <h1>👟 Custom Runner</h1>
+        <div class="price">$<span id="price">149</span></div>
+    </div>
+
+    <div id="config-panel">
+        <h3>Upper Color</h3>
+        <div class="swatch-row" id="upper-colors"></div>
+
+        <h3>Sole Color</h3>
+        <div class="swatch-row" id="sole-colors"></div>
+
+        <h3>Laces</h3>
+        <div id="laces-options"></div>
+
+        <h3>Finish</h3>
+        <div id="finish-options"></div>
+
+        <button id="add-to-cart">Add to Cart</button>
+    </div>
+
+    <div id="hint">🖱️ Drag to rotate • Scroll to zoom</div>
+
+    <div id="loading">LOADING 3D MODEL...</div>
+
+    <script src="./msLib/3D-babylon.js"></script>
+    <script>
+        // ============================================================
+        // 1. Canvas & Engine Setup
+        // ============================================================
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true, {
+            preserveDrawingBuffer: true,
+            stencil: true
+        });
+
+        // ============================================================
+        // 2. Build the 3D Scene
+        // ============================================================
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color4(0.08, 0.08, 0.10, 1);
+
+            // --- Camera (ArcRotate = orbit around object) ---
+            const camera = new BABYLON.ArcRotateCamera(
+                "camera",
+                Math.PI / 2,
+                Math.PI / 2.8,
+                3.2,
+                BABYLON.Vector3.Zero(),
+                scene
+            );
+            camera.attachControl(canvas, true);
+            camera.lowerRadiusLimit = 2.0;
+            camera.upperRadiusLimit = 6.0;
+            camera.wheelDeltaPercentage = 0.02;
+            camera.useAutoRotationBehavior = true;
+            camera.autoRotationBehavior.idleRotationSpeed = 0.15;
+            camera.autoRotationBehavior.idleRotationWaitTime = 3000;
+
+            // --- Lights ---
+            // Ambient for base visibility
+            const ambient = new BABYLON.HemisphericLight(
+                "ambient",
+                new BABYLON.Vector3(0, 1, 0),
+                scene
+            );
+            ambient.intensity = 0.55;
+            ambient.groundColor = new BABYLON.Color3(0.15, 0.15, 0.2);
+
+            // Key light (front-right, warm)
+            const keyLight = new BABYLON.DirectionalLight(
+                "keyLight",
+                new BABYLON.Vector3(-1, -2, -1),
+                scene
+            );
+            keyLight.position = new BABYLON.Vector3(3, 5, 3);
+            keyLight.intensity = 1.4;
+            keyLight.diffuse = new BABYLON.Color3(1.0, 0.95, 0.9);
+
+            // Rim light (back-left, cool)
+            const rimLight = new BABYLON.DirectionalLight(
+                "rimLight",
+                new BABYLON.Vector3(1, -0.5, 1),
+                scene
+            );
+            rimLight.intensity = 0.8;
+            rimLight.diffuse = new BABYLON.Color3(0.5, 0.7, 1.0);
+
+            // Fill light
+            const fillLight = new BABYLON.PointLight(
+                "fillLight",
+                new BABYLON.Vector3(-3, 2, -3),
+                scene
+            );
+            fillLight.intensity = 0.5;
+
+            // --- Environment for reflections ---
+            const envTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
+                "https://assets.babylonjs.com/environments/environmentSpecular.env",
+                scene
+            );
+            scene.environmentTexture = envTexture;
+            scene.environmentIntensity = 0.7;
+
+            // ============================================================
+            // 3. Build the Sneaker from Primitive Shapes
+            // ============================================================
+            const sneaker = new BABYLON.TransformNode("sneaker", scene);
+
+            // ---- Main body (upper) ----
+            // Rounded box via a scaled sphere + box combo for a stylized look
+            const upperMat = new BABYLON.PBRMaterial("upperMat", scene);
+            upperMat.albedoColor = new BABYLON.Color3(0.9, 0.9, 0.92);
+            upperMat.metallic = 0.05;
+            upperMat.roughness = 0.75;
+
+            const upper = BABYLON.MeshBuilder.CreateBox(
+                "upper",
+                { width: 1.6, height: 0.55, depth: 0.85 },
+                scene
+            );
+            upper.material = upperMat;
+            upper.parent = sneaker;
+            upper.position = new BABYLON.Vector3(0, 0.35, 0);
+
+            // Round the edges using a bevel-like approach (scaled sphere overlay)
+            const toe = BABYLON.MeshBuilder.CreateSphere(
+                "toe",
+                { diameterX: 1.0, diameterY: 0.55, diameterZ: 0.85, segments: 24 },
+                scene
+            );
+            toe.material = upperMat;
+            toe.parent = sneaker;
+            toe.position = new BABYLON.Vector3(0.8, 0.35, 0);
+            toe.scaling = new BABYLON.Vector3(0.6, 1, 1);
+
+            // Heel rounding
+            const heel = BABYLON.MeshBuilder.CreateSphere(
+                "heel",
+                { diameterX: 0.8, diameterY: 0.55, diameterZ: 0.85, segments: 24 },
+                scene
+            );
+            heel.material = upperMat;
+            heel.parent = sneaker;
+            heel.position = new BABYLON.Vector3(-0.75, 0.35, 0);
+            heel.scaling = new BABYLON.Vector3(0.7, 1, 1);
+
+            // ---- Sole ----
+            const soleMat = new BABYLON.PBRMaterial("soleMat", scene);
+            soleMat.albedoColor = new BABYLON.Color3(0.15, 0.15, 0.18);
+            soleMat.metallic = 0.0;
+            soleMat.roughness = 0.9;
+
+            const sole = BABYLON.MeshBuilder.CreateBox(
+                "sole",
+                { width: 1.9, height: 0.18, depth: 0.9 },
+                scene
+            );
+            sole.material = soleMat;
+            sole.parent = sneaker;
+            sole.position = new BABYLON.Vector3(0, 0.04, 0);
+
+            // Rounded sole front
+            const soleToe = BABYLON.MeshBuilder.CreateSphere(
+                "soleToe",
+                { diameterX: 0.5, diameterY: 0.18, diameterZ: 0.9, segments: 20 },
+                scene
+            );
+            soleToe.material = soleMat;
+            soleToe.parent = sneaker;
+            soleToe.position = new BABYLON.Vector3(0.95, 0.04, 0);
+            soleToe.scaling = new BABYLON.Vector3(0.7, 1, 1);
+
+            const soleHeel = BABYLON.MeshBuilder.CreateSphere(
+                "soleHeel",
+                { diameterX: 0.5, diameterY: 0.18, diameterZ: 0.9, segments: 20 },
+                scene
+            );
+            soleHeel.material = soleMat;
+            soleHeel.parent = sneaker;
+            soleHeel.position = new BABYLON.Vector3(-0.95, 0.04, 0);
+            soleHeel.scaling = new BABYLON.Vector3(0.7, 1, 1);
+
+            // ---- Laces (small torus shapes) ----
+            const laces = [];
+            const laceMat = new BABYLON.PBRMaterial("laceMat", scene);
+            laceMat.albedoColor = new BABYLON.Color3(1, 1, 1);
+            laceMat.metallic = 0.0;
+            laceMat.roughness = 0.95;
+
+            for (let i = 0; i < 4; i++) {
+                const lace = BABYLON.MeshBuilder.CreateTorus(
+                    "lace" + i,
+                    { diameter: 0.35, thickness: 0.05, tessellation: 20 },
+                    scene
+                );
+                lace.material = laceMat;
+                lace.parent = sneaker;
+                lace.position = new BABYLON.Vector3(-0.15 + i * 0.28, 0.65, 0);
+                lace.rotation.x = Math.PI / 2;
+                lace.rotation.z = Math.PI / 2;
+                laces.push(lace);
+            }
+
+            // ---- Logo accent (small sphere on side) ----
+            const accentMat = new BABYLON.PBRMaterial("accentMat", scene);
+            accentMat.albedoColor = new BABYLON.Color3(1.0, 0.42, 0.21);
+            accentMat.metallic = 0.3;
+            accentMat.roughness = 0.4;
+
+            const accent = BABYLON.MeshBuilder.CreateSphere(
+                "accent",
+                { diameter: 0.18, segments: 16 },
+                scene
+            );
+            accent.material = accentMat;
+            accent.parent = sneaker;
+            accent.position = new BABYLON.Vector3(-0.2, 0.4, 0.44);
+
+            const accent2 = accent.clone("accent2");
+            accent2.position = new BABYLON.Vector3(-0.2, 0.4, -0.44);
+
+            // Center the whole sneaker
+            sneaker.position = new BABYLON.Vector3(0, -0.3, 0);
+
+            // ============================================================
+            // 4. Ground Shadow
+            // ============================================================
+            const shadowGenerator = new BABYLON.ShadowGenerator(1024, keyLight);
+            shadowGenerator.useBlurExponentialShadowMap = true;
+            shadowGenerator.blurKernel = 32;
+            [upper, toe, heel, sole, soleToe, soleHeel].forEach(m => shadowGenerator.addShadowCaster(m));
+
+            // Ground receiver
+            const ground = BABYLON.MeshBuilder.CreateDisc(
+                "ground",
+                { radius: 3, tessellation: 64 },
+                scene
+            );
+            ground.rotation.x = Math.PI / 2;
+            ground.position.y = -0.55;
+            const groundMat = new BABYLON.StandardMaterial("groundMat", scene);
+            groundMat.diffuseColor = new BABYLON.Color3(0.05, 0.05, 0.07);
+            groundMat.specularColor = BABYLON.Color3.Black();
+            ground.material = groundMat;
+            ground.receiveShadows = true;
+
+            // ============================================================
+            // 5. UI Wiring — Colors & Options
+            // ============================================================
+
+            // Material references for live updates
+            const materials = {
+                upper: upperMat,
+                sole: soleMat,
+                laces: laceMat,
+                accent: accentMat
+            };
+
+            // Color palettes
+            const upperPalette = [
+                { name: "White", color: new BABYLON.Color3(0.92, 0.92, 0.94) },
+                { name: "Black", color: new BABYLON.Color3(0.08, 0.08, 0.10) },
+                { name: "Red", color: new BABYLON.Color3(0.75, 0.15, 0.15) },
+                { name: "Blue", color: new BABYLON.Color3(0.15, 0.35, 0.75) },
+                { name: "Sand", color: new BABYLON.Color3(0.85, 0.75, 0.60) },
+                { name: "Mint", color: new BABYLON.Color3(0.55, 0.85, 0.75) }
+            ];
+
+            const solePalette = [
+                { name: "Black", color: new BABYLON.Color3(0.12, 0.12, 0.14) },
+                { name: "White", color: new BABYLON.Color3(0.95, 0.95, 0.95) },
+                { name: "Orange", color: new BABYLON.Color3(0.95, 0.45, 0.15) },
+                { name: "Gum", color: new BABYLON.Color3(0.70, 0.55, 0.35) },
+                { name: "Red", color: new BABYLON.Color3(0.70, 0.12, 0.12) }
+            ];
+
+            // Helper: build swatches
+            function buildSwatches(containerId, palette, targetMat) {
+                const container = document.getElementById(containerId);
+                palette.forEach((entry, idx) => {
+                    const sw = document.createElement("div");
+                    sw.className = "swatch" + (idx === 0 ? " active" : "");
+                    sw.style.background = `rgb(${entry.color.r * 255},${entry.color.g * 255},${entry.color.b * 255})`;
+                    sw.title = entry.name;
+                    sw.addEventListener("click", () => {
+                        targetMat.albedoColor = entry.color.clone();
+                        // Accent follows upper color for a coordinated look
+                        if (targetMat === materials.upper) {
+                            materials.accent.albedoColor = entry.color.scale(0.9);
+                        }
+                        container.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
+                        sw.classList.add("active");
+                    });
+                    container.appendChild(sw);
+                });
+            }
+
+            buildSwatches("upper-colors", upperPalette, materials.upper);
+            buildSwatches("sole-colors", solePalette, materials.sole);
+
+            // ---- Laces options ----
+            const lacesContainer = document.getElementById("laces-options");
+            const laceOptions = [
+                { name: "White", color: new BABYLON.Color3(1, 1, 1) },
+                { name: "Black", color: new BABYLON.Color3(0.1, 0.1, 0.1) },
+                { name: "Orange", color: new BABYLON.Color3(1.0, 0.5, 0.2) }
+            ];
+            laceOptions.forEach((opt, idx) => {
+                const btn = document.createElement("span");
+                btn.className = "option-btn" + (idx === 0 ? " active" : "");
+                btn.textContent = opt.name;
+                btn.addEventListener("click", () => {
+                    materials.laces.albedoColor = opt.color.clone();
+                    lacesContainer.querySelectorAll(".option-btn").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                });
+                lacesContainer.appendChild(btn);
+            });
+
+            // ---- Finish options (roughness/metalness) ----
+            const finishContainer = document.getElementById("finish-options");
+            const finishOptions = [
+                { name: "Matte", rough: 0.9, metal: 0.0 },
+                { name: "Satin", rough: 0.5, metal: 0.1 },
+                { name: "Glossy", rough: 0.15, metal: 0.2 }
+            ];
+            finishOptions.forEach((opt, idx) => {
+                const btn = document.createElement("span");
+                btn.className = "option-btn" + (idx === 0 ? " active" : "");
+                btn.textContent = opt.name;
+                btn.addEventListener("click", () => {
+                    materials.upper.roughness = opt.rough;
+                    materials.upper.metallic = opt.metal;
+                    finishContainer.querySelectorAll(".option-btn").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                });
+                finishContainer.appendChild(btn);
+            });
+
+            // ---- Add to cart ----
+            document.getElementById("add-to-cart").addEventListener("click", () => {
+                const btn = document.getElementById("add-to-cart");
+                btn.textContent = "✓ Added to Cart!";
+                btn.style.background = "linear-gradient(135deg, #2ecc71, #27ae60)";
+                setTimeout(() => {
+                    btn.textContent = "Add to Cart";
+                    btn.style.background = "linear-gradient(135deg, #ff6b35, #ff8c5a)";
+                }, 1800);
+            });
+
+            return scene;
+        };
+
+        // ============================================================
+        // 6. Run the render loop
+        // ============================================================
+        const scene = createScene();
+
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+
+        window.addEventListener("resize", () => {
+            engine.resize();
+        });
+
+        // Hide loading screen
+        setTimeout(() => {
+            document.getElementById("loading").classList.add("hidden");
+        }, 800);
+    </script>
+</body>
+
+</html>
