@@ -3,7 +3,7 @@ await ms.ready();
 
 
  function onLoad(args = {}) 
- { alert(" 11 onLoad at A.  args.customerId = " + args.customerId); }
+ { // alert(" 11 onLoad at A.  args.customerId = " + args.customerId); }
 
 function onShow() {
     alert('onShow...');
