@@ -1,6 +1,6 @@
 /**
  * @license ManySet
- * ms.js V1.1
+ * ms.js V1.2
  *
  * Copyright (c) ManySet, Inc. and its affiliates.
  *
@@ -12,7 +12,6 @@
 //# sourceURL=ms.js 
 //   MS98.7 -HYBRID-STABLE (CORE EDITION)
 
-alert('xxxxx');
 
 const COMPONENT_CACHE = new Map();
 const CALL_TREE_TEXT_BY_HASH = new Map();
