@@ -1,0 +1,24 @@
+/* ================= COMBO ROOT ================= */
+[data-ms-alias="mscombo"] {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+/* ================= ROW ================= */
+[data-ms-alias="mscombo"] div {
+  padding: 6px;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+}
+
+/* ================= HOVER ================= */
+[data-ms-alias="mscombo"] div:hover {
+  background: #f0f0f0;
+}
+
+/* ================= CHECKBOX ================= */
+[data-ms-alias="mscombo"] input[type="checkbox"] {
+  margin-right: 6px;
+}

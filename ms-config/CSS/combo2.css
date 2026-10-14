@@ -1,0 +1,67 @@
+/* ================= ROOT ================= */
+mscombo {
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #4ce41e;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+/* ================= ROW ================= */
+mscombo div {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* remove last border */
+mscombo div:last-child {
+  border-bottom: none;
+}
+
+/* ================= HOVER ================= */
+mscombo div:hover {
+  background: #f5f7fa;
+}
+
+/* ================= CHECKBOX ================= */
+mscombo input {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+/* ================= SELECTED (future-ready) ================= */
+mscombo div.selected {
+  background: #e6f0ff;
+  font-weight: 500;
+}
+
+/* ================= ACTIVE CLICK ================= */
+mscombo div:active {
+  background: #dde8ff;
+}
+
+/* ================= SCROLL (for long lists) ================= */
+mscombo {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* ================= SCROLLBAR (optional nice touch) ================= */
+mscombo::-webkit-scrollbar {
+  width: 6px;
+}
+
+mscombo::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+mscombo::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}

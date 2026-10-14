@@ -1,0 +1,73 @@
+:host {
+  --ms-popup-background: #f7f8fa;
+  --ms-popup-border: #9aa8b6;
+  --ms-popup-title-background: #173a53;
+  --ms-popup-title-color: #ffffff;
+  --ms-popup-radius: 7px;
+  --ms-popup-shadow: 0 16px 38px rgba(15, 31, 45, 0.3);
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #17212b;
+}
+
+.ms-popup-window {
+  background: var(--ms-popup-background);
+  border: 1px solid var(--ms-popup-border);
+  border-radius: var(--ms-popup-radius);
+  box-shadow: var(--ms-popup-shadow);
+}
+
+.ms-popup-titlebar {
+  gap: 10px;
+  padding: 0 6px 0 12px;
+  background: var(--ms-popup-title-background);
+  color: var(--ms-popup-title-color);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.ms-popup-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ms-popup-minimize,
+.ms-popup-close {
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  font: 20px/1 "Segoe UI", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.ms-popup-minimize {
+  font-size: 18px;
+}
+
+.ms-popup-minimize:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.ms-popup-close:hover {
+  background: #c42b1c;
+  color: #ffffff;
+}
+
+.ms-popup-minimize:focus-visible,
+.ms-popup-close:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: -3px;
+}
+
+.ms-popup-content {
+  background: var(--ms-popup-background);
+}
+
+@media (max-width: 520px) {
+  :host {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+  }
+}

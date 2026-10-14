@@ -1,0 +1,47 @@
+.ms-layout {
+  background: #eef3f8;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.ms-layout-slot {
+  background: #f8fafc;
+  border: 1px solid #d7dee8;
+  border-radius: 6px;
+}
+
+.ms-layout-slot-header,
+.ms-layout-slot-footer {
+  background: #12324a !important;
+  border-color: #12324a !important;
+  color: #ffffff !important;
+  align-items: center;
+}
+
+.ms-layout-slot-left,
+.ms-layout-slot-right {
+  background: #f4f7fb !important;
+}
+
+.ms-layout-slot-content {
+  background: #ffffff !important;
+}
+
+.ms-layout-text {
+  color: inherit;
+  font-weight: 600;
+}
+
+.ms-layout-slot-header > .ms-layout-text,
+.ms-layout-slot-footer > .ms-layout-text {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.ms-layout-card-type > [data-ms-component-host] {
+  background: #ffffff;
+  border: 1px solid #d9e2ec;
+  border-radius: 10px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
