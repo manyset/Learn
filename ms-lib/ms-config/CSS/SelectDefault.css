@@ -1,0 +1,86 @@
+/* MS default native select theme.
+   Covers:
+   - <select>
+   - <select multiple>
+   - <input list="..."> with <datalist>
+*/
+
+:host {
+  --ms-select-bg: #ffffff;
+  --ms-select-text: #172033;
+  --ms-select-muted: #64748b;
+  --ms-select-border: #9aa8bd;
+  --ms-select-border-hover: #64748b;
+  --ms-select-focus: #1f6feb;
+  --ms-select-disabled-bg: #edf1f7;
+  --ms-select-disabled-text: #7b8798;
+  --ms-select-radius: 5px;
+  --ms-select-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --ms-select-focus-ring: 0 0 0 3px rgba(31, 111, 235, 0.18);
+}
+
+select,
+input[list] {
+  box-sizing: border-box;
+  width: 220px;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 4px 8px;
+  border: 1px solid var(--ms-select-border);
+  border-radius: var(--ms-select-radius);
+  background: var(--ms-select-bg);
+  color: var(--ms-select-text);
+  box-shadow: var(--ms-select-shadow);
+  font: inherit;
+  line-height: 1.35;
+  outline: none;
+}
+
+select:hover:not(:disabled),
+input[list]:hover:not(:disabled):not([readonly]) {
+  border-color: var(--ms-select-border-hover);
+}
+
+select:focus,
+select:focus-visible,
+input[list]:focus,
+input[list]:focus-visible {
+  border-color: var(--ms-select-focus);
+  box-shadow: var(--ms-select-focus-ring);
+}
+
+select:disabled,
+input[list]:disabled {
+  background: var(--ms-select-disabled-bg);
+  color: var(--ms-select-disabled-text);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+select[multiple],
+select[size] {
+  width: 240px;
+  min-height: 90px;
+  padding: 4px;
+}
+
+option,
+select option,
+datalist option {
+  background: var(--ms-select-bg);
+  color: var(--ms-select-text);
+  font: inherit;
+  padding: 4px 6px;
+}
+
+input[list]::placeholder {
+  color: var(--ms-select-muted);
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  select,
+  input[list] {
+    transition: none;
+  }
+}

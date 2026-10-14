@@ -1,0 +1,119 @@
+
+.table {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border: 1px solid #e5e5e5;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+}
+
+.row {
+  display: table-row;
+  transition: all 0.2s ease;
+}
+
+.cell {
+  display: table-cell;
+  padding: 12px 8px;
+  text-align: left;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  color: #262626;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  transition: all 0.2s ease;
+}
+
+.cell:not(:last-child) {
+  border-right: none;
+}
+
+/* Ultra-minimal header */
+.row:first-child .cell {
+  background: #fafafa;
+  color: #595959;
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 14px 8px;
+}
+
+/* Subtle hover effect */
+.row:not(:first-child):hover .cell {
+  background: #fafafa;
+  cursor: pointer;
+  color: #000000;
+  font-weight: 500;
+}
+
+/* Remove highlight from row below */
+.row:hover + .row .cell {
+  background: white !important;
+  color: #262626 !important;
+  font-weight: 400 !important;
+}
+
+/* Header no hover */
+.row:first-child:hover .cell {
+  background: #fafafa !important;
+  cursor: default;
+  color: #595959 !important;
+}
+
+/* Underline effect on hover */
+.row:not(:first-child):hover .cell {
+  position: relative;
+}
+
+.row:not(:first-child):hover .cell::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #000000;
+  opacity: 0.1;
+}
+
+/* Checker pattern for readability */
+.row:nth-child(even):not(:first-child) .cell {
+  background: #fcfcfc;
+}
+
+.row:nth-child(even):not(:first-child):hover .cell {
+  background: #f5f5f5;
+}
+
+/* Focus state for accessibility */
+.row:not(:first-child):focus-within .cell {
+  outline: 2px solid #0066cc;
+  outline-offset: -2px;
+  z-index: 1;
+  position: relative;
+}
+
+/* Smooth appearance */
+.row:not(:first-child) {
+  animation: appear 0.3s ease forwards;
+  opacity: 0;
+}
+
+@keyframes appear {
+  to { opacity: 1; }
+}
+
+/* Compact version for dense data */
+.cell {
+  padding: 8px 6px;
+  font-size: 12px;
+}
+
+.row:first-child .cell {
+  padding: 10px 6px;
+  font-size: 11px;
+}

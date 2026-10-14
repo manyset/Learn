@@ -1,0 +1,15 @@
+.mscombo-container {
+  border: 3px solid red;
+  background: yellow;
+  padding: 10px;
+}
+
+.mscombo-container > div {
+  background: rgb(12, 116, 151);
+  padding: 6px;
+  margin: 4px 0;
+}
+
+.mscombo-container > div:hover {
+  background: orange;
+}

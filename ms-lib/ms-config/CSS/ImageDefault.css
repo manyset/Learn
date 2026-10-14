@@ -1,0 +1,163 @@
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid rgba(30, 41, 59, .16);
+  background: #f6f8fb;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, .12);
+  box-sizing: border-box;
+}
+
+img[loading="lazy"] {
+  content-visibility: auto;
+}
+
+img[data-fit="cover"] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+img[data-fit="contain"] {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+figure {
+  margin: 0;
+}
+
+figure > img {
+  width: 100%;
+}
+
+figcaption {
+  margin-top: 6px;
+  color: #475569;
+  font: 12px/1.35 Arial, sans-serif;
+}
+
+.ms-image-demo {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 14px;
+  font-family: Arial, sans-serif;
+  color: #1f2937;
+  box-sizing: border-box;
+}
+
+.ms-image-demo__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ms-image-demo__header h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.ms-image-demo__status {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.ms-image-demo__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, .85fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.ms-image-demo__card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
+  box-sizing: border-box;
+}
+
+.ms-image-demo__card img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.ms-image-demo__card--portrait img {
+  aspect-ratio: 4 / 5;
+}
+
+.ms-image-demo__strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ms-image-demo__strip img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.ms-image-demo__avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ms-image-demo__soft {
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.ms-image-demo__contain {
+  object-fit: contain;
+  padding: 8px;
+  background:
+    linear-gradient(45deg, #eef2f7 25%, transparent 25%),
+    linear-gradient(-45deg, #eef2f7 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #eef2f7 75%),
+    linear-gradient(-45deg, transparent 75%, #eef2f7 75%);
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-size: 16px 16px;
+}
+
+.ms-image-demo__card:hover img {
+  transform: translateY(-1px);
+}
+
+.ms-image-demo__card img {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.ms-image-demo__card img[data-state="error"] {
+  min-height: 140px;
+  object-fit: contain;
+  background: #fff1f2;
+  border-color: #f43f5e;
+}
+
+@media (max-width: 760px) {
+  .ms-image-demo {
+    padding: 10px;
+  }
+
+  .ms-image-demo__header {
+    display: block;
+  }
+
+  .ms-image-demo__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-image-demo__strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
