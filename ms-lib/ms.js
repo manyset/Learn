@@ -1906,7 +1906,7 @@ function __ms_load_css(url) {
         });
 }
 
-async function __ms_read_config(url) {
+async function __ms_read_config_candidate(url) {
     let response;
     try {
         response = await fetch(url, { cache: 'no-cache' });
@@ -1928,6 +1928,20 @@ async function __ms_read_config(url) {
         throw new Error(`Invalid configuration object in ${url}`);
     }
     return { url, config };
+}
+
+async function __ms_read_config(url) {
+    const plain = await __ms_read_config_candidate(url);
+    if (plain.config) return plain;
+
+    const compressed = await __ms_read_config_candidate(`${url}.ms`);
+    if (compressed.config) return compressed;
+    return {
+        url,
+        config: null,
+        missing: plain.missing && compressed.missing,
+        empty: plain.empty || compressed.empty
+    };
 }
 
 function __ms_config_asset_urls(config) {
@@ -2248,6 +2262,7 @@ function __ms_prefetch_tree(desc) {
 let __MS_CONFIG_READY__ = (async function () {
     const userUrl = new URL('../ms-config/global-config.json', import.meta.url).href;
     const factoryUrl = new URL('./ms-config/global-config.json', import.meta.url).href;
+    const expectedUrls = `${userUrl} OR ${userUrl}.ms OR ${factoryUrl} OR ${factoryUrl}.ms`;
 
     try {
         const [userLoad, factoryLoad] = await Promise.allSettled([
@@ -2272,13 +2287,13 @@ let __MS_CONFIG_READY__ = (async function () {
             if (!userConfig && !factoryConfig) {
                 throw __ms_runtime_dependency_error(
                     'global-config.json',
-                    `${userUrl} OR ${factoryUrl}`,
+                    expectedUrls,
                     'Both user and factory configurations are missing or empty'
                 );
             }
             throw __ms_runtime_dependency_error(
                 'global-config.json',
-                selected.url,
+                `${selected.url} OR ${selected.url}.ms`,
                 'The selected configuration is missing or empty'
             );
         }
@@ -2293,7 +2308,7 @@ let __MS_CONFIG_READY__ = (async function () {
         if (e?.__msDependencyError) throw e;
         throw __ms_runtime_dependency_error(
             'global-config.json',
-            `${userUrl} OR ${factoryUrl}`,
+            expectedUrls,
             e?.message || String(e)
         );
     }
