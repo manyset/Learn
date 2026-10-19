@@ -13,7 +13,7 @@
 
 // Bundle section lengths are checked against the generated baselines in ms-core.js and form.js.
 const BUNDLE_MARKER = '// PLEASE DO NOT REMOVE THIS LINE OR EDIT FILE.\n';
-const BUNDLE_MAGIC = 'MSBNDL01';
+const BUNDLE_MAGIC = 'MSBNDL02';
 
 function fail(message) {
     throw new Error(`MS bundle startup failed: ${message}`);
@@ -36,25 +36,10 @@ function startsWith(bytes, prefix) {
 
 async function readBundle() {
     const marker = new TextEncoder().encode(BUNDLE_MARKER);
-    let file;
-    let lastIssue = '';
-    for (const name of ['./bundle.ms', './Bundle.ms']) {
-        const response = await fetch(new URL(name, import.meta.url));
-        if (!response.ok) {
-            lastIssue = `${name} (${response.status})`;
-            continue;
-        }
-
-        const candidate = new Uint8Array(await response.arrayBuffer());
-        if (!startsWith(candidate, marker)) {
-            lastIssue = `${name} has an invalid bundle marker`;
-            continue;
-        }
-
-        file = candidate;
-        break;
-    }
-    if (!file) fail(`could not load bundle.ms or Bundle.ms: ${lastIssue || 'not found'}`);
+    const response = await fetch(new URL('./bundle.ms', import.meta.url));
+    if (!response.ok) fail(`could not load bundle.ms (${response.status})`);
+    const file = new Uint8Array(await response.arrayBuffer());
+    if (!startsWith(file, marker)) fail('bundle.ms has an invalid bundle marker');
 
     const gzipBytes = reverseEncodedGzip(file.slice(marker.length));
     if (gzipBytes[0] !== 0x1f || gzipBytes[1] !== 0x8b) {
@@ -72,20 +57,59 @@ async function readBundle() {
         fail(`bundle decompression failed (${error?.message || error})`);
     }
 
-    if (bundleBytes.length < 16 ||
-        new TextDecoder().decode(bundleBytes.subarray(0, 8)) !== BUNDLE_MAGIC) {
-        fail('bundle header is invalid');
-    }
+    if (bundleBytes.length < 20) fail('bundle header is invalid');
+    const magic = new TextDecoder().decode(bundleBytes.subarray(0, 8));
+    if (magic !== BUNDLE_MAGIC) fail('unsupported bundle format; rebuild bundle.ms');
 
     const header = new DataView(bundleBytes.buffer, bundleBytes.byteOffset, bundleBytes.byteLength);
     const coreSize = header.getUint32(8, true);
     const formSize = header.getUint32(12, true);
-    if (coreSize + formSize !== bundleBytes.length - 16) {
+    const manifestSize = header.getUint32(16, true);
+    const manifestStart = 20;
+    const coreStart = manifestStart + manifestSize;
+    const formStart = coreStart + coreSize;
+    const formEnd = formStart + formSize;
+    if (coreStart > bundleBytes.length || formStart > bundleBytes.length ||
+        formEnd > bundleBytes.length) {
         fail('bundle section lengths do not match its payload');
     }
+
+    let manifest;
+    try {
+        manifest = JSON.parse(new TextDecoder().decode(bundleBytes.subarray(manifestStart, coreStart)));
+    } catch (error) {
+        fail(`bundle manifest is invalid (${error?.message || error})`);
+    }
+    if (!manifest || typeof manifest !== 'object' || !Array.isArray(manifest.css)) {
+        fail('bundle manifest has an invalid structure');
+    }
+    if ((manifest.userConfig != null && typeof manifest.userConfig !== 'string') ||
+        (manifest.factoryConfig != null && typeof manifest.factoryConfig !== 'string')) {
+        fail('bundle config section is invalid');
+    }
+
+    const cssAssets = [];
+    let offset = formEnd;
+    for (const asset of manifest.css) {
+        const size = Number(asset?.size);
+        if ((asset?.role !== 'user' && asset?.role !== 'factory') ||
+            typeof asset.path !== 'string' || !asset.path ||
+            !Number.isSafeInteger(size) || size < 0 || size > bundleBytes.length - offset) {
+            fail('bundle CSS section lengths do not match its payload');
+        }
+        cssAssets.push({ role: asset.role, path: asset.path, bytes: bundleBytes.slice(offset, offset + size) });
+        offset += size;
+    }
+    if (offset !== bundleBytes.length) fail('bundle has unexpected trailing data');
+
     return {
-        core: bundleBytes.slice(16, 16 + coreSize),
-        form: bundleBytes.slice(16 + coreSize)
+        core: bundleBytes.slice(coreStart, formStart),
+        form: bundleBytes.slice(formStart, formStart + formSize),
+        bootstrap: {
+            userConfig: manifest.userConfig ?? null,
+            factoryConfig: manifest.factoryConfig ?? null,
+            css: cssAssets
+        }
     };
 }
 
@@ -119,6 +143,15 @@ async function startMS() {
     if (!globalThis.fetch) fail('fetch is unavailable');
 
     const sections = await readBundle();
+    const userConfigUrl = new URL('../ms-config/global-config.json', import.meta.url).href;
+    const factoryConfigUrl = new URL('./ms-config/global-config.json', import.meta.url).href;
+    globalThis.__MS_BUNDLE_BOOTSTRAP__ = sections.bootstrap ? {
+        userConfig: sections.bootstrap.userConfig,
+        factoryConfig: sections.bootstrap.factoryConfig,
+        userConfigUrl,
+        factoryConfigUrl,
+        css: sections.bootstrap.css
+    } : null;
     globalThis.__bn_lens__ = Object.freeze({
         core: sections.core.byteLength,
         form: sections.form.byteLength
