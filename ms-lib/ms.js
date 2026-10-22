@@ -14,6 +14,8 @@
 // Bundle section lengths are checked against the generated baselines in ms-core.js and form.js.
 const BUNDLE_MARKER = '// PLEASE DO NOT REMOVE THIS LINE OR EDIT FILE.\n';
 const BUNDLE_MAGIC = 'MSBNDL02';
+const BOOSTER_MARKER = '// PLEASE DO NOT REMOVE THIS MS STARTUP BOOSTER.\n';
+const BOOSTER_MAGIC = 'MSBST001';
 
 function fail(message) {
     throw new Error(`MS bundle startup failed: ${message}`);
@@ -34,16 +36,19 @@ function startsWith(bytes, prefix) {
     return bytes.length >= prefix.length && prefix.every((value, i) => bytes[i] === value);
 }
 
-async function readBundle() {
-    const marker = new TextEncoder().encode(BUNDLE_MARKER);
-    const response = await fetch(new URL('./bundle.ms', import.meta.url));
-    if (!response.ok) fail(`could not load bundle.ms (${response.status})`);
+async function readEncodedPayload(relativeUrl, markerText, label, fallbackUrl = null) {
+    const marker = new TextEncoder().encode(markerText);
+    let response = await fetch(new URL(relativeUrl, import.meta.url), { cache: 'no-cache' });
+    if (!response.ok && fallbackUrl) {
+        response = await fetch(new URL(fallbackUrl, import.meta.url), { cache: 'no-cache' });
+    }
+    if (!response.ok) fail(`could not load ${label} (${response.status})`);
     const file = new Uint8Array(await response.arrayBuffer());
-    if (!startsWith(file, marker)) fail('bundle.ms has an invalid bundle marker');
+    if (!startsWith(file, marker)) fail(`${label} has an invalid marker`);
 
     const gzipBytes = reverseEncodedGzip(file.slice(marker.length));
     if (gzipBytes[0] !== 0x1f || gzipBytes[1] !== 0x8b) {
-        fail('encoded gzip header is invalid');
+        fail(`${label} has an invalid encoded gzip header`);
     }
     if (typeof DecompressionStream !== 'function') {
         fail('this browser does not support gzip decompression');
@@ -54,9 +59,16 @@ async function readBundle() {
         const stream = new Blob([gzipBytes]).stream().pipeThrough(new DecompressionStream('gzip'));
         bundleBytes = new Uint8Array(await new Response(stream).arrayBuffer());
     } catch (error) {
-        fail(`bundle decompression failed (${error?.message || error})`);
+        fail(`${label} decompression failed (${error?.message || error})`);
     }
 
+    return bundleBytes;
+}
+
+async function readBundle() {
+    const bundleBytes = await readEncodedPayload(
+        './bundle.ms', BUNDLE_MARKER, 'bundle.ms', './Bundle.ms'
+    );
     if (bundleBytes.length < 20) fail('bundle header is invalid');
     const magic = new TextDecoder().decode(bundleBytes.subarray(0, 8));
     if (magic !== BUNDLE_MAGIC) fail('unsupported bundle format; rebuild bundle.ms');
@@ -83,34 +95,59 @@ async function readBundle() {
     if (!manifest || typeof manifest !== 'object' || !Array.isArray(manifest.css)) {
         fail('bundle manifest has an invalid structure');
     }
-    if ((manifest.config != null && typeof manifest.config !== 'string') ||
-        (manifest.factorySettings != null && typeof manifest.factorySettings !== 'string')) {
-        fail('bundle config section is invalid');
+    if (manifest.css.length !== 0 || manifest.config != null || manifest.factorySettings != null ||
+        formEnd !== bundleBytes.length) {
+        fail('bundle.ms must contain only the MS runtime sections');
     }
-
-    const cssAssets = [];
-    let offset = formEnd;
-    for (const asset of manifest.css) {
-        const size = Number(asset?.size);
-        if (asset?.role !== 'config' ||
-            typeof asset.path !== 'string' || !asset.path ||
-            !Number.isSafeInteger(size) || size < 0 || size > bundleBytes.length - offset) {
-            fail('bundle CSS section lengths do not match its payload');
-        }
-        cssAssets.push({ role: asset.role, path: asset.path, bytes: bundleBytes.slice(offset, offset + size) });
-        offset += size;
-    }
-    if (offset !== bundleBytes.length) fail('bundle has unexpected trailing data');
 
     return {
         core: bundleBytes.slice(coreStart, formStart),
-        form: bundleBytes.slice(formStart, formStart + formSize),
-        bootstrap: {
-            config: manifest.config ?? null,
-            factorySettings: manifest.factorySettings ?? null,
-            css: cssAssets
-        }
+        form: bundleBytes.slice(formStart, formStart + formSize)
     };
+}
+
+async function readStartupBooster() {
+    const payload = await readEncodedPayload(
+        '../ms-config/BOOSTERS/startup_booster.ms',
+        BOOSTER_MARKER,
+        'startup_booster.ms'
+    );
+    if (payload.length < 12 || new TextDecoder().decode(payload.subarray(0, 8)) !== BOOSTER_MAGIC) {
+        fail('startup_booster.ms has an invalid header');
+    }
+
+    const manifestSize = new DataView(payload.buffer, payload.byteOffset, payload.byteLength)
+        .getUint32(8, true);
+    const manifestEnd = 12 + manifestSize;
+    if (manifestEnd > payload.length) fail('startup_booster.ms manifest is truncated');
+
+    let manifest;
+    try {
+        manifest = JSON.parse(new TextDecoder().decode(payload.subarray(12, manifestEnd)));
+    } catch (error) {
+        fail(`startup_booster.ms manifest is invalid (${error?.message || error})`);
+    }
+    if (!manifest || typeof manifest !== 'object' ||
+        typeof manifest.config !== 'string' ||
+        (manifest.factorySettings != null && typeof manifest.factorySettings !== 'string') ||
+        !Array.isArray(manifest.css)) {
+        fail('startup_booster.ms manifest has an invalid structure');
+    }
+
+    let offset = manifestEnd;
+    const css = manifest.css.map(asset => {
+        const size = Number(asset?.size);
+        if (typeof asset?.path !== 'string' || !asset.path ||
+            !Number.isSafeInteger(size) || size < 0 || size > payload.length - offset) {
+            fail('startup_booster.ms CSS sections are invalid');
+        }
+        const bytes = payload.slice(offset, offset + size);
+        offset += size;
+        return { role: 'config', path: asset.path, bytes };
+    });
+    if (offset !== payload.length) fail('startup_booster.ms has unexpected trailing data');
+
+    return { config: manifest.config, factorySettings: manifest.factorySettings ?? null, css };
 }
 
 function loadClassicForm(formBytes) {
@@ -142,16 +179,16 @@ function loadClassicForm(formBytes) {
 async function startMS() {
     if (!globalThis.fetch) fail('fetch is unavailable');
 
-    const sections = await readBundle();
+    const [sections, bootstrap] = await Promise.all([readBundle(), readStartupBooster()]);
     const configUrl = new URL('../ms-config/global-config.json', import.meta.url).href;
     const factorySettingsUrl = new URL('./factory-settings/factory-settings.json', import.meta.url).href;
-    globalThis.__MS_BUNDLE_BOOTSTRAP__ = sections.bootstrap ? {
-        config: sections.bootstrap.config,
-        factorySettings: sections.bootstrap.factorySettings,
+    globalThis.__MS_BUNDLE_BOOTSTRAP__ = {
+        config: bootstrap.config,
+        factorySettings: bootstrap.factorySettings,
         configUrl,
         factorySettingsUrl,
-        css: sections.bootstrap.css
-    } : null;
+        css: bootstrap.css
+    };
     globalThis.__bn_lens__ = Object.freeze({
         core: sections.core.byteLength,
         form: sections.form.byteLength
