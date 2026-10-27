@@ -14,8 +14,8 @@
 // Bundle section lengths are checked against the generated baselines in ms-core.js and form.js.
 const BUNDLE_MARKER = '// PLEASE DO NOT REMOVE THIS LINE OR EDIT FILE.\n';
 const BUNDLE_MAGIC = 'MSBNDL02';
-const BOOSTER_MARKER = '// PLEASE DO NOT REMOVE THIS MS STARTUP BOOSTER.\n';
-const BOOSTER_MAGIC = 'MSBST001';
+const CONFIG_PACKAGE_MARKER = '// PLEASE DO NOT REMOVE THIS MS CONFIG PACKAGE.\n';
+const CONFIG_PACKAGE_MAGIC = 'MSGCP001';
 
 function fail(message) {
     throw new Error(`MS bundle startup failed: ${message}`);
@@ -67,11 +67,11 @@ async function readEncodedPayload(relativeUrl, markerText, label, fallbackUrl = 
 
 async function readBundle() {
     const bundleBytes = await readEncodedPayload(
-        './bundle.ms', BUNDLE_MARKER, 'bundle.ms', './Bundle.ms'
+        './runtime-package.bin', BUNDLE_MARKER, 'runtime-package.bin', './Runtime-package.bin'
     );
     if (bundleBytes.length < 20) fail('bundle header is invalid');
     const magic = new TextDecoder().decode(bundleBytes.subarray(0, 8));
-    if (magic !== BUNDLE_MAGIC) fail('unsupported bundle format; rebuild bundle.ms');
+    if (magic !== BUNDLE_MAGIC) fail('unsupported runtime package format; rebuild runtime-package.bin');
 
     const header = new DataView(bundleBytes.buffer, bundleBytes.byteOffset, bundleBytes.byteLength);
     const coreSize = header.getUint32(8, true);
@@ -97,7 +97,7 @@ async function readBundle() {
     }
     if (manifest.css.length !== 0 || manifest.config != null || manifest.factorySettings != null ||
         formEnd !== bundleBytes.length) {
-        fail('bundle.ms must contain only the MS runtime sections');
+        fail('runtime-package.bin must contain only the MS runtime sections');
     }
 
     return {
@@ -106,32 +106,32 @@ async function readBundle() {
     };
 }
 
-async function readStartupBooster() {
+async function readConfigPackage() {
     const payload = await readEncodedPayload(
-        '../ms-config/BOOSTERS/startup_booster.ms',
-        BOOSTER_MARKER,
-        'startup_booster.ms'
+        '../ms-config/global-config-package.bin',
+        CONFIG_PACKAGE_MARKER,
+        'global-config-package.bin'
     );
-    if (payload.length < 12 || new TextDecoder().decode(payload.subarray(0, 8)) !== BOOSTER_MAGIC) {
-        fail('startup_booster.ms has an invalid header');
+    if (payload.length < 12 || new TextDecoder().decode(payload.subarray(0, 8)) !== CONFIG_PACKAGE_MAGIC) {
+        fail('global-config-package.bin has an invalid header');
     }
 
     const manifestSize = new DataView(payload.buffer, payload.byteOffset, payload.byteLength)
         .getUint32(8, true);
     const manifestEnd = 12 + manifestSize;
-    if (manifestEnd > payload.length) fail('startup_booster.ms manifest is truncated');
+    if (manifestEnd > payload.length) fail('global-config-package.bin manifest is truncated');
 
     let manifest;
     try {
         manifest = JSON.parse(new TextDecoder().decode(payload.subarray(12, manifestEnd)));
     } catch (error) {
-        fail(`startup_booster.ms manifest is invalid (${error?.message || error})`);
+        fail(`global-config-package.bin manifest is invalid (${error?.message || error})`);
     }
     if (!manifest || typeof manifest !== 'object' ||
         typeof manifest.config !== 'string' ||
         (manifest.factorySettings != null && typeof manifest.factorySettings !== 'string') ||
         !Array.isArray(manifest.css)) {
-        fail('startup_booster.ms manifest has an invalid structure');
+        fail('global-config-package.bin manifest has an invalid structure');
     }
 
     let offset = manifestEnd;
@@ -139,13 +139,13 @@ async function readStartupBooster() {
         const size = Number(asset?.size);
         if (typeof asset?.path !== 'string' || !asset.path ||
             !Number.isSafeInteger(size) || size < 0 || size > payload.length - offset) {
-            fail('startup_booster.ms CSS sections are invalid');
+            fail('global-config-package.bin CSS sections are invalid');
         }
         const bytes = payload.slice(offset, offset + size);
         offset += size;
         return { role: 'config', path: asset.path, bytes };
     });
-    if (offset !== payload.length) fail('startup_booster.ms has unexpected trailing data');
+    if (offset !== payload.length) fail('global-config-package.bin has unexpected trailing data');
 
     return { config: manifest.config, factorySettings: manifest.factorySettings ?? null, css };
 }
@@ -179,7 +179,7 @@ function loadClassicForm(formBytes) {
 async function startMS() {
     if (!globalThis.fetch) fail('fetch is unavailable');
 
-    const [sections, bootstrap] = await Promise.all([readBundle(), readStartupBooster()]);
+    const [sections, bootstrap] = await Promise.all([readBundle(), readConfigPackage()]);
     const configUrl = new URL('../ms-config/global-config.json', import.meta.url).href;
     const factorySettingsUrl = new URL('./factory-settings/factory-settings.json', import.meta.url).href;
     globalThis.__MS_BUNDLE_BOOTSTRAP__ = {
